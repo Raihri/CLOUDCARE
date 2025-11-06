@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title th:text="${action} + ' Doctor'">Doctor Form</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    /* Quick inline styling for image preview */
+    #previewImage {
+      width: 140px;
+      height: 140px;
+      border-radius: 8px;
+      margin-top: 8px;
+      object-fit: cover;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+
+<a href="/doctors" class="btn cancel" style="margin-bottom:15px;">&larr; Back to list</a>
+<h2 th:text="${action} + ' Doctor'">Form</h2>
+
+<div class="form">
+  <form th:action="@{/doctors/save}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="oldId" th:value="${oldId}"/>
+    <div class="row">
+      <div><label>ID</label><input type="number" name="id" th:value="${doctor.id}" /></div>
+      <div><label>Full Name</label><input type="text" name="fullName" th:value="${doctor.fullName}" /></div>
+      
+      <!-- Picture URL with live preview -->
+      <div>
+        <label>Picture URL</label>
+        <label>Upload Profile Image (PNG/JPG)</label>
+<input type="file" id="profileImageFile" name="profileImageFile" accept="image/png,image/jpeg" />
+
+<!-- existing Picture URL input is OK to keep; file upload will override if provided -->
+
+      </div>
+      <div>
+        <img id="previewImage" th:src="${doctor.pictureUrl}" alt="Preview"/>
+      </div>
+
+      <div><label>Gender</label><input type="text" name="gender" th:value="${doctor.gender}" /></div>
+      <div><label>Date of Birth</label><input type="text" name="dob" th:value="${doctor.dob}" /></div>
+      <div><label>Blood Group</label><input type="text" name="bloodGroup" th:value="${doctor.bloodGroup}" /></div>
+
+      <!-- Rest of your fields remain the same -->
+      <div class="full"><label>Contact Information</label></div>
+      <div><label>Email</label><input type="text" name="email" th:value="${doctor.email}" /></div>
+      <div><label>Phone</label><input type="text" name="phone" th:value="${doctor.phone}" /></div>
+      <div><label>Alt Phone</label><input type="text" name="altPhone" th:value="${doctor.altPhone}" /></div>
+      <div><label>Emergency Contact</label><input type="text" name="emergencyContact" th:value="${doctor.emergencyContact}" /></div>
+      <div class="full"><label>Address</label><input type="text" name="address" th:value="${doctor.address}" /></div>
+      <div><label>Division</label><input type="text" name="division" th:value="${doctor.division}" /></div>
+      <div><label>Zilla</label><input type="text" name="zilla" th:value="${doctor.zilla}" /></div>
+      <div><label>Street</label><input type="text" name="street" th:value="${doctor.street}" /></div>
+      <div><label>Postal Code</label><input type="text" name="postalCode" th:value="${doctor.postalCode}" /></div>
+
+      <div class="full"><label>Professional Information</label></div>
+      <div><label>Specialization</label><input type="text" name="specialization" th:value="${doctor.specialization}" /></div>
+      <div><label>Education</label><input type="text" name="education" th:value="${doctor.education}" /></div>
+      <div><label>Experience (years)</label><input type="number" name="experienceYears" th:value="${doctor.experienceYears}" /></div>
+      <div><label>Certifications</label><input type="text" name="certifications" th:value="${doctor.certifications}" /></div>
+      <div><label>Languages</label><input type="text" name="languages" th:value="${doctor.languages}" /></div>
+      <div><label>Hospital Name</label><input type="text" name="hospitalName" th:value="${doctor.hospitalName}" /></div>
+      <div class="full"><label>Hospital Address</label><input type="text" name="hospitalAddress" th:value="${doctor.hospitalAddress}" /></div>
+      <div><label>Consultation Fee</label><input type="text" name="consultationFee" th:value="${doctor.consultationFee}" /></div>
+
+      <div class="full"><label>Availability & Schedule</label></div>
+      <div><label>Working Days</label><input type="text" name="workingDays" th:value="${doctor.workingDays}" /></div>
+      <div><label>Working Hours</label><input type="text" name="workingHours" th:value="${doctor.workingHours}" /></div>
+      <div><label>Online Appointment Link</label><input type="text" name="onlineAppointmentLink" th:value="${doctor.onlineAppointmentLink}" /></div>
+      <div><label>Leave Dates</label><input type="text" name="leaveDates" th:value="${doctor.leaveDates}" /></div>
+      <div><label>Telemedicine Available (true/false)</label><input type="text" name="telemedicineAvailable" th:value="${doctor.telemedicineAvailable}" /></div>
+
+      <div class="full"><label>Online & Social</label></div>
+      <div><label>Website</label><input type="text" name="website" th:value="${doctor.website}" /></div>
+      <div><label>LinkedIn</label><input type="text" name="linkedin" th:value="${doctor.linkedin}" /></div>
+      <div><label>Facebook</label><input type="text" name="facebook" th:value="${doctor.facebook}" /></div>
+      <div><label>Instagram</label><input type="text" name="instagram" th:value="${doctor.instagram}" /></div>
+      <div><label>Twitter</label><input type="text" name="twitter" th:value="${doctor.twitter}" /></div>
+
+      <div class="full"><label>Additional Information</label></div>
+      <div><label>Awards</label><input type="text" name="awards" th:value="${doctor.awards}" /></div>
+      <div><label>Research</label><input type="text" name="publications" th:value="${doctor.publications}" /></div>
+      <div class="full"><label>Special Interests</label><textarea name="specialInterests" rows="3" th:text="${doctor.specialInterests}"></textarea></div>
+      <div class="full"><label>Notes</label><textarea name="notes" rows="3" th:text="${doctor.notes}"></textarea></div>
+      <div><label>Rating</label><input type="text" name="rating" th:value="${doctor.rating}" /></div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn save">Save</button>
+      <a href="/doctors" class="btn cancel">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+  const urlInput = document.getElementById('pictureUrlInput');
+  const fileInput = document.getElementById('profileImageFile');
+  const preview = document.getElementById('previewImage');
+
+  // URL preview
+  urlInput && urlInput.addEventListener('input', () => {
+    if (urlInput.value && urlInput.value.trim() !== '') {
+      preview.src = urlInput.value;
+    } else {
+      preview.src = '/images/image.png';
+    }
+  });
+
+  // File preview
+  fileInput && fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      preview.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
+
+
+</body>
+</html>

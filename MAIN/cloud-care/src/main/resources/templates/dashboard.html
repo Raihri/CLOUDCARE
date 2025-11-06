@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title> CloudCare | Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Enhanced toast: green, larger, pop-in + glow */
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 360px;
+            max-width: calc(100% - 48px);
+            padding: 16px 20px;
+            border-radius: 14px;
+            background: linear-gradient(90deg,#2ecc71,#27ae60);
+            color: #06220a;
+            box-shadow: 0 12px 40px rgba(39,174,96,0.12), 0 6px 18px rgba(16,24,32,0.08);
+            font-weight: 700;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(12px) scale(.98);
+            will-change: transform, opacity;
+        }
+
+        .toast .toast-icon {
+            font-size: 1.6rem;
+            line-height: 1;
+            filter: drop-shadow(0 6px 14px rgba(39,174,96,0.18));
+            transform-origin: center;
+        }
+
+        .toast .toast-text {
+            flex: 1 1 auto;
+            font-size: 1.05rem;
+            color: #04260f;
+        }
+
+        .toast .toast-close {
+            background: transparent;
+            border: none;
+            color: rgba(4,38,15,0.7);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: background .18s ease, transform .12s ease;
+        }
+
+        .toast .toast-close:hover { background: rgba(255,255,255,0.08); transform: scale(1.06); }
+
+        /* Pop-in and gentle bounce */
+        @keyframes toastPopIn {
+            0% { opacity: 0; transform: translateY(18px) scale(.92); }
+            60% { opacity: 1; transform: translateY(-6px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* small breathing glow */
+        @keyframes toastGlow {
+            0% { box-shadow: 0 10px 30px rgba(39,174,96,0.06); }
+            50% { box-shadow: 0 18px 48px rgba(39,174,96,0.12); }
+            100% { box-shadow: 0 10px 30px rgba(39,174,96,0.06); }
+        }
+
+        .toast.show {
+            animation: toastPopIn 620ms cubic-bezier(.2,.9,.27,1) both, toastGlow 2400ms ease-in-out infinite;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* exit animation */
+        .toast.hide {
+            transition: opacity 280ms ease, transform 280ms ease;
+            opacity: 0; transform: translateY(10px) scale(.96);
+        }
+
+        @media (max-width: 520px) {
+            .toast { min-width: 88%; padding: 12px 14px; font-size: .98rem; }
+            .toast .toast-icon { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="sidebar">
+    <div class="logo-details">
+        <img src="image/logo.png" alt="CloudCare Logo" />
+        <span class="logo_name">CloudCare</span>
+    </div>
+    <ul class="nav-links">
+        <li class="active">
+            <a href="dashboard">
+                <i class='bx bxs-dashboard'></i>
+                <span class="link_name">Doctor's Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="#">Category</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="patient_data_entry">
+                <i class='bx bx-arrow-to-top'></i>
+                <span class="link_name">Patient Data Entry</span>
+            </a>
+            <ul class="sub-menu form blank">
+                <li><a class="link_name" href="patient_data_entry">Category</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="patient">
+                <i class="bx bxs-user"></i>
+                <span class="link_name">Patient Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Patient Profile</a></li>
+            </ul>
+        </li>
+
+
+        <li>
+            <a href="donor">
+                <i class='bx bxs-droplet'></i>
+                <span class="link_name">Find Donor</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="donor">Find Donor</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="baby">
+                <i class='bx bxs-baby-carriage'></i>
+                <span class="link_name">Baby Planner</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="baby">Baby Planner</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="epidemic">
+                <i class='bx bx-compass'></i>
+                <span class="link_name">Epidemic Analyzer</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="epidemic">Epidemic Analyzer</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bx-history'></i>
+                <span class="link_name">Depression Test</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="depression">Depression Test</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bx-cog'></i>
+                <span class="link_name">Health Score</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="healthScore">Health Score</a></li>
+            </ul>
+        </li>
+        <li>
+            <!-- Doctor Content Here-->
+        <!-- Show doctor info only if the doctor object exists -->
+<li th:if="${doctor != null}">
+    <div class="profile-details">
+        <a th:href="@{/dashboard}"
+           style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+            <div class="profile-content">
+                <!-- show doctor image -->
+                <img th:if="${doctor.profileImage != null}"
+                     th:src="@{${doctor.profileImage}}"
+                     alt="profileImg">
+                <!-- show default if image missing -->
+                <img th:if="${doctor.profileImage == null}"
+                     src="/images/default-profile.png"
+                     alt="default">
+                <div class="name-job">
+                    <div class="profile_name" th:text="${doctor.name} ?: 'N/A'">Doctor</div>
+                    <div class="job" th:text="${doctor.specialization} ?: 'N/A'">Specialization</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</li>
+
+<!-- If doctor itself is null, render nothing or maybe a placeholder -->
+<li th:if="${doctor == null}">
+    <!-- Optional: comment this out if you want literally nothing -->
+    <!--<div>No doctor info available</div>-->
+</li>
+        <!-- End Doctor Content Here-->
+        </li>
+    </ul>
+</div>
+<section class="home-section">
+    <div class="home-header">
+        <i class='bx bx-menu'></i>
+        <h1>Doctors Profile</h1>
+    </div>
+
+    <!-- Main Content Here Please-->
+    <li th:if="${doctor != null}">
+    <div class="doctor-profile-container">
+        <div class="doctor-profile-card" style="padding: 36px 32px 28px 32px;">
+            <h2 class="doctor-profile-title"
+                style="font-size: 2rem; color: #040d72; font-weight: 700; margin-bottom: 18px; text-align: center; width: 100%;">
+                Doctor Profile
+            </h2>
+            <div class="doctor-profile-header">
+<!--                <img th:src="@{${doctor.profileImage}}" alt="Doctor Profile" class="doctor-profile-img">-->
+                <img th:src="${doctor.profileImage != null ? doctor.profileImage : '/image/profile.jpg'}"
+                     alt="Doctor Photo" class="doctor-profile-img"/>
+                <div class="doctor-profile-info">
+                    <div class="doctor-profile-name" th:text="${doctor.name} ?: 'N/A'">Doctor Name</div>
+                    <div class="doctor-profile-degree" th:text="${doctor.degrees} ?: 'N/A'">Degrees</div>
+                    <div class="doctor-profile-id">Doctor ID: <span th:text="${doctor.doctorId} ?: 'N/A'">ID</span></div>
+                </div>
+            </div>
+            <div class="doctor-profile-details">
+                <div class="doctor-profile-details-col">
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-label">Medical College:</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-value" th:text="${doctor.medicalCollege} ?: 'N/A'">Medical College</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-label">Hospital Name:</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-value" th:text="${doctor.hospitalName} ?: 'N/A'">Hospital Name</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-label">Phone No:</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-value" th:text="${doctor.phoneNumber} ?: 'N/A'">Phone Number</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-label">Email:</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-value" th:text="${doctor.email} ?: 'N/A'">Email</span>
+                    </div>
+                </div>
+                <div class="doctor-profile-details-col">
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-label">Working Hours:</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-value" th:text="${doctor.workingHours} ?: 'N/A'">Working Hours</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-label">Credentials:</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-value" th:text="${doctor.credentials} ?: 'N/A'">Credentials</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-label">Specialities:</span>
+                    </div>
+                    <div class="doctor-profile-row">
+                        <span class="doctor-profile-value" th:text="${doctor.specialities} ?: 'N/A'">Specialities</span>
+                    </div>
+                </div>
+            </div>
+            <div class="doctor-profile-description"
+                 style="margin-top: 32px; color: #444; font-size: 1.08rem; text-align: center;"
+                 th:text="${doctor.description} ?: 'N/A'">
+                Doctor description
+            </div>
+            <button class="doctor-logout-btn" th:onclick="@{/logout}">
+                <i class='bx bx-log-out'></i> Logout
+            </button>
+        </div>
+    </div>
+    </li>
+    <!-- End Doctor Profile -->
+
+    <!-- Toast message (set by controller) -->
+    <div th:if="${toastMessage != null}" id="toast" class="toast" role="status" aria-live="polite">
+        <span class="toast-icon">✅</span>
+        <span class="toast-text" th:text="${toastMessage}">Congratulations</span>
+        <button class="toast-close" aria-label="Close">×</button>
+    </div>
+
+
+    <script src="script.js"></script>
+    <script>
+        // If toast is present, show and auto-hide after a longer duration (8s)
+        document.addEventListener('DOMContentLoaded', function () {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+
+            const CLOSE_DELAY = 8000; // milliseconds
+
+            // show with pop-in
+            setTimeout(() => toast.classList.add('show'), 50);
+
+            // auto-hide timer
+            const hideTimer = setTimeout(() => {
+                toast.classList.add('hide');
+                // remove from DOM after animation
+                setTimeout(() => toast.remove(), 360);
+            }, CLOSE_DELAY);
+
+            // close button
+            const closeBtn = toast.querySelector('.toast-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    clearTimeout(hideTimer);
+                    toast.classList.add('hide');
+                    setTimeout(() => toast.remove(), 260);
+                });
+            }
+        });
+    </script>
+    <script>
+        const sidebarBtn = document.querySelector(".bx-menu");
+        const sidebar = document.querySelector(".sidebar");
+
+        if (sidebarBtn) {
+            sidebarBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("close");
+            });
+        }
+    </script>
+
+</body>
+
+</html>

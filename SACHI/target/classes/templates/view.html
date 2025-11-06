@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${doctor.fullName} + ' — Profile'">Doctor Profile</title>
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    /* Reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7f9;
+      color: #333;
+      padding: 20px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #1976d2;
+      font-weight: 600;
+    }
+
+    .profile-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 30px;
+    }
+
+    .profile-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-left {
+      text-align: center;
+      background: #e3f2fd;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .profile-left img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 15px;
+      border: 4px solid #1976d2;
+    }
+
+    .profile-left h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #1976d2;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .profile-right {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .section h3 {
+      margin-bottom: 12px;
+      color: #1976d2;
+      border-bottom: 2px solid #1976d2;
+      display: inline-block;
+      padding-bottom: 4px;
+      font-size: 20px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px 30px;
+    }
+
+    .info-grid div {
+      padding: 5px 0;
+    }
+
+    .info-grid strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #555;
+    }
+
+    .social-links a {
+      display: inline-block;
+      margin-right: 12px;
+      font-size: 20px;
+      color: #1976d2;
+      transition: color 0.3s;
+    }
+
+    .social-links a:hover { color: #0d47a1; }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 900px) {
+      .profile-container {
+        grid-template-columns: 1fr;
+      }
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<a href="/doctors" class="back"><i class="fa fa-arrow-left"></i> Back to list</a>
+
+<div class="profile-container">
+  <!-- LEFT COLUMN -->
+  <div class="profile-left">
+    <img th:src="${doctor.pictureUrl}" alt="Doctor Photo"/>
+    <h2 th:text="${doctor.fullName}">Dr Name</h2>
+    <span class="badge" th:text="${doctor.specialization}">Specialization</span>
+    <p style="margin-top:10px;"><strong>Experience:</strong> <span th:text="${doctor.experienceYears}">0</span> years</p>
+    <p><strong>Hospital:</strong> <span th:text="${doctor.hospitalName}">Hospital Name</span></p>
+    <p><strong>Consultation Fee:</strong> <span th:text="${doctor.consultationFee}">0</span> BDT</p>
+    <p><strong>Telemedicine:</strong> <span th:text="${doctor.telemedicineAvailable}">true</span></p>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="profile-right">
+    <!-- Contact Info -->
+    <div class="section">
+      <h3>Contact Information</h3>
+      <div class="info-grid">
+        <div>
+          <strong>Email</strong>
+          <span th:text="${doctor.email}">email@example.com</span>
+        </div>
+        <div>
+          <strong>Phone</strong>
+          <span th:text="${doctor.phone}">+8801XXXXXXXXX</span>
+        </div>
+        <div>
+          <strong>Alt Phone</strong>
+          <span th:text="${doctor.altPhone}">+8801XXXXXXXXX</span>
+        </div>
+        <div>
+          <strong>Emergency Contact</strong>
+          <span th:text="${doctor.emergencyContact}">+8801XXXXXXXXX</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address & Schedule -->
+    <div class="section">
+      <h3>Address & Schedule</h3>
+      <div class="info-grid">
+        <div>
+          <strong>Full Address</strong>
+          <span th:text="${doctor.address}">Address here</span>
+        </div>
+        <div>
+          <strong>Division / Zilla</strong>
+          <span th:text="${doctor.division} + ' / ' + ${doctor.zilla}">Division / Zilla</span>
+        </div>
+        <div>
+          <strong>Street / Postal</strong>
+          <span th:text="${doctor.street} + ' / ' + ${doctor.postalCode}">Street / Postal</span>
+        </div>
+        <div>
+          <strong>Working Days / Hours</strong>
+          <span th:text="${doctor.workingDays} + ' ' + ${doctor.workingHours}">Mon-Fri 9-5</span>
+        </div>
+        <div class="full-width">
+          <strong>Leave Dates</strong>
+          <span th:text="${doctor.leaveDates}">None</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Professional Info -->
+    <div class="section">
+      <h3>Professional Information</h3>
+      <div class="info-grid">
+        <div>
+          <strong>Education</strong>
+          <span th:text="${doctor.education}">MBBS</span>
+        </div>
+        <div>
+          <strong>Certifications</strong>
+          <span th:text="${doctor.certifications}">Certifications here</span>
+        </div>
+        <div>
+          <strong>Languages</strong>
+          <span th:text="${doctor.languages}">English, Bangla</span>
+        </div>
+        <div class="full-width">
+          <strong>Special Interests</strong>
+          <span th:text="${doctor.specialInterests}">Special interests text</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Awards & Publications -->
+    <div class="section">
+      <h3>Awards & Publications</h3>
+      <div class="info-grid">
+        <div class="full-width">
+          <strong>Awards</strong>
+          <span th:text="${doctor.awards}">Awards info</span>
+        </div>
+        <div class="full-width">
+          <strong>Publications / Research</strong>
+          <span th:text="${doctor.publications}">Research info</span>
+        </div>
+        <div class="full-width">
+          <strong>Notes</strong>
+          <span th:text="${doctor.notes}">Notes info</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social / Online -->
+    <div class="section">
+      <h3>Online & Social</h3>
+      <div class="social-links">
+        <a th:href="${doctor.website}" target="_blank" th:if="${doctor.website}"><i class="fa fa-globe"></i></a>
+        <a th:href="${doctor.linkedin}" target="_blank" th:if="${doctor.linkedin}"><i class="fab fa-linkedin"></i></a>
+        <a th:href="${doctor.facebook}" target="_blank" th:if="${doctor.facebook}"><i class="fab fa-facebook"></i></a>
+        <a th:href="${doctor.instagram}" target="_blank" th:if="${doctor.instagram}"><i class="fab fa-instagram"></i></a>
+        <a th:href="${doctor.twitter}" target="_blank" th:if="${doctor.twitter}"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

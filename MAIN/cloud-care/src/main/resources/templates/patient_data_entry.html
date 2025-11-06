@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+    <title> CloudCare | Patient Data Entry</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script th:src="@{/js/script.js}" defer></script>
+    <style>
+        .form-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .form-section-title {
+            font-size: 1.2rem;
+            color: #4e7fff;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e6f7;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .form-grid div {
+            margin-bottom: 10px;
+        }
+        .form-grid label {
+            display: block;
+            margin-bottom: 5px;
+            color: #22336b;
+            font-weight: 500;
+        }
+        .form-grid input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e6f7;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-grid input:focus {
+            border-color: #4e7fff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(78,127,255,0.2);
+        }
+        .unit {
+            font-size: 12px;
+            color: #7a8bbd;
+            margin-left: 6px;
+        }
+        .sub-section-btn {
+            background: #4e7fff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .sub-section-btn:hover {
+            background: #3d6aeb;
+        }
+        .form-photo-upload {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .photo-label {
+            display: inline-block;
+            cursor: pointer;
+        }
+        .photo-label img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #4e7fff;
+            margin-bottom: 10px;
+        }
+        .upload-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4e7fff;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+    <script>
+function previewPhoto(event) {
+    const preview = document.getElementById('photo-preview');
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => preview.src = e.target.result;
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <img th:src="@{/image/logo.png}" alt="CloudCare Logo" />
+            <span class="logo_name">CloudCare</span>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a th:href="@{/dashboard}">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="link_name">Doctor's Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/dashboard}">Doctor's Profile</a></li>
+                </ul>
+            </li>
+
+            <li class="active">
+                <a th:href="@{/patient/data-entry}">
+                    <i class='bx bx-arrow-to-top'></i>
+                    <span class="link_name">Patient Data Entry</span>
+                </a>
+                <ul class="sub-menu form blank">
+                    <li><a class="link_name" th:href="@{/patient/data-entry}">Patient Data Entry</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/patient}">
+                    <i class="bx bxs-user"></i>
+                    <span class="link_name">Patient Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/patient}">Patient Profile</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/donor}">
+                    <i class='bx bxs-droplet'></i>
+                    <span class="link_name">Find Donor</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/donor}">Find Donor</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/baby-planner}">
+                    <i class='bx bxs-baby-carriage'></i>
+                    <span class="link_name">Baby Planner</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/baby-planner}">Baby Planner</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/epidemic}">
+                    <i class='bx bx-compass'></i>
+                    <span class="link_name">Epidemic Analyzer</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/epidemic}">Epidemic Analyzer</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/depression}">
+                    <i class='bx bx-history'></i>
+                    <span class="link_name">Depression Test</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/depression}">Depression Test</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/health-score}">
+                    <i class='bx bx-cog'></i>
+                    <span class="link_name">Health Score</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/health-score}">Health Score</a></li>
+                </ul>
+            </li>
+            <li>
+                <!-- Doctor Content Here-->
+            <li th:if="${doctor != null}">
+                <div class="profile-details">
+                    <a th:href="@{/dashboard}"
+                        style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                        <div class="profile-content">
+                            <img th:src="@{${doctor.profileImage}}" alt="profileImg">
+                            <div class="name-job">
+                                <div class="profile_name" th:text="${doctor.name}">Doctor Name</div>
+                                <div class="job" th:text="${doctor.specialization}">Specialization</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </li>
+            </li>
+        </ul>
+    </div>
+    <section class="home-section">
+        <div class="home-header">
+            <i class='bx bx-menu'></i>
+            <h1>Patient Data Entry</h1>
+        </div>
+
+        <div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+            <!-- Patient ID Bar -->
+            <form th:object="${patient}" th:action="@{/patient/fetch/patientId}" method="post"
+                style="max-width: 400px; margin: 30px auto; padding: 20px; background: #f7f9fc; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); text-align: center;">
+
+                <input th:field="*{patientId}" placeholder="Enter patient ID"
+                    style="width: 80%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px;" />
+
+                <button type="submit"
+                    style="padding: 10px 20px; background-color: #4e7fff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    Fetch Patient
+                </button>
+            </form>
+
+            <!-- Show error message if any -->
+            <div th:if="${error}" style="color: #ff4e4e; text-align: center; margin-bottom: 20px;">
+                <p th:text="${error}"></p>
+            </div>
+
+        <!-- split main form into per-section forms so each submit uploads only that section -->
+
+            <!-- Patient Photo Upload -->
+            <form th:action="@{/patient/uploadPhoto}" th:object="${patient}" method="post" enctype="multipart/form-data" style="margin-bottom:18px;">
+    <input type="hidden" th:field="*{patientId}" />
+    <div class="form-section" id="photo-section">
+        <div class="form-section-title">Patient Photo</div>
+        <div class="form-photo-upload">
+            <label for="patient-photo" class="photo-label">
+                <img id="photo-preview" 
+                     th:src="${patient != null && patient.profileImage != null} ? @{/uploads/images/__${patient.profileImage}__} : @{/image/profile.jpg}" 
+                     alt="Patient Photo" />
+                <input type="file" id="patient-photo" name="profileImage" accept="image/*" style="display:none" onchange="previewPhoto(event)">
+                <span class="upload-btn">Upload Photo</span>
+            </label>
+        </div>
+        <button type="submit" class="sub-section-btn">Submit Photo</button>
+    </div>
+</form>
+
+
+
+            <!-- Registration/Profile form -->
+            <form th:action="@{/patient/updateRegistration}" th:object="${patient}" method="post">
+                <input type="hidden" th:field="*{patientId}" />
+                <div class="form-section" id="profile-section">
+                    <div class="form-section-title">Registration & Profile (Initial)</div>
+                    <div class="form-grid">
+                        <div><label>Name <input type="text" th:field="*{name}" required></label></div>
+
+                        <!-- Father and Mother split into name and NID (Bangladesh style) -->
+                        <div><label>Father's Name <input type="text" th:field="*{fatherName}" required></label></div>
+                        <div><label>Father's NID <input type="text" th:field="*{fatherId}" placeholder="National ID" required></label></div>
+                        <div><label>Mother's Name <input type="text" th:field="*{motherName}" required></label></div>
+                        <div><label>Mother's NID <input type="text" th:field="*{motherId}" placeholder="National ID" required></label></div>
+
+                        <!-- Blood group select (includes Rh via +/-) -->
+                        <div>
+                            <label>Blood Group
+                                <select th:field="*{bloodGroup}" required>
+                                    <option value="">Select</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div><label>Age <input type="number" th:field="*{age}" required></label></div>
+
+                        <!-- Gender as radio buttons (Bangladesh common options) -->
+                        <div>
+                            <label>Gender</label>
+                            <div style="display:flex;gap:12px;align-items:center;margin-top:6px;">
+                                <label><input type="radio" th:field="*{gender}" value="Male"> Male</label>
+                                <label><input type="radio" th:field="*{gender}" value="Female"> Female</label>
+                                <label><input type="radio" th:field="*{gender}" value="Other"> Other</label>
+                            </div>
+                        </div>
+
+                        <!-- Division (Bangladesh) dropdown; District (Zilla) as free text -->
+                        <div>
+                            <label>Division
+                                <select th:field="*{division}" required>
+                                    <option value="">Select Division</option>
+                                    <option value="Dhaka">Dhaka</option>
+                                    <option value="Chattogram">Chattogram</option>
+                                    <option value="Rajshahi">Rajshahi</option>
+                                    <option value="Khulna">Khulna</option>
+                                    <option value="Barishal">Barishal</option>
+                                    <option value="Sylhet">Sylhet</option>
+                                    <option value="Rangpur">Rangpur</option>
+                                    <option value="Mymensingh">Mymensingh</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <div><label>District (Zilla) <input type="text" th:field="*{zilla}" required></label></div>
+
+                        <div><label>Weight <input type="text" th:field="*{weight}" required></label></div>
+                        <div><label>Height <input type="text" th:field="*{height}" required></label></div>
+                        <div><label>Contact No (Emergency) <input type="text" th:field="*{emergencyContact}" required></label></div>
+                        <div><label>University Correspondence <input type="text" th:field="*{university}" required></label></div>
+                    </div>
+                    <button type="submit" class="sub-section-btn">Submit Registration & Profile</button>
+                </div>
+            </form>
+
+            <!-- Blood & Biochemistry -->
+            <form th:action="@{/patient/updateBlood}" th:object="${patient}" method="post">
+                <input type="hidden" th:field="*{patientId}" />
+                <div class="form-section" id="blood-section">
+                    <div class="form-section-title">Blood & Biochemistry</div>
+                    <div class="form-grid">
+                        <div><label>Blood <input type="text" th:field="*{bloodTest}"> <span class="unit">Normal/Abnormal</span></label></div>
+                        <div><label>RBC <input type="text" th:field="*{rbc}"> <span class="unit">million/μL</span></label></div>
+                        <div><label>Platelet <input type="text" th:field="*{platelet}"> <span class="unit">/μL</span></label></div>
+                        <div><label>Triglyceride <input type="text" th:field="*{triglyceride}"> <span class="unit">mg/dL</span></label></div>
+                        <div><label>Blood Group <input type="text" th:field="*{bloodGroup}"> <span class="unit">A/B/AB/O</span></label></div>
+                        <div><label>Hb <input type="text" th:field="*{hb}"> <span class="unit">g/dL</span></label></div>
+                        <div><label>Creatinine <input type="text" th:field="*{creatinine}"> <span class="unit">mg/dL</span></label></div>
+                        <div><label>WBC <input type="text" th:field="*{wbc}"> <span class="unit">/μL</span></label></div>
+                        <div><label>Sugar Level <input type="text" th:field="*{sugarLevel}"> <span class="unit">mg/dL</span></label></div>
+                        <div><label>Rh <input type="text" th:field="*{rhFactor}"> <span class="unit">+/−</span></label></div>
+                        <div><label>Hemoglobin (Hb) <input type="text" th:field="*{hemoglobin}"> <span class="unit">g/dL</span></label></div>
+                    </div>
+                    <button type="submit" class="sub-section-btn">Submit Blood & Biochemistry</button>
+                </div>
+            </form>
+
+            <!-- Common Criterion -->
+            <form th:action="@{/patient/updateCriterion}" th:object="${patient}" method="post">
+                <input type="hidden" th:field="*{patientId}" />
+                <div class="form-section" id="criterion-section">
+                    <div class="form-section-title">Common Criterion</div>
+                    <div class="form-grid">
+                        <div><label>Blood Pressure <input type="text" th:field="*{bloodPressure}"></label></div>
+                        <div><label>BMI <input type="text" th:field="*{bmi}"></label></div>
+                        <div><label>BMR <input type="text" th:field="*{bmr}"></label></div>
+                        <div><label>Cholesterol <input type="text" th:field="*{cholesterol}"></label></div>
+                        <div><label>Blood Sugar <input type="text" th:field="*{bloodSugar}"></label></div>
+                    </div>
+                    <button type="submit" class="sub-section-btn">Submit Common Criterion</button>
+                </div>
+            </form>
+
+            <!-- Lifestyle Info -->
+            <form th:action="@{/patient/updateLifestyle}" th:object="${patient}" method="post">
+                <input type="hidden" th:field="*{patientId}" />
+                <div class="form-section" id="lifestyle-section">
+                    <div class="form-section-title">Lifestyle Info</div>
+                    <div class="form-grid">
+                        <div><label>Sleep Hours per day <input type="text" th:field="*{sleepHours}"></label></div>
+                        <div><label>Water Intake <input type="text" th:field="*{waterIntake}"></label></div>
+                        <div><label>Diet Notes <input type="text" th:field="*{dietNotes}"></label></div>
+                        <div><label>Smoking / Drinking Habits <input type="text" th:field="*{habits}"></label></div>
+                    </div>
+                    <button type="submit" class="sub-section-btn">Submit Lifestyle Info</button>
+                </div>
+            </form>
+
+<!--            &lt;!&ndash; Prev Accident History &ndash;&gt;-->
+<!--            <div class="form-section" id="accident-section">-->
+<!--                <div class="form-section-title">Previous Accident History</div>-->
+<!--                <table class="form-table">-->
+<!--                    <thead>-->
+<!--                        <tr>-->
+<!--                            <th>Date</th>-->
+<!--                            <th>Accident Type</th>-->
+<!--                            <th>Current State</th>-->
+<!--                            <th>Any Restrictions</th>-->
+<!--                        </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody>-->
+<!--                        <tr>-->
+<!--                            <td><input type="date" name="accident_date" required></td>-->
+<!--                            <td><input type="text" name="accident_type" required></td>-->
+<!--                            <td><input type="text" name="accident_state" required></td>-->
+<!--                            <td><input type="text" name="accident_restrictions" required></td>-->
+<!--                        </tr>-->
+<!--                    </tbody>-->
+<!--                </table>-->
+<!--                <button type="button" class="sub-section-btn" onclick="submitSection('accident-section')">Submit-->
+<!--                    Accident History</button>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Vaccination History &ndash;&gt;-->
+<!--            <div class="form-section" id="vaccine-section">-->
+<!--                <div class="form-section-title">Vaccination History</div>-->
+<!--                <table class="form-table">-->
+<!--                    <thead>-->
+<!--                        <tr>-->
+<!--                            <th>Date</th>-->
+<!--                            <th>Vaccine Type</th>-->
+<!--                        </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody>-->
+<!--                        <tr>-->
+<!--                            <td><input type="date" name="vaccine_date" required></td>-->
+<!--                            <td><input type="text" name="vaccine_type" required></td>-->
+<!--                        </tr>-->
+<!--                    </tbody>-->
+<!--                </table>-->
+<!--                <button type="button" class="sub-section-btn" onclick="submitSection('vaccine-section')">Submit-->
+<!--                    Vaccination History</button>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Prev Disease History &ndash;&gt;-->
+<!--            <div class="form-section" id="disease-section">-->
+<!--                <div class="form-section-title">Previous Disease History</div>-->
+<!--                <table class="form-table">-->
+<!--                    <thead>-->
+<!--                        <tr>-->
+<!--                            <th>Date</th>-->
+<!--                            <th>Disease Type</th>-->
+<!--                            <th>Current State</th>-->
+<!--                        </tr>-->
+<!--                    </thead>-->
+<!--                    <tbody>-->
+<!--                        <tr>-->
+<!--                            <td><input type="date" name="disease_date" required></td>-->
+<!--                            <td><input type="text" name="disease_type" required></td>-->
+<!--                            <td><input type="text" name="disease_state" required></td>-->
+<!--                        </tr>-->
+<!--                    </tbody>-->
+<!--                </table>-->
+<!--                <button type="button" class="sub-section-btn" onclick="submitSection('disease-section')">Submit Disease-->
+<!--                    History</button>-->
+<!--            </div>-->
+
+            <!-- Mental Health Corner -->
+            <form th:action="@{/patient/updateMental}" th:object="${patient}" method="post">
+                <input type="hidden" th:field="*{patientId}" />
+                <div class="form-section" id="mental-section">
+                    <div class="form-section-title">Mental Health Corner</div>
+                    <div class="form-grid">
+                        <div>
+                            <label>
+                                Serotonin
+                                <input type="text" th:field="*{serotonin}">
+                                <span class="unit">ng/mL (Normal: 101–283 ng/mL)</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Dopamine
+                                <input type="text" th:field="*{dopamine}">
+                                <span class="unit">pg/mL (Normal: 0–30 pg/mL)</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Norepinephrine
+                                <input type="text" th:field="*{norepinephrine}">
+                                <span class="unit">pg/mL (Normal: 80–520 pg/mL)</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Cortisol
+                                <input type="text" th:field="*{cortisol}">
+                                <span class="unit">μg/dL (Morning: 5–25 μg/dL)</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                BDNF
+                                <input type="text" name="bdnf" th:field="*{bdnf}">
+                                <span class="unit">ng/mL (Normal: 7–42 ng/mL)</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Type of Disease
+
+                                <input th:field="*{mental_disease}" type="number" step="0.1" placeholder="Mental Disease Score">
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Parental Care State
+                                <input th:field="*{parentalCareState}" placeholder="Parental Care State">                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Parents Job
+                                <input type="text" name="parentsJob" th:field="*{parentsJob}">
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Home Environment
+                                <input th:field="*{homeEnvironment}" placeholder="Home Environment">
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                Friend Circle
+                                <input th:field="*{homeEnvironment}" placeholder="Home Environment">
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                State RN
+                                <input th:field="*{homeEnvironment}" placeholder="Home Environment">
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="sub-section-btn">Submit Mental Health</button>
+                </div>
+            </form>
+            <!-- Main Content ends here -->
+
+        <style>
+            body {
+                background: #e6f9ed;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+
+            .patient-id-bar {
+                background: #d1fae5;
+                padding: 18px 32px 12px 32px;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.06);
+                margin: 24px auto 24px auto;
+                max-width: 1100px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 18px;
+            }
+
+            .patient-id-bar label {
+                font-size: 1.1rem;
+                color: #198754;
+                font-weight: 600;
+                margin-right: 8px;
+            }
+
+            .patient-id-bar input[type="text"] {
+                padding: 7px 12px;
+                border: 1.5px solid #22c55e;
+                border-radius: 6px;
+                font-size: 1rem;
+                background: #fff;
+                color: #198754;
+                margin-right: 12px;
+                width: 220px;
+            }
+
+            .id-btn {
+                background: #22c55e;
+                color: #fff;
+                border: none;
+                border-radius: 6px;
+                padding: 7px 22px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .id-btn:hover {
+                background: #16a34a;
+            }
+
+            .patient-form {
+                max-width: 1100px;
+                margin: 40px auto 0 auto;
+                background: #f6fff9;
+                border-radius: 18px;
+                box-shadow: 0 4px 32px 0 rgba(34, 197, 94, 0.10);
+                padding: 36px 32px 28px 32px;
+                display: flex;
+                flex-direction: column;
+                gap: 32px;
+            }
+
+            .form-section {
+                background: #eafcf2;
+                border-radius: 12px;
+                padding: 18px 24px 12px 24px;
+                margin-bottom: 12px;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.07);
+            }
+
+            .form-section-title {
+                font-size: 1.3rem;
+                color: #16a34a;
+                font-weight: 700;
+                margin-bottom: 10px;
+                letter-spacing: 0.5px;
+                border-left: 4px solid #22c55e;
+                padding-left: 10px;
+                margin-top: 12px;
+            }
+
+            .form-grid label,
+            .form-table label {
+                color: #198754;
+            }
+
+            .form-grid .unit {
+                font-size: 0.95em;
+                color: #22c55e;
+                font-weight: 500;
+                margin-left: 6px;
+                margin-top: 2px;
+                display: inline-block;
+            }
+
+            .form-grid input[type="text"],
+            .form-grid input[type="number"],
+            .form-table input[type="text"],
+            .form-table input[type="date"] {
+                padding: 7px 10px;
+                border: 1px solid #b6e7c9;
+                border-radius: 6px;
+                font-size: 1rem;
+                background: #f8fefb;
+                color: #198754;
+                margin-top: 2px;
+                transition: border 0.2s, box-shadow 0.2s;
+            }
+
+            .form-grid input:focus,
+            .form-table input:focus {
+                border: 1.5px solid #22c55e;
+                outline: none;
+                background: #e6f9ed;
+                box-shadow: 0 0 0 2px #bbf7d0;
+            }
+
+            .form-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 8px;
+                background: #fff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 4px 0 rgba(34, 197, 94, 0.04);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-table thead,
+            .form-table tbody,
+            .form-table tr {
+                display: flex;
+                width: 100%;
+            }
+
+            .form-table th,
+            .form-table td {
+                flex: 1 1 0;
+                text-align: left;
+                padding: 8px 12px;
+                border-bottom: 1px solid #bbf7d0;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+
+            .form-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            @media (max-width: 700px) {
+
+                .form-table th,
+                .form-table td {
+                    font-size: 0.98em;
+                    padding: 8px 6px;
+                }
+            }
+
+            @media (max-width: 900px) {
+                .form-table {
+                    font-size: 0.98em;
+                }
+            }
+
+            .form-table th {
+                background: #d1fae5;
+                color: #16a34a;
+                font-weight: 600;
+            }
+
+            .form-photo-upload {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+            }
+
+            .photo-label img {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 4px solid #22c55e;
+                background: #eafcf2;
+                box-shadow: 0 2px 12px 0 rgba(34, 197, 94, 0.08);
+                margin-bottom: 10px;
+                transition: box-shadow 0.2s, border 0.2s;
+            }
+
+            .photo-label:hover img {
+                box-shadow: 0 4px 24px 0 rgba(34, 197, 94, 0.18);
+                border: 4px solid #16a34a;
+            }
+
+            .upload-btn {
+                background: #22c55e;
+                color: #fff;
+                padding: 6px 18px;
+                border-radius: 6px;
+                font-size: 1rem;
+                font-weight: 500;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.08);
+                transition: background 0.2s;
+            }
+
+            .photo-label:hover .upload-btn {
+                background: #16a34a;
+            }
+
+            .submit-btn {
+                background: linear-gradient(90deg, #4e7fff 60%, #22336b 100%);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 12px 38px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 2px 12px 0 rgba(78, 127, 255, 0.10);
+                transition: background 0.2s, box-shadow 0.2s;
+            }
+
+            .submit-btn:hover {
+                background: linear-gradient(90deg, #22336b 60%, #4e7fff 100%);
+                box-shadow: 0 4px 24px 0 rgba(78, 127, 255, 0.18);
+            }
+
+            /* Animated Green Button */
+            .sub-section-btn {
+                margin-top: 18px;
+                background: #22c55e;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 16px 0;
+                font-size: 1.08rem;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+                display: block;
+                width: 100%;
+                text-align: center;
+                letter-spacing: 1px;
+                position: relative;
+                overflow: hidden;
+                transition:
+                    background 0.3s cubic-bezier(.4, 2, .6, 1),
+                    color 0.3s cubic-bezier(.4, 2, .6, 1),
+                    box-shadow 0.3s cubic-bezier(.4, 2, .6, 1),
+                    transform 0.2s cubic-bezier(.4, 2, .6, 1);
+                z-index: 1;
+            }
+
+            .sub-section-btn:hover {
+                background: #fff;
+                color: #16a34a !important;
+                box-shadow: 0 0 0 4px #bbf7d0, 0 8px 32px 0 rgba(34, 197, 94, 0.18);
+                transform: scale(1.04);
+            }
+
+            .sub-section-btn::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 0;
+                height: 0;
+                background: #fff;
+                border-radius: 8px;
+                z-index: 2;
+                transition: all 0.4s cubic-bezier(.4, 2, .6, 1);
+                opacity: 1;
+                /* Increased from 0.7 to 1 for more visible effect */
+                transform: translate(-50%, -50%);
+            }
+
+            .sub-section-btn:active {
+                transform: scale(0.98);
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+            }
+
+            .sub-section-btn:disabled {
+                background: #b4b9be;
+                cursor: not-allowed;
+                box-shadow: none;
+                color: #fff;
+            }
+
+            .sub-section-btn:hover,
+            .sub-section-btn:focus {
+                animation: growBtn 0.4s cubic-bezier(.4, 2, .6, 1);
+            }
+
+            @keyframes growBtn {
+                0% {
+                    transform: scale(1);
+                }
+
+                60% {
+                    transform: scale(1.08);
+                }
+
+                100% {
+                    transform: scale(1.04);
+                }
+            }
+
+            /* Two-column layout for form-grid */
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px 32px;
+            }
+
+            @media (max-width: 900px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <script src="script.js"></script>
+        <script>
+            const sidebarBtn = document.querySelector(".bx-menu");
+            const sidebar = document.querySelector(".sidebar");
+
+            if (sidebarBtn) {
+                sidebarBtn.addEventListener("click", () => {
+                    sidebar.classList.toggle("close");
+                });
+            }
+        </script>
+
+</body>
+
+</html>

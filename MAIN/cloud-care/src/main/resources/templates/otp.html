@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Account</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #5b86e5, #36d1dc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .verify-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 40px 50px;
+            text-align: center;
+            width: 400px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .otp-inputs input {
+            width: 45px;
+            height: 55px;
+            text-align: center;
+            font-size: 22px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        .otp-inputs input:focus {
+            border-color: #36d1dc;
+            outline: none;
+            box-shadow: 0 0 5px #36d1dc;
+        }
+
+        button {
+            width: 100%;
+            background: #36d1dc;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #2fbbca;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 15px;
+        }
+
+        .email-info {
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<div class="verify-container">
+    <h2>Enter Verification Code</h2>
+    <p class="email-info">A 6-digit code has been sent to <b th:text="${email}"></b></p>
+
+    <form th:action="@{/otpverify(email=${email})}" th:object="${otpForm}" method="post">
+        <div class="otp-inputs">
+            <input type="text" maxlength="1" th:field="*{digit1}" required oninput="moveToNext(this, 'otp2')"/>
+            <input type="text" maxlength="1" id="otp2" th:field="*{digit2}" required oninput="moveToNext(this, 'otp3')"/>
+            <input type="text" maxlength="1" id="otp3" th:field="*{digit3}" required oninput="moveToNext(this, 'otp4')"/>
+            <input type="text" maxlength="1" id="otp4" th:field="*{digit4}" required oninput="moveToNext(this, 'otp5')"/>
+            <input type="text" maxlength="1" id="otp5" th:field="*{digit5}" required oninput="moveToNext(this, 'otp6')"/>
+            <input type="text" maxlength="1" id="otp6" th:field="*{digit6}" required/>
+        </div>
+
+        <button type="submit">Verify</button>
+
+        <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+    </form>
+</div>
+
+<script>
+    // Move cursor automatically to the next input box
+    function moveToNext(current, nextId) {
+        if (current.value.length === 1) {
+            document.getElementById(nextId)?.focus();
+        }
+    }
+</script>
+</body>
+</html>

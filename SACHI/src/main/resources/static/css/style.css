@@ -1,0 +1,220 @@
+/* ---------- General ---------- */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f4f7f9;
+  color: #333;
+  padding: 20px;
+  margin: 0;
+}
+
+h1, h2, h3 {
+  color: #1976d2;
+  margin: 0 0 15px 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+.msg {
+  background:#e7f4ea;
+  padding:10px;
+  border:1px solid #c6e7d0;
+  margin-bottom:12px;
+  border-radius:6px;
+  text-align:center;
+}
+
+/* ---------- Buttons ---------- */
+.btn, .create-btn, .toggle-btn, button {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  text-align: center;
+  min-width: 60px;
+}
+
+.create-btn { background: #2e7d32; color: white; }
+.create-btn:hover { background: #1b5e20; }
+
+.toggle-btn { background: #1976d2; color: white; }
+.toggle-btn:hover { background: #0d47a1; }
+
+.btn.view { background: #1976d2; color: white; }
+.btn.edit { background: #ffc107; color: black; }
+.btn.delete { background: #e53935; color: white; }
+
+.btn.save { background:#1976d2; color:white; }
+.btn.cancel { background:#eb2c2c; color:black; }
+
+.btn:hover { opacity: 0.9; }
+
+/* ---------- Table ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+}
+
+th {
+  background: #1976d2;
+  color: white;
+  font-weight: 600;
+}
+
+tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s;
+}
+
+tbody tr:hover { background: #f0f4ff; }
+
+img {
+  border-radius: 6px;
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+/* ---------- Card View ---------- */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.doctor-card, .profile-card {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doctor-card img, .profile-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.doctor-card h3, .profile-card h2 {
+  font-size: 18px;
+  color: #1976d2;
+}
+
+.doctor-card p, .profile-card p {
+  font-size: 14px;
+  color: #555;
+}
+
+.doctor-card .actions, .profile-card .actions {
+  justify-content: space-between;
+  display: flex;
+  gap: 5px;
+}
+
+/* ---------- Form ---------- */
+.form {
+  max-width: 900px;
+  background: #fdcdcd;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  margin: auto;
+}
+
+label { display: block; margin-top: 8px; font-weight: 600; }
+input[type=text], input[type=number], textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.full { grid-column: 1 / -1; }
+
+.actions { margin-top: 12px; }
+
+/* ---------- Search ---------- */
+.search-container input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 250px;
+}
+
+/* ---------- Profile Page ---------- */
+.profile-card {
+  max-width: 900px;
+  margin: auto;
+  padding: 18px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  background: white;
+}
+
+.profile-top {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.profile-top img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.profile-meta h2 { margin-bottom: 6px; }
+.profile-meta p { margin: 4px 0; font-size: 14px; }
+
+/* ---------- Responsive ---------- */
+@media(max-width: 900px) {
+  table, thead, tbody, th, td, tr { display: block; }
+  thead tr { display: none; }
+  tbody tr {
+    margin-bottom: 15px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 12px;
+  }
+  tbody td {
+    padding: 8px;
+    text-align: right;
+    position: relative;
+  }
+  tbody td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    font-weight: 600;
+    text-align: left;
+  }
+  .actions { justify-content: flex-start; margin-top: 8px; }
+}

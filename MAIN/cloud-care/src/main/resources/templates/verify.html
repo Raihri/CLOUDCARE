@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OTP Verification | CloudCare</title>
+
+  <!-- Boxicons & Fonts -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #A8E6CF, #56B890);
+    }
+
+    :where(.container, form, .input-field, header) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes slideUp {
+      0% {
+        transform: translateY(80px);
+        opacity: 0;
+      }
+
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 65px;
+      border-radius: 12px;
+      row-gap: 20px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      animation: slideUp 0.8s ease-out forwards;
+      opacity: 0;
+    }
+
+    .container header {
+      height: 65px;
+      width: 65px;
+      background: #2E7D32;
+      color: #fff;
+      font-size: 2.5rem;
+      border-radius: 50%;
+    }
+
+    .container h4 {
+      font-size: 1.25rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    form .input-field {
+      flex-direction: row;
+      column-gap: 10px;
+    }
+
+    .input-field input {
+      height: 45px;
+      width: 42px;
+      border-radius: 6px;
+      outline: none;
+      font-size: 1.125rem;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    .input-field input:focus {
+      border-color: #56B890;
+      box-shadow: 0 0 4px rgba(86, 184, 144, 0.4);
+    }
+
+    .input-field input::-webkit-inner-spin-button,
+    .input-field input::-webkit-outer-spin-button {
+      display: none;
+    }
+
+    form button {
+      margin-top: 25px;
+      width: 100%;
+      color: #fff;
+      font-size: 1rem;
+      border: none;
+      padding: 9px 0;
+      cursor: pointer;
+      border-radius: 6px;
+      pointer-events: none;
+      background: #81C784;
+      transition: all 0.3s ease;
+    }
+
+    form button.active {
+      background: #2E7D32;
+      pointer-events: auto;
+    }
+
+    form button:hover {
+      background: #388E3C;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header><i class="bx bxs-check-shield"></i></header>
+    <h4>Enter 6-Digit OTP Code</h4>
+
+    <!-- Thymeleaf form -->
+    <form th:action="@{/otpverify}" method="post" th:object="${otpForm}" id="otpForm">
+      <!-- 🔥 Hidden email field so controller gets @RequestParam String email -->
+      <input type="hidden" name="email" th:value="${email}" />
+
+      <div class="input-field">
+        <!-- Use text inputs with maxlength=1 and readonly for inputs 2-6 so they are submitted with the form
+             but not editable until the previous digit is entered. We also handle paste to populate all inputs. -->
+        <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]*" th:field="*{digit1}" />
+        <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]*" th:field="*{digit2}" readonly />
+        <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]*" th:field="*{digit3}" readonly />
+        <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]*" th:field="*{digit4}" readonly />
+        <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]*" th:field="*{digit5}" readonly />
+        <input type="text" inputmode="numeric" maxlength="1" pattern="[0-9]*" th:field="*{digit6}" readonly />
+      </div>
+
+      <!-- ✅ CSRF token (only if Spring Security is active) -->
+      <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+      <button type="submit">Verify OTP</button>
+
+      <!-- ✅ Error message display -->
+      <p th:if="${errorMessage}" th:text="${errorMessage}" class="message error"></p>
+    </form>
+
+  </div>
+
+  <script>
+    const inputs = document.querySelectorAll(".input-field input");
+    const button = document.querySelector("button");
+    const form = document.getElementById("otpForm");
+
+    // Helper to check whether all inputs have a single digit
+    const allFilled = () => Array.from(inputs).every(i => i.value && i.value.length === 1);
+
+    // Handle paste on the first input: distribute digits across inputs
+    inputs[0].addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = (e.clipboardData || window.clipboardData).getData('text') || '';
+      const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
+      if (digits.length === 0) return;
+      inputs.forEach((inp, idx) => {
+        inp.removeAttribute('readonly');
+        inp.value = digits[idx] || '';
+      });
+      if (allFilled()) {
+        button.classList.add('active');
+        // Do not auto-submit; wait for user to press Verify to avoid accidental submits
+      }
+      // focus on last filled input
+      for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i].value === '') { inputs[i].focus(); break; }
+        if (i === inputs.length - 1) inputs[i].focus();
+      }
+    });
+
+    inputs.forEach((input, index1) => {
+      input.addEventListener('input', (e) => {
+        const currentInput = input,
+              nextInput = input.nextElementSibling,
+              prevInput = input.previousElementSibling;
+
+        // Allow only single digit numeric
+        currentInput.value = (currentInput.value || '').replace(/\D/g, '').slice(0,1);
+
+        if (currentInput.value !== '' && nextInput && nextInput.hasAttribute('readonly')) {
+          nextInput.removeAttribute('readonly');
+          nextInput.focus();
+        }
+
+        if (e.inputType === 'deleteContentBackward' && prevInput) {
+          // Clear current and focus previous
+          currentInput.value = '';
+          prevInput.focus();
+        }
+
+        if (allFilled()) {
+          button.classList.add('active');
+        } else {
+          button.classList.remove('active');
+        }
+      });
+    });
+
+    // Focus on first input when loaded
+    window.addEventListener("load", () => inputs[0].focus());
+  </script>
+</body>
+
+</html>
