@@ -3,6 +3,7 @@ package com.example.cloud.care.controller;
 import com.example.cloud.care.model.User;
 import com.example.cloud.care.model.OtpForm;
 import com.example.cloud.care.service.UserService;
+import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
 import com.example.cloud.care.var.patient;
 
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 @Controller
 public class AuthController {
+
+    // doctor_service doctor_service;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -97,6 +100,7 @@ public class AuthController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("message", "Welcome to your CloudCare Dashboard!");
+        // model.addAttribute("doctor", doctor_service.getDoctorByID(1));
         return "dashboard";
     }
 

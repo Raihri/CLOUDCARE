@@ -48,9 +48,11 @@ public class EmailService {
             return code;
         } catch (MailException e) {
             logger.error("MailException sending to {}: {}", to, e.getMessage());
+            System.out.println("Failed to send email: " + e.getMessage());
             return null;
         } catch (Exception e) {
             logger.error("Unexpected error sending to {}: {}", to, e.getMessage());
+            System.out.println("Unexpected error: " + e.getMessage());
             return null;
         }
     }

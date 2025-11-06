@@ -32,13 +32,13 @@ public class homeController {
     @Autowired
     patient_dao patient_dao;
 
-//    @GetMapping({ "/dashboard", "", "/" })
-//    public String home(Model m) {
-//
-//        m.addAttribute("doctor", doctor_service.getDoctorByID(1));
-//
-//        return "dashboard";
-//    }
+   @GetMapping({ "/doc" })
+   public String home(Model m) {
+
+       m.addAttribute("doctor", doctor_service.getDoctorByID(1));
+
+       return "dashboard";
+   }
 
 
     @GetMapping({"/patient"})

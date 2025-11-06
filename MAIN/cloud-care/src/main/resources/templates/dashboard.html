@@ -228,7 +228,7 @@
                 <div class="doctor-profile-info">
                     <div class="doctor-profile-name" th:text="${doctor.name} ?: 'N/A'">Doctor Name</div>
                     <div class="doctor-profile-degree" th:text="${doctor.degrees} ?: 'N/A'">Degrees</div>
-                    <div class="doctor-profile-id">Doctor ID: <span th:text="${doctor.doctorId} ?: 'N/A'">ID</span></div>
+                    <div class="doctor-profile-id">Doctor ID: <span th:text="${doctor.id} ?: 'N/A'">ID</span></div>
                 </div>
             </div>
             <div class="doctor-profile-details">
@@ -266,10 +266,10 @@
                         <span class="doctor-profile-value" th:text="${doctor.workingHours} ?: 'N/A'">Working Hours</span>
                     </div>
                     <div class="doctor-profile-row">
-                        <span class="doctor-profile-label">Credentials:</span>
+                        <span class="doctor-profile-label">Certifications:</span>
                     </div>
                     <div class="doctor-profile-row">
-                        <span class="doctor-profile-value" th:text="${doctor.credentials} ?: 'N/A'">Credentials</span>
+                        <span class="doctor-profile-value" th:text="${doctor.certifications} ?: 'N/A'">Certifications</span>
                     </div>
                     <div class="doctor-profile-row">
                         <span class="doctor-profile-label">Specialities:</span>
