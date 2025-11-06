@@ -56,6 +56,12 @@ public class homeController {
         return "patient";
     }
 
+    @GetMapping("/list")
+    public String listPatients(Model m) {
+        m.addAttribute("patients", doctor_service.getDoctors());
+        return "list";
+    }
+
     @GetMapping("/patient_data_entry")
     public String showForm(Model model) {
         model.addAttribute("patient", new patient()); // prevents Thymeleaf binding errors

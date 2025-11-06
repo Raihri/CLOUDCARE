@@ -38,6 +38,9 @@ public class patient {
     private String motherName;
     private String fatherId;
     private String motherId;
+    private String contact;
+    private String status;
+    private Date lastDonated;
 
     // Blood & Biochemistry
     private String bloodTest;
