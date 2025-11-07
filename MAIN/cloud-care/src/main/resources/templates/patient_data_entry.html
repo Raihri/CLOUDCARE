@@ -124,6 +124,16 @@ function previewPhoto(event) {
                 </ul>
             </li>
 
+            <li>
+            <a href="list">
+                <i class='bx bxs-dashboard'></i>
+                <span class="link_name">Doctor's List</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="list">Category</a></li>
+            </ul>
+        </li>
+
             <li class="active">
                 <a th:href="@{/patient/data-entry}">
                     <i class='bx bx-arrow-to-top'></i>
@@ -243,9 +253,9 @@ function previewPhoto(event) {
         <div class="form-section-title">Patient Photo</div>
         <div class="form-photo-upload">
             <label for="patient-photo" class="photo-label">
-                <img id="photo-preview" 
-                     th:src="${patient != null && patient.profileImage != null} ? @{/uploads/images/__${patient.profileImage}__} : @{/image/profile.jpg}" 
-                     alt="Patient Photo" />
+             <img id="photo-preview" 
+                 th:src="${patient != null && patient.profileImage != null} ? @{/doctor-pics/__${patient.profileImage}__} : @{/image/profile.jpg}"
+                 alt="Patient Photo" />
                 <input type="file" id="patient-photo" name="profileImage" accept="image/*" style="display:none" onchange="previewPhoto(event)">
                 <span class="upload-btn">Upload Photo</span>
             </label>

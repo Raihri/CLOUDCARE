@@ -101,6 +101,8 @@ public class AuthController {
     public String dashboard(Model model) {
         model.addAttribute("message", "Welcome to your CloudCare Dashboard!");
         // model.addAttribute("doctor", doctor_service.getDoctorByID(1));
+        model.addAttribute("doctor", doctor_service.getDoctorByID(1));
+
         return "dashboard";
     }
 

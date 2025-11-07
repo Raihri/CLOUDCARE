@@ -12,9 +12,10 @@ public class WebConfig implements WebMvcConfigurer {
         // Handle static resources from classpath:/static/
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");
-        
-        // Handle uploaded files from the uploads directory
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:uploads/");
+
+        // Handle doctor profile images from doctor-pic-uploads directory
+        registry.addResourceHandler("/doctor-pics/**")
+                .addResourceLocations(
+                        "file:" + System.getProperty("user.dir") + "/MAIN/cloud-care/doctor-pic-uploads/");
     }
 }

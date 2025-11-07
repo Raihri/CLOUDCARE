@@ -1,136 +1,172 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title th:text="${doctor.fullName} + ' — Profile'">Doctor Profile</title>
-  <!-- FontAwesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-  <link rel="stylesheet" href="../static/css/style 2.css">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:text="${doctor.name} + ' — Profile'">Doctor Profile</title>
+    <!-- FontAwesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" th:href="@{/css/style2.css}" />
+  </head>
+  <body>
+    <a href="/list" class="back"
+      ><i class="fa fa-arrow-left"></i> Back to list</a
+    >
 
-</head>
-<body>
+    <div class="profile-container">
+      <!-- LEFT COLUMN -->
+      <div class="profile-left">
+        <!-- Image Upload Form -->
+        <form th:action="@{|/doctor/${doctor.id}/upload-photo|}" method="post" enctype="multipart/form-data" style="margin-bottom: 20px;">
+            <div style="position: relative; width: 200px; height: 200px; margin: 0 auto;">
+                <img th:src="${doctor.profileImage != null} ? @{/doctor-pics/__${doctor.profileImage}__} : @{/images/default-profile.png}" 
+                     alt="Doctor Photo"
+                     onerror="this.onerror=null; this.src='/images/default-profile.png';"
+                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                
+                <label for="profile-upload" style="position: absolute; bottom: 0; right: 0; background: #1976d2; color: white; 
+                                                  padding: 8px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                    <i class="fa fa-camera"></i>
+                </label>
+                <input type="file" 
+                       id="profile-upload" 
+                       name="profileImage" 
+                       accept="image/*" 
+                       style="display: none;"
+                       onchange="this.form.submit()" />
+            </div>
+        </form>
 
-<a href="/doctors" class="back"><i class="fa fa-arrow-left"></i> Back to list</a>
+        <h2 th:text="${doctor.name}">Dr Name</h2>
+        <span class="badge" th:text="${doctor.specialization}"
+          >Specialization</span
+        >
+        <p style="margin-top: 10px">
+          <strong>Experience:</strong>
+          <span th:text="${doctor.experienceYears}">0</span> years
+        </p>
+        <p>
+          <strong>Hospital:</strong>
+          <span th:text="${doctor.hospitalName}">Hospital Name</span>
+        </p>
+        <!-- <p><strong>Consultation Fee:</strong> <span th:text="${doctor.consultationFee}">0</span> BDT</p> -->
+        <p>
+          <strong>Telemedicine:</strong>
+          <span th:text="${doctor.telemedicineAvailable}">true</span>
+        </p>
+      </div>
 
-<div class="profile-container">
-  <!-- LEFT COLUMN -->
-  <div class="profile-left">
-    <img th:src="${doctor.profileImage}" alt="Doctor Photo"/>
-    <h2 th:text="${doctor.name}">Dr Name</h2>
-    <span class="badge" th:text="${doctor.specialization}">Specialization</span>
-    <p style="margin-top:10px;"><strong>Experience:</strong> <span th:text="${doctor.experienceYears}">0</span> years</p>
-    <p><strong>Hospital:</strong> <span th:text="${doctor.hospitalName}">Hospital Name</span></p>
-    <!-- <p><strong>Consultation Fee:</strong> <span th:text="${doctor.consultationFee}">0</span> BDT</p> -->
-    <p><strong>Telemedicine:</strong> <span th:text="${doctor.telemedicineAvailable}">true</span></p>
-  </div>
-
-  <!-- RIGHT COLUMN -->
-  <div class="profile-right">
-    <!-- Contact Info -->
-    <div class="section">
-      <h3>Contact Information</h3>
-      <div class="info-grid">
-        <div>
-          <strong>Email</strong>
-          <span th:text="${doctor.email}">email@example.com</span>
+      <!-- RIGHT COLUMN -->
+      <div class="profile-right">
+        <!-- Contact Info -->
+        <div class="section">
+          <h3>Contact Information</h3>
+          <div class="info-grid">
+            <div>
+              <strong>Email</strong>
+              <span th:text="${doctor.email}">email@example.com</span>
+            </div>
+            <div>
+              <strong>Phone</strong>
+              <span th:text="${doctor.phoneNumber}">+8801XXXXXXXXX</span>
+            </div>
+            <div>
+              <strong>Alt Phone</strong>
+              <span th:text="${doctor.altPhone}">+8801XXXXXXXXX</span>
+            </div>
+            <div>
+              <strong>Emergency Contact</strong>
+              <span th:text="${doctor.emergencyContact}">+8801XXXXXXXXX</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <strong>Phone</strong>
-          <span th:text="${doctor.phone}">+8801XXXXXXXXX</span>
+
+        <!-- Address & Schedule -->
+        <div class="section">
+          <h3>Address & Schedule</h3>
+          <div class="info-grid">
+            <div>
+              <strong>Full Address</strong>
+              <span th:text="${doctor.address}">Address here</span>
+            </div>
+            <div>
+              <strong>Division / Zilla</strong>
+              <span th:text="${doctor.division} + ' / ' + ${doctor.zilla}"
+                >Division / Zilla</span
+              >
+            </div>
+            <div>
+              <strong>Street / Postal</strong>
+              <span th:text="${doctor.street} + ' / ' + ${doctor.postalCode}"
+                >Street / Postal</span
+              >
+            </div>
+            <div>
+              <strong>Working Days / Hours</strong>
+              <span
+                th:text="${doctor.workingDays} + ' ' + ${doctor.workingHours}"
+                >Mon-Fri 9-5</span
+              >
+            </div>
+            <div class="full-width">
+              <strong>Leave Dates</strong>
+              <span th:text="${doctor.leaveDates}">None</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <strong>Alt Phone</strong>
-          <span th:text="${doctor.altPhone}">+8801XXXXXXXXX</span>
+
+        <!-- Professional Info -->
+        <div class="section">
+          <h3>Professional Information</h3>
+          <div class="info-grid">
+            <div>
+              <strong>Education</strong>
+              <span th:text="${doctor.education}">MBBS</span>
+            </div>
+            <div>
+              <strong>Certifications</strong>
+              <span th:text="${doctor.certifications}"
+                >Certifications here</span
+              >
+            </div>
+            <div>
+              <strong>Languages</strong>
+              <span th:text="${doctor.languages}">English, Bangla</span>
+            </div>
+            <div class="full-width">
+              <strong>Special Interests</strong>
+              <span th:text="${doctor.specialInterests}"
+                >Special interests text</span
+              >
+            </div>
+          </div>
         </div>
-        <div>
-          <strong>Emergency Contact</strong>
-          <span th:text="${doctor.emergencyContact}">+8801XXXXXXXXX</span>
+
+        <!-- Awards & Publications -->
+        <div class="section">
+          <h3>Awards & Publications</h3>
+          <div class="info-grid">
+            <div class="full-width">
+              <strong>Awards</strong>
+              <span th:text="${doctor.awards}">Awards info</span>
+            </div>
+            <div class="full-width">
+              <strong>Publications / Research</strong>
+              <span th:text="${doctor.publications}">Research info</span>
+            </div>
+            <div class="full-width">
+              <strong>Notes</strong>
+              <span th:text="${doctor.notes}">Notes info</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social / Online -->
+        
         </div>
       </div>
     </div>
-
-    <!-- Address & Schedule -->
-    <div class="section">
-      <h3>Address & Schedule</h3>
-      <div class="info-grid">
-        <div>
-          <strong>Full Address</strong>
-          <span th:text="${doctor.address}">Address here</span>
-        </div>
-        <div>
-          <strong>Division / Zilla</strong>
-          <span th:text="${doctor.division} + ' / ' + ${doctor.zilla}">Division / Zilla</span>
-        </div>
-        <div>
-          <strong>Street / Postal</strong>
-          <span th:text="${doctor.street} + ' / ' + ${doctor.postalCode}">Street / Postal</span>
-        </div>
-        <div>
-          <strong>Working Days / Hours</strong>
-          <span th:text="${doctor.workingDays} + ' ' + ${doctor.workingHours}">Mon-Fri 9-5</span>
-        </div>
-        <div class="full-width">
-          <strong>Leave Dates</strong>
-          <span th:text="${doctor.leaveDates}">None</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Professional Info -->
-    <div class="section">
-      <h3>Professional Information</h3>
-      <div class="info-grid">
-        <div>
-          <strong>Education</strong>
-          <span th:text="${doctor.education}">MBBS</span>
-        </div>
-        <div>
-          <strong>Certifications</strong>
-          <span th:text="${doctor.certifications}">Certifications here</span>
-        </div>
-        <div>
-          <strong>Languages</strong>
-          <span th:text="${doctor.languages}">English, Bangla</span>
-        </div>
-        <div class="full-width">
-          <strong>Special Interests</strong>
-          <span th:text="${doctor.specialInterests}">Special interests text</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Awards & Publications -->
-    <div class="section">
-      <h3>Awards & Publications</h3>
-      <div class="info-grid">
-        <div class="full-width">
-          <strong>Awards</strong>
-          <span th:text="${doctor.awards}">Awards info</span>
-        </div>
-        <div class="full-width">
-          <strong>Publications / Research</strong>
-          <span th:text="${doctor.publications}">Research info</span>
-        </div>
-        <div class="full-width">
-          <strong>Notes</strong>
-          <span th:text="${doctor.notes}">Notes info</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Social / Online -->
-    <div class="section">
-      <h3>Online & Social</h3>
-      <div class="social-links">
-        <a th:href="${doctor.website}" target="_blank" th:if="${doctor.website}"><i class="fa fa-globe"></i></a>
-        <a th:href="${doctor.linkedin}" target="_blank" th:if="${doctor.linkedin}"><i class="fab fa-linkedin"></i></a>
-        <a th:href="${doctor.facebook}" target="_blank" th:if="${doctor.facebook}"><i class="fab fa-facebook"></i></a>
-        <a th:href="${doctor.instagram}" target="_blank" th:if="${doctor.instagram}"><i class="fab fa-instagram"></i></a>
-        <a th:href="${doctor.twitter}" target="_blank" th:if="${doctor.twitter}"><i class="fab fa-twitter"></i></a>
-      </div>
-    </div>
-  </div>
-</div>
-
-</body>
+  </body>
 </html>

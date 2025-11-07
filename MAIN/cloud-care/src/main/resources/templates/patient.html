@@ -226,6 +226,15 @@
         </li>
 
         <li>
+          <a href="list">
+            <i class="bx bxs-dashboard"></i>
+            <span class="link_name">Doctor's List</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="list">Category</a></li>
+          </ul>
+        </li>
+        <li>
           <a th:href="@{/patient_data_entry}">
             <i class="bx bx-arrow-to-top"></i>
             <span class="link_name">Patient Data Entry</span>
@@ -398,7 +407,7 @@
               id="photo-preview"
               class="patient-profile-img"
               loading="lazy"
-              th:src="${patient != null && patient.profileImage != null} ? @{/uploads/images/__${patient.profileImage}__} : @{/image/profile.jpg}"
+              th:src="${patient != null && patient.profileImage != null} ? @{/doctor-pics/__${patient.profileImage}__} : @{/image/profile.jpg}"
               alt="Patient Photo"
             />
             <div class="patient-profile-info">
