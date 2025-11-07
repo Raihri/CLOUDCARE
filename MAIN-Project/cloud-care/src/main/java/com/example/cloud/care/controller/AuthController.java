@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 @Controller
 public class AuthController {
 
-    // doctor_service doctor_service;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
@@ -97,14 +96,8 @@ public class AuthController {
         return "redirect:/dashboard";
     }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        model.addAttribute("message", "Welcome to your CloudCare Dashboard!");
-        // model.addAttribute("doctor", doctor_service.getDoctorByID(1));
-        model.addAttribute("doctor", doctor_service.getDoctorByID(1));
-
-        return "dashboard";
-    }
+    
+    
 
     // // Dev-only debug endpoint
     // @GetMapping("/debug/verification-status")

@@ -57,6 +57,15 @@ public class homeController {
         return "patient";
     }
 
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+        model.addAttribute("message", "Welcome to your CloudCare Dashboard!");
+        // model.addAttribute("doctor", doctor_service.getDoctorByID(1));
+        model.addAttribute("doctor", doctor_service.getDoctorByID(1));
+
+        return "dashboard";
+    }
+
     @GetMapping("/list")
     public String listPatients(Model m) {
         var doctors = doctor_service.getDoctors();

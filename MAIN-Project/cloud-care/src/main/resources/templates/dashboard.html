@@ -193,11 +193,11 @@
             <div class="profile-content">
                 <!-- show doctor image -->
                 <img th:if="${doctor.profileImage != null}"
-                     th:src="@{${doctor.profileImage}}"
+                     th:src="@{/doctor-pic-uploads/{image}(image=${doctor.profileImage})}"
                      alt="profileImg">
                 <!-- show default if image missing -->
                 <img th:if="${doctor.profileImage == null}"
-                     src="/images/default-profile.png"
+                     th:src="@{/images/default-profile.png}"
                      alt="default">
                 <div class="name-job">
                     <div class="profile_name" th:text="${doctor.name} ?: 'N/A'">Doctor</div>
@@ -233,7 +233,7 @@
             </h2>
             <div class="doctor-profile-header">
 <!--                <img th:src="@{${doctor.profileImage}}" alt="Doctor Profile" class="doctor-profile-img">-->
-                <img th:src="${doctor.profileImage != null ? doctor.profileImage : '/image/profile.jpg'}"
+                <img th:src="@{${doctor.profileImage != null ? '/doctor-pic-uploads/' + doctor.profileImage : '/images/default-profile.png'}}"
                      alt="Doctor Photo" class="doctor-profile-img"/>
                 <div class="doctor-profile-info">
                     <div class="doctor-profile-name" th:text="${doctor.name} ?: 'N/A'">Doctor Name</div>
