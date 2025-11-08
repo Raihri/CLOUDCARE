@@ -34,7 +34,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable()) // Disable CSRF for now - enable it later with proper token handling
-            .cors(cors -> cors.disable())  // Configure CORS if needed
+            .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
+                var configuration = new org.springframework.web.cors.CorsConfiguration();
+                configuration.setAllowedOrigins(java.util.Arrays.asList("https://unpkg.com"));
+                configuration.setAllowedMethods(java.util.Arrays.asList("GET"));
+                return configuration;
+            }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/",
@@ -82,12 +87,24 @@ public class SecurityConfig {
                 .tokenValiditySeconds(86400) // 24 hours
                 .rememberMeParameter("remember-me")
             )
+            // .headers(headers -> headers
+            //     .frameOptions(frame -> frame.sameOrigin())
+            //     .contentSecurityPolicy(csp -> 
+            //         csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com;")
+            //     )
+            // )
             .headers(headers -> headers
-                .frameOptions(frame -> frame.sameOrigin())
-                .contentSecurityPolicy(csp -> 
-                    csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com;")
-                )
-            )
+    .frameOptions(frame -> frame.sameOrigin())
+    .contentSecurityPolicy(csp ->
+        csp.policyDirectives(
+            "default-src 'self'; " +
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; " +
+            "font-src 'self' https://fonts.gstatic.com https://unpkg.com; " +
+            "img-src 'self' data:;"
+        )
+    )
+)
             .userDetailsService(userDetailsService)
         ;
 
