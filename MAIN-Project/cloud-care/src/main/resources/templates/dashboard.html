@@ -294,9 +294,12 @@
                  th:text="${doctor.description} ?: 'N/A'">
                 Doctor description
             </div>
-            <button class="doctor-logout-btn" th:onclick="@{/logout}">
-                <i class='bx bx-log-out'></i> Logout
-            </button>
+            <form action="/logout" method="post">
+                <button class="doctor-logout-btn" type="submit">
+                    <i class='bx bx-log-out'></i> Logout
+                </button>
+            </form>
+            
         </div>
     </div>
     </li>

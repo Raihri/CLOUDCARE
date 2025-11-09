@@ -7,10 +7,14 @@ import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
 import com.example.cloud.care.var.patient;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,9 +99,13 @@ public class AuthController {
         // Authentication is handled by Spring Security
         return "redirect:/dashboard";
     }
-
-    
-    
+    @PostMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
+        // Invalidate the session and clear authentication
+        securityContextLogoutHandler.logout(request, response, null);
+        return "redirect:/";
+    }
 
     // // Dev-only debug endpoint
     // @GetMapping("/debug/verification-status")
