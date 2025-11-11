@@ -45,7 +45,6 @@ public class doctor {
     private String description;
     private String medicalCollege;
 
-
     // Availability & Online
     private String workingDays;
     private String workingHours;
@@ -66,5 +65,22 @@ public class doctor {
     private String specialInterests;
     private String notes;
     private String rating;
+
+    // Manual getters/setters since Lombok isn't working reliably
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
 }

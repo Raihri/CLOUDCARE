@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CloudCare AI Chat</title>
+    <link
+      href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary: #3b82f6;
+        --secondary: #60a5fa;
+        --tertiary: #7c3aed;
+        --accent: #1e40af;
+        --success: #10b981;
+        --bg-dark: #0f172a;
+        --bg-light: #f8fafc;
+        --card-bg: rgba(255, 255, 255, 0.92);
+        --glass-bg: rgba(255, 255, 255, 0.75);
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f172a 0%,
+          #1e293b 50%,
+          #0f172a 100%
+        );
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+            circle at 20% 50%,
+            rgba(59, 130, 246, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(124, 58, 237, 0.15) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .chat-container {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .chat-box {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.95),
+          rgba(248, 250, 252, 0.9)
+        );
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 30px 80px rgba(59, 130, 246, 0.25),
+          0 0 60px rgba(124, 58, 237, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        backdrop-filter: blur(30px);
+        animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .chat-header {
+        text-align: center;
+        margin-bottom: 32px;
+        animation: fadeInDown 0.8s ease-out;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .chat-header h2 {
+        font-size: 2.2rem;
+        background: linear-gradient(135deg, #3b82f6, #7c3aed, #60a5fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 900;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+      }
+
+      .chat-header p {
+        color: #6b7280;
+        font-size: 15px;
+        font-weight: 500;
+      }
+
+      .chat-messages {
+        height: 400px;
+        overflow-y: auto;
+        margin-bottom: 24px;
+        padding: 20px;
+        background: linear-gradient(135deg, #f8fafc, #f0f4f8);
+        border-radius: 16px;
+        border: 1px solid rgba(59, 130, 246, 0.1);
+      }
+
+      .chat-messages::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .chat-messages::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #3b82f6, #7c3aed);
+        border-radius: 4px;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #60a5fa, #7c3aed);
+      }
+
+      .message {
+        margin-bottom: 16px;
+        display: flex;
+        animation: messageSlide 0.4s ease-out;
+      }
+
+      @keyframes messageSlide {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .message.user {
+        justify-content: flex-end;
+      }
+
+      .message.user .message-bubble {
+        animation: messageSlideRight 0.4s ease-out;
+      }
+
+      @keyframes messageSlideRight {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .message-bubble {
+        max-width: 70%;
+        padding: 14px 18px;
+        border-radius: 16px;
+        word-wrap: break-word;
+        line-height: 1.5;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .user .message-bubble {
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        color: #fff;
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+        border: 1px solid rgba(96, 165, 250, 0.3);
+      }
+
+      .user .message-bubble:hover {
+        box-shadow: 0 12px 36px rgba(59, 130, 246, 0.35);
+        transform: translateY(-2px);
+      }
+
+      .bot .message-bubble {
+        background: linear-gradient(135deg, #f0f4f8, #e0e7ff);
+        color: #1f2937;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+      }
+
+      .bot .message-bubble:hover {
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .message-label {
+        font-weight: 700;
+        margin-bottom: 4px;
+        font-size: 14px;
+        color: #3b82f6;
+      }
+
+      .user .message-label {
+        text-align: right;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .bot .message-label {
+        color: #3b82f6;
+      }
+
+      .input-area {
+        display: flex;
+        gap: 12px;
+        animation: slideUp 1s ease-out 0.2s both;
+      }
+
+      input[type="text"] {
+        flex: 1;
+        padding: 14px 18px;
+        border: 2px solid rgba(59, 130, 246, 0.2);
+        border-radius: 12px;
+        font-size: 15px;
+        font-family: inherit;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.95),
+          rgba(248, 250, 252, 0.9)
+        );
+        color: #1f2937;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1),
+          0 8px 24px rgba(59, 130, 246, 0.15);
+        background: rgba(255, 255, 255, 1);
+      }
+
+      input[type="text"]::placeholder {
+        color: #9ca3af;
+      }
+
+      button {
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+
+      button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+      }
+
+      button:hover::before {
+        transform: translateX(100%);
+      }
+
+      button:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 16px 40px rgba(59, 130, 246, 0.4);
+      }
+
+      button:active {
+        transform: translateY(-2px) scale(0.98);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #9ca3af;
+      }
+
+      .empty-state i {
+        font-size: 48px;
+        color: #3b82f6;
+        margin-bottom: 16px;
+        display: block;
+      }
+
+      .empty-state p {
+        font-size: 15px;
+      }
+
+      @media (max-width: 600px) {
+        .chat-box {
+          padding: 24px;
+        }
+
+        .chat-header h2 {
+          font-size: 1.8rem;
+        }
+
+        .chat-messages {
+          height: 350px;
+        }
+
+        .message-bubble {
+          max-width: 85%;
+        }
+
+        input[type="text"] {
+          padding: 12px 14px;
+          font-size: 14px;
+        }
+
+        button {
+          padding: 12px 20px;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-box">
+        <div class="chat-header">
+          <h2>💬 CloudCare AI Assistant</h2>
+          <p>Your intelligent healthcare companion</p>
+        </div>
+
+        <div class="chat-messages">
+          <div th:if="${userMessage}">
+            <div class="message user">
+              <div>
+                <div class="message-label">You</div>
+                <div class="message-bubble" th:text="${userMessage}"></div>
+              </div>
+            </div>
+            <div class="message bot">
+              <div>
+                <div class="message-label">🤖 CloudCare AI</div>
+                <div class="message-bubble" th:text="${botResponse}"></div>
+              </div>
+            </div>
+          </div>
+          <div th:if="!${userMessage}" class="empty-state">
+            <i class="bx bx-chat"></i>
+            <p>Start a conversation with CloudCare AI</p>
+          </div>
+        </div>
+
+        <form action="/chat" method="post" class="input-area">
+          <input
+            type="text"
+            name="message"
+            placeholder="Ask me anything about your health..."
+            required
+          />
+          <button type="submit"><i class="bx bxs-send"></i> Send</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

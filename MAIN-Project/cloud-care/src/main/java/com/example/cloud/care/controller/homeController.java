@@ -1,6 +1,7 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.dao.patient_dao;
+import com.example.cloud.care.service.ChatService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
 import com.example.cloud.care.var.doctor;
@@ -33,6 +34,22 @@ public class homeController {
 
     @Autowired
     patient_dao patient_dao;
+
+    @Autowired
+    private ChatService chatService;
+
+    @GetMapping("/aichat")
+    public String home() {
+        return "chat";
+    }
+
+    @PostMapping("/chat")
+    public String chat(@RequestParam("message") String message, Model model) {
+        String response = chatService.getChatResponse(message);
+        model.addAttribute("userMessage", message);
+        model.addAttribute("botResponse", response);
+        return "chat";
+    }
 
     @GetMapping({ "/doc" })
     public String home(Model m) {
@@ -99,6 +116,12 @@ public class homeController {
             model.addAttribute("error", "An error occurred while fetching data.");
             return "patient";
         }
+    }
+
+    @GetMapping("/patient_dashboard")
+    public String patientProfile(Model model) {
+        model.addAttribute("patient", patientService.getPatientData(10)); // prevents Thymeleaf binding errors
+        return "patient_dashboard";
     }
 
     @PostMapping("/editPatientData")

@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="UTF-8">
+    <title> CloudCare | Patient Data Entry</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script th:src="@{/js/script.js}" defer></script>
+    <style>
+        .form-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .form-section-title {
+            font-size: 1.2rem;
+            color: #4e7fff;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e6f7;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .form-grid div {
+            margin-bottom: 10px;
+        }
+        .form-grid label {
+            display: block;
+            margin-bottom: 5px;
+            color: #22336b;
+            font-weight: 500;
+        }
+        .form-grid input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e0e6f7;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-grid input:focus {
+            border-color: #4e7fff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(78,127,255,0.2);
+        }
+        .unit {
+            font-size: 12px;
+            color: #7a8bbd;
+            margin-left: 6px;
+        }
+        .sub-section-btn {
+            background: #4e7fff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .sub-section-btn:hover {
+            background: #3d6aeb;
+        }
+        .form-photo-upload {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .photo-label {
+            display: inline-block;
+            cursor: pointer;
+        }
+        .photo-label img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #4e7fff;
+            margin-bottom: 10px;
+        }
+        .upload-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4e7fff;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* ===== PATIENT PROFILE DASHBOARD - ULTRA PREMIUM DESIGN ===== */
+        :root {
+            --primary: #3b82f6;
+            --secondary: #60a5fa;
+            --tertiary: #7c3aed;
+            --accent: #1e40af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-light: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --shadow: 0 15px 50px rgba(59, 130, 246, 0.2);
+            --shadow-hover: 0 30px 80px rgba(59, 130, 246, 0.35);
+            --shadow-glow: 0 0 60px rgba(59, 130, 246, 0.3);
+        }
+
+        .profile-dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(180deg, #f8fafc 0%, #f0f4f8 50%, #e0e7ff 100%);
+            border-radius: 24px;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .profile-dashboard::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Cover Section with animated gradient */
+        .profile-cover {
+            position: relative;
+            height: 320px;
+            border-radius: 24px;
+            overflow: visible;
+            margin-bottom: 100px;
+        }
+
+        .cover-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 25%, #7c3aed 50%, #3b82f6 100%);
+            background-size: 400% 400%;
+            border-radius: 24px;
+            box-shadow: var(--shadow-hover), 
+                        inset 0 1px 0 rgba(255,255,255,0.2),
+                        0 0 80px rgba(59, 130, 246, 0.3);
+            animation: gradientShift 12s ease infinite, float 6s ease-in-out infinite;
+            position: relative;
+        }
+
+        .cover-gradient::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(255,255,255,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(124, 58, 237, 0.1) 0%, transparent 50%);
+            border-radius: 24px;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .avatar-container {
+            position: absolute;
+            bottom: -70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+
+        .avatar-wrapper {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            padding: 10px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.95));
+            box-shadow: 0 30px 80px rgba(59, 130, 246, 0.3), 0 0 60px rgba(96, 165, 250, 0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 8px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .avatar-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -15px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #3b82f6, #7c3aed, #3b82f6);
+            z-index: -1;
+            filter: blur(20px);
+            opacity: 0.4;
+            animation: spin 8s linear infinite, pulse-glow 3s ease-in-out infinite;
+        }
+
+        .avatar-wrapper::after {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed, #60a5fa) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            opacity: 0.6;
+            animation: spin 12s linear reverse infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: blur(20px) brightness(0.8); }
+            50% { filter: blur(20px) brightness(1.2); }
+        }
+
+        .avatar-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .avatar-wrapper:hover .avatar-img {
+            box-shadow: 0 16px 48px rgba(59, 130, 246, 0.4);
+            transform: scale(1.02);
+        }
+
+        .profile-header-info {
+            text-align: center;
+            padding: 70px 20px 30px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(248, 250, 252, 0.4));
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255,255,255,0.8);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-header-info h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            animation: fadeInScale 1s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .patient-meta {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin: 12px 0 24px;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+            font-size: 15px;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: #fff;
+            box-shadow: 0 12px 36px rgba(59, 130, 246, 0.35), 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-hover), 0 0 40px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.85));
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: #fff;
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-hover);
+            border-color: #60a5fa;
+        }
+
+        .btn-secondary:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        /* Profile Grid */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 28px;
+            margin-top: 30px;
+        }
+
+        /* Cards - Ultra Premium Style */
+        .card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(248, 250, 252, 0.92));
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 16px 48px rgba(59, 130, 246, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            backdrop-filter: blur(30px);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            animation: cardSlide 0.6s ease-out;
+        }
+
+        @keyframes cardSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.1), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(124, 58, 237, 0.2), transparent) border-box;
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .glossy {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,250,252,0.95));
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transform: translateY(-12px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .card h3 {
+            margin: 0 0 22px 0;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+            letter-spacing: -0.3px;
+        }
+
+        /* Sidebar */
+        .profile-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(43, 110, 246, 0.1);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .info-item p {
+            margin: 0;
+            font-size: 1rem;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f0f4f8, #e0e7ff);
+            padding: 18px;
+            border-radius: 14px;
+            text-align: center;
+            border: 2px solid rgba(59, 130, 246, 0.15);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-box:hover::after {
+            opacity: 1;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 36px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(43, 110, 246, 0.05);
+        }
+
+        .metric-item span {
+            color: #6b7280;
+        }
+
+        .metric-item strong {
+            color: #1f2937;
+        }
+
+        /* Main Content */
+        .profile-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Tabs */
+        .tabs-nav {
+            display: flex;
+            gap: 12px;
+            border-bottom: 3px solid rgba(59, 130, 246, 0.1);
+            padding-bottom: 18px;
+            overflow-x: auto;
+            background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.02) 50%, transparent 100%);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, transparent, rgba(59, 130, 246, 0.05));
+            border: 2px solid transparent;
+            color: #6b7280;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+            position: relative;
+            white-space: nowrap;
+            border-radius: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .tab-btn:hover {
+            color: #3b82f6;
+            border-color: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            border-color: #60a5fa;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+            border-radius: 2px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .info-grid div {
+            padding: 14px;
+            background: linear-gradient(135deg, var(--bg-light), #fff);
+            border-radius: 12px;
+            border: 1px solid rgba(43, 110, 246, 0.1);
+        }
+
+        .info-grid strong {
+            display: block;
+            color: var(--primary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .info-grid p {
+            margin: 0;
+            color: #1f2937;
+            font-size: 1rem;
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table tr {
+            border-bottom: 1px solid rgba(43, 110, 246, 0.1);
+        }
+
+        .data-table td {
+            padding: 14px;
+            text-align: left;
+        }
+
+        .data-table td:first-child {
+            font-weight: 600;
+            color: var(--primary);
+            width: 40%;
+        }
+
+        .data-table td:last-child {
+            color: #1f2937;
+        }
+
+        /* Labs Grid */
+        .labs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .lab-box {
+            background: linear-gradient(135deg, #fff, #f0f4f8);
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+            border: 3px solid var(--primary);
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lab-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lab-box:hover::before {
+            opacity: 1;
+        }
+
+        .lab-box:hover {
+            box-shadow: 0 16px 48px rgba(59, 130, 246, 0.25);
+            transform: translateY(-8px) scale(1.05);
+            border-color: #60a5fa;
+            background: linear-gradient(135deg, #f0f4f8, #e0e7ff);
+        }
+
+        .lab-box strong {
+            display: block;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .lab-box p {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #1f2937;
+            font-weight: 900;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header-info h1 {
+                font-size: 1.8rem;
+            }
+
+            .tabs-nav {
+                flex-wrap: wrap;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .avatar-wrapper {
+                width: 140px;
+                height: 140px;
+            }
+
+            .avatar-img {
+                width: 128px;
+                height: 128px;
+            }
+
+            .profile-cover {
+                margin-bottom: 60px;
+            }
+
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script>
+function previewPhoto(event) {
+    const preview = document.getElementById('photo-preview');
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => preview.src = e.target.result;
+        reader.readAsDataURL(file);
+    }
+}
+
+function switchTab(tabName) {
+    // Hide all tabs
+    const tabs = document.querySelectorAll('.tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Remove active from all buttons
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    
+    // Show selected tab
+    const activeTab = document.getElementById(tabName);
+    if (activeTab) activeTab.classList.add('active');
+    
+    // Add active to clicked button
+    event.target.classList.add('active');
+}
+</script>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <img th:src="@{/image/logo.png}" alt="CloudCare Logo" />
+            <span class="logo_name">CloudCare</span>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a th:href="@{/dashboard}">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="link_name">Doctor's Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/dashboard}">Doctor's Profile</a></li>
+                </ul>
+            </li>
+
+            <li>
+            <a href="list">
+                <i class='bx bxs-dashboard'></i>
+                <span class="link_name">Doctor's List</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="list">Category</a></li>
+            </ul>
+        </li>
+
+            <li class="active">
+                <a th:href="@{/patient/data-entry}">
+                    <i class='bx bx-arrow-to-top'></i>
+                    <span class="link_name">Patient Data Entry</span>
+                </a>
+                <ul class="sub-menu form blank">
+                    <li><a class="link_name" th:href="@{/patient/data-entry}">Patient Data Entry</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/patient}">
+                    <i class="bx bxs-user"></i>
+                    <span class="link_name">Patient Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/patient}">Patient Profile</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/donor}">
+                    <i class='bx bxs-droplet'></i>
+                    <span class="link_name">Find Donor</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/donor}">Find Donor</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/baby-planner}">
+                    <i class='bx bxs-baby-carriage'></i>
+                    <span class="link_name">Baby Planner</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/baby-planner}">Baby Planner</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/epidemic}">
+                    <i class='bx bx-compass'></i>
+                    <span class="link_name">Epidemic Analyzer</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/epidemic}">Epidemic Analyzer</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/depression}">
+                    <i class='bx bx-history'></i>
+                    <span class="link_name">Depression Test</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/depression}">Depression Test</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/health-score}">
+                    <i class='bx bx-cog'></i>
+                    <span class="link_name">Health Score</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" th:href="@{/health-score}">Health Score</a></li>
+                </ul>
+            </li>
+            <li>
+                <!-- Patient Content Here-->
+            <li th:if="${patient != null}">
+                <div class="profile-details">
+                    <a th:href="@{/dashboard}"
+                        style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                        <div class="profile-content">
+                            <!-- <img th:src="@{${patient.profileImage}}" alt="profileImg"> -->
+                            <img src="../static/images/default-profile.png" alt="profileImg">
+                            <div class="name-job">
+                                <div class="profile_name" th:text="${patient.name}">Doctor Name</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </li>
+            </li>
+        </ul>
+    </div>
+    <section class="home-section">
+        <div class="home-header">
+            <i class='bx bx-menu'></i>
+            <h1>Profile Dashboard</h1>
+        </div>
+
+        <!--Main Content Starts Here-->
+        <div class="profile-dashboard" th:object="${patient}">
+            <!-- Cover & Avatar Section -->
+            <div class="profile-cover">
+                <div class="cover-gradient"></div>
+                <div class="avatar-container">
+                    <div class="avatar-wrapper">
+                        <img class="avatar-img" th:src="*{profileImage} ?: @{/image/profile.jpg}" alt="avatar" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Header -->
+            <div class="profile-header-info">
+                <h1 th:text="*{name} ?: 'N/A'">Patient Name</h1>
+                <p class="patient-meta">
+                    <span th:text="*{university} ?: 'N/A'">University</span> • 
+                    <span th:text="*{division} ?: 'N/A'">Division</span> • 
+                    <span th:text="*{zilla} ?: 'N/A'">Location</span>
+                </p>
+                <div class="action-buttons">
+                    <a th:href="@{/patient/edit}" class="btn btn-primary">Edit Profile</a>
+                    <button onclick="window.print()" class="btn btn-secondary">Download</button>
+                </div>
+            </div>
+
+            <!-- Main Grid: Sidebar + Content -->
+            <div class="profile-grid">
+                <!-- Sidebar: Quick Stats -->
+                <aside class="profile-sidebar">
+                    <!-- Contact Card -->
+                    <div class="card glossy">
+                        <h3>📞 Contact</h3>
+                        <div class="info-item">
+                            <label>Email</label>
+                            <p th:text="*{email} ?: 'N/A'">email@example.com</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Phone</label>
+                            <p th:text="*{contact} ?: 'N/A'">+880</p>
+                        </div>
+                        <div class="info-item">
+                            <label>Emergency</label>
+                            <p th:text="*{emergencyContact} ?: 'N/A'">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Vitals Card -->
+                    <div class="card glossy">
+                        <h3>❤️ Vitals</h3>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">Age</div>
+                                <div class="stat-value" th:text="*{age} ?: 'N/A'">0</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Gender</div>
+                                <div class="stat-value" th:text="*{gender} ?: 'N/A'">-</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Blood</div>
+                                <div class="stat-value" th:text="*{bloodGroup} ?: 'N/A'">-</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">BMI</div>
+                                <div class="stat-value" th:text="*{bmi} ?: 'N/A'">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Health Metrics Card -->
+                    <div class="card glossy">
+                        <h3>📊 Health</h3>
+                        <div class="metric-item">
+                            <span>BP:</span>
+                            <strong th:text="*{bloodPressure} ?: 'N/A'">-</strong>
+                        </div>
+                        <div class="metric-item">
+                            <span>BMR:</span>
+                            <strong th:text="*{bmr} ?: 'N/A'">-</strong>
+                        </div>
+                        <div class="metric-item">
+                            <span>Cholesterol:</span>
+                            <strong th:text="*{cholesterol} ?: 'N/A'">-</strong>
+                        </div>
+                        <div class="metric-item">
+                            <span>Blood Sugar:</span>
+                            <strong th:text="*{bloodSugar} ?: 'N/A'">-</strong>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Content Area -->
+                <main class="profile-main">
+                    <!-- Tabs -->
+                    <div class="tabs-nav">
+                        <button class="tab-btn active" onclick="switchTab('about')">About</button>
+                        <button class="tab-btn" onclick="switchTab('medical')">Medical</button>
+                        <button class="tab-btn" onclick="switchTab('labs')">Labs</button>
+                        <button class="tab-btn" onclick="switchTab('lifestyle')">Lifestyle</button>
+                        <button class="tab-btn" onclick="switchTab('family')">Family</button>
+                    </div>
+
+                    <!-- Tab: About -->
+                    <div id="about" class="tab-content active">
+                        <div class="card glossy">
+                            <h3>📋 About</h3>
+                            <div class="info-grid">
+                                <div>
+                                    <strong>Status:</strong>
+                                    <p th:text="*{status} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>University:</strong>
+                                    <p th:text="*{university} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Division:</strong>
+                                    <p th:text="*{division} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Location:</strong>
+                                    <p th:text="*{zilla} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Home Environment:</strong>
+                                    <p th:text="*{homeEnvironment} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Friend Circle:</strong>
+                                    <p th:text="*{friendCircle} ?: 'N/A'">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Medical -->
+                    <div id="medical" class="tab-content">
+                        <div class="card glossy">
+                            <h3>🏥 Medical History</h3>
+                            <table class="data-table">
+                                <tr>
+                                    <td>Last Donated:</td>
+                                    <td th:text="*{lastDonated} ?: 'N/A'">-</td>
+                                </tr>
+                                <tr>
+                                    <td>RH Factor:</td>
+                                    <td th:text="*{rhFactor} ?: 'N/A'">-</td>
+                                </tr>
+                                <tr>
+                                    <td>Hemoglobin:</td>
+                                    <td th:text="*{hemoglobin} ?: 'N/A'">-</td>
+                                </tr>
+                                <tr>
+                                    <td>Mental Disease:</td>
+                                    <td th:text="*{mental_disease} ?: 'N/A'">-</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Labs -->
+                    <div id="labs" class="tab-content">
+                        <div class="card glossy">
+                            <h3>🧪 Lab Results</h3>
+                            <div class="labs-grid">
+                                <div class="lab-box">
+                                    <strong>RBC</strong>
+                                    <p th:text="*{rbc} ?: 'N/A'">-</p>
+                                </div>
+                                <div class="lab-box">
+                                    <strong>Platelet</strong>
+                                    <p th:text="*{platelet} ?: 'N/A'">-</p>
+                                </div>
+                                <div class="lab-box">
+                                    <strong>HB</strong>
+                                    <p th:text="*{hb} ?: 'N/A'">-</p>
+                                </div>
+                                <div class="lab-box">
+                                    <strong>WBC</strong>
+                                    <p th:text="*{wbc} ?: 'N/A'">-</p>
+                                </div>
+                                <div class="lab-box">
+                                    <strong>Creatinine</strong>
+                                    <p th:text="*{creatinine} ?: 'N/A'">-</p>
+                                </div>
+                                <div class="lab-box">
+                                    <strong>Sugar Level</strong>
+                                    <p th:text="*{sugarLevel} ?: 'N/A'">-</p>
+                                </div>
+                                <div class="lab-box">
+                                    <strong>Triglyceride</strong>
+                                    <p th:text="*{triglyceride} ?: 'N/A'">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Lifestyle -->
+                    <div id="lifestyle" class="tab-content">
+                        <div class="card glossy">
+                            <h3>🏃 Lifestyle</h3>
+                            <div class="info-grid">
+                                <div>
+                                    <strong>Sleep Hours:</strong>
+                                    <p th:text="*{sleepHours} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Water Intake (L):</strong>
+                                    <p th:text="*{waterIntake} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Diet Notes:</strong>
+                                    <p th:text="*{dietNotes} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Habits:</strong>
+                                    <p th:text="*{habits} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Weight (kg):</strong>
+                                    <p th:text="*{weight} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Height (cm):</strong>
+                                    <p th:text="*{height} ?: 'N/A'">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab: Family -->
+                    <div id="family" class="tab-content">
+                        <div class="card glossy">
+                            <h3>👨‍👩‍👧 Family Info</h3>
+                            <div class="info-grid">
+                                <div>
+                                    <strong>Father:</strong>
+                                    <p th:text="*{fatherName} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Father ID:</strong>
+                                    <p th:text="*{fatherId} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Mother:</strong>
+                                    <p th:text="*{motherName} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Mother ID:</strong>
+                                    <p th:text="*{motherId} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Parents Job:</strong>
+                                    <p th:text="*{parentsJob} ?: 'N/A'">-</p>
+                                </div>
+                                <div>
+                                    <strong>Parental Care State:</strong>
+                                    <p th:text="*{parentalCareState} ?: 'N/A'">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <!--Main Content Ends Here-->
+
+        <style>
+            body {
+                background: #e6f9ed;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+
+            .patient-id-bar {
+                background: #d1fae5;
+                padding: 18px 32px 12px 32px;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.06);
+                margin: 24px auto 24px auto;
+                max-width: 1100px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 18px;
+            }
+
+            .patient-id-bar label {
+                font-size: 1.1rem;
+                color: #198754;
+                font-weight: 600;
+                margin-right: 8px;
+            }
+
+            .patient-id-bar input[type="text"] {
+                padding: 7px 12px;
+                border: 1.5px solid #22c55e;
+                border-radius: 6px;
+                font-size: 1rem;
+                background: #fff;
+                color: #198754;
+                margin-right: 12px;
+                width: 220px;
+            }
+
+            .id-btn {
+                background: #22c55e;
+                color: #fff;
+                border: none;
+                border-radius: 6px;
+                padding: 7px 22px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .id-btn:hover {
+                background: #16a34a;
+            }
+
+            .patient-form {
+                max-width: 1100px;
+                margin: 40px auto 0 auto;
+                background: #f6fff9;
+                border-radius: 18px;
+                box-shadow: 0 4px 32px 0 rgba(34, 197, 94, 0.10);
+                padding: 36px 32px 28px 32px;
+                display: flex;
+                flex-direction: column;
+                gap: 32px;
+            }
+
+            .form-section {
+                background: #eafcf2;
+                border-radius: 12px;
+                padding: 18px 24px 12px 24px;
+                margin-bottom: 12px;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.07);
+            }
+
+            .form-section-title {
+                font-size: 1.3rem;
+                color: #16a34a;
+                font-weight: 700;
+                margin-bottom: 10px;
+                letter-spacing: 0.5px;
+                border-left: 4px solid #22c55e;
+                padding-left: 10px;
+                margin-top: 12px;
+            }
+
+            .form-grid label,
+            .form-table label {
+                color: #198754;
+            }
+
+            .form-grid .unit {
+                font-size: 0.95em;
+                color: #22c55e;
+                font-weight: 500;
+                margin-left: 6px;
+                margin-top: 2px;
+                display: inline-block;
+            }
+
+            .form-grid input[type="text"],
+            .form-grid input[type="number"],
+            .form-table input[type="text"],
+            .form-table input[type="date"] {
+                padding: 7px 10px;
+                border: 1px solid #b6e7c9;
+                border-radius: 6px;
+                font-size: 1rem;
+                background: #f8fefb;
+                color: #198754;
+                margin-top: 2px;
+                transition: border 0.2s, box-shadow 0.2s;
+            }
+
+            .form-grid input:focus,
+            .form-table input:focus {
+                border: 1.5px solid #22c55e;
+                outline: none;
+                background: #e6f9ed;
+                box-shadow: 0 0 0 2px #bbf7d0;
+            }
+
+            .form-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 8px;
+                background: #fff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 4px 0 rgba(34, 197, 94, 0.04);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-table thead,
+            .form-table tbody,
+            .form-table tr {
+                display: flex;
+                width: 100%;
+            }
+
+            .form-table th,
+            .form-table td {
+                flex: 1 1 0;
+                text-align: left;
+                padding: 8px 12px;
+                border-bottom: 1px solid #bbf7d0;
+                min-width: 0;
+                box-sizing: border-box;
+            }
+
+            .form-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            @media (max-width: 700px) {
+
+                .form-table th,
+                .form-table td {
+                    font-size: 0.98em;
+                    padding: 8px 6px;
+                }
+            }
+
+            @media (max-width: 900px) {
+                .form-table {
+                    font-size: 0.98em;
+                }
+            }
+
+            .form-table th {
+                background: #d1fae5;
+                color: #16a34a;
+                font-weight: 600;
+            }
+
+            .form-photo-upload {
+                display: flex;
+                align-items: center;
+                gap: 24px;
+            }
+
+            .photo-label img {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 4px solid #22c55e;
+                background: #eafcf2;
+                box-shadow: 0 2px 12px 0 rgba(34, 197, 94, 0.08);
+                margin-bottom: 10px;
+                transition: box-shadow 0.2s, border 0.2s;
+            }
+
+            .photo-label:hover img {
+                box-shadow: 0 4px 24px 0 rgba(34, 197, 94, 0.18);
+                border: 4px solid #16a34a;
+            }
+
+            .upload-btn {
+                background: #22c55e;
+                color: #fff;
+                padding: 6px 18px;
+                border-radius: 6px;
+                font-size: 1rem;
+                font-weight: 500;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.08);
+                transition: background 0.2s;
+            }
+
+            .photo-label:hover .upload-btn {
+                background: #16a34a;
+            }
+
+            .submit-btn {
+                background: linear-gradient(90deg, #4e7fff 60%, #22336b 100%);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 12px 38px;
+                font-size: 1.2rem;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 2px 12px 0 rgba(78, 127, 255, 0.10);
+                transition: background 0.2s, box-shadow 0.2s;
+            }
+
+            .submit-btn:hover {
+                background: linear-gradient(90deg, #22336b 60%, #4e7fff 100%);
+                box-shadow: 0 4px 24px 0 rgba(78, 127, 255, 0.18);
+            }
+
+            /* Animated Green Button */
+            .sub-section-btn {
+                margin-top: 18px;
+                background: #22c55e;
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 16px 0;
+                font-size: 1.08rem;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+                display: block;
+                width: 100%;
+                text-align: center;
+                letter-spacing: 1px;
+                position: relative;
+                overflow: hidden;
+                transition:
+                    background 0.3s cubic-bezier(.4, 2, .6, 1),
+                    color 0.3s cubic-bezier(.4, 2, .6, 1),
+                    box-shadow 0.3s cubic-bezier(.4, 2, .6, 1),
+                    transform 0.2s cubic-bezier(.4, 2, .6, 1);
+                z-index: 1;
+            }
+
+            .sub-section-btn:hover {
+                background: #fff;
+                color: #16a34a !important;
+                box-shadow: 0 0 0 4px #bbf7d0, 0 8px 32px 0 rgba(34, 197, 94, 0.18);
+                transform: scale(1.04);
+            }
+
+            .sub-section-btn::before {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 0;
+                height: 0;
+                background: #fff;
+                border-radius: 8px;
+                z-index: 2;
+                transition: all 0.4s cubic-bezier(.4, 2, .6, 1);
+                opacity: 1;
+                /* Increased from 0.7 to 1 for more visible effect */
+                transform: translate(-50%, -50%);
+            }
+
+            .sub-section-btn:active {
+                transform: scale(0.98);
+                box-shadow: 0 2px 8px 0 rgba(34, 197, 94, 0.10);
+            }
+
+            .sub-section-btn:disabled {
+                background: #b4b9be;
+                cursor: not-allowed;
+                box-shadow: none;
+                color: #fff;
+            }
+
+            .sub-section-btn:hover,
+            .sub-section-btn:focus {
+                animation: growBtn 0.4s cubic-bezier(.4, 2, .6, 1);
+            }
+
+            @keyframes growBtn {
+                0% {
+                    transform: scale(1);
+                }
+
+                60% {
+                    transform: scale(1.08);
+                }
+
+                100% {
+                    transform: scale(1.04);
+                }
+            }
+
+            /* Two-column layout for form-grid */
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px 32px;
+            }
+
+            @media (max-width: 900px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <script src="script.js"></script>
+        <script>
+            const sidebarBtn = document.querySelector(".bx-menu");
+            const sidebar = document.querySelector(".sidebar");
+
+            if (sidebarBtn) {
+                sidebarBtn.addEventListener("click", () => {
+                    sidebar.classList.toggle("close");
+                });
+            }
+        </script>
+
+            <!-- Print styles: make window.print() produce a clean full-page printout -->
+            <style>
+            @media print {
+                /* Use exact colors when possible */
+                * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+                /* Hide UI chrome */
+                .sidebar, .home-header, .action-buttons, .tabs-nav, .tab-btn, .floating-actions, .icon-btn, .btn-secondary, .quick-actions { display: none !important; }
+
+                /* Expand content to full page */
+                body { background: #fff !important; }
+                .profile-dashboard { max-width: 100% !important; margin: 0; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; }
+                .profile-cover, .cover-gradient { border-radius: 0 !important; box-shadow: none !important; }
+
+                /* Make cards print-friendly */
+                .card, .glossy { background: #fff !important; border: 1px solid #e6eefc !important; box-shadow: none !important; color: #111 !important; }
+                .card h3 { -webkit-text-fill-color: initial; color: #111 !important; }
+
+                /* Keep avatar but reduce size for print */
+                .avatar-wrapper { width: 140px !important; height: 140px !important; padding: 4px !important; border: 4px solid #fff !important; box-shadow:none !important; }
+                .avatar-img { width: 128px !important; height: 128px !important; }
+
+                /* Avoid page breaks inside important cards */
+                .card, .profile-cover, .profile-header-info, .profile-grid, .profile-main { page-break-inside: avoid; }
+
+                /* Tables should not break rows */
+                table, tr, td { page-break-inside: avoid; }
+
+                /* Make text legible */
+                .profile-header-info h1 { font-size: 28px !important; color: #111 !important; -webkit-text-fill-color: #111 !important; }
+                .patient-meta, .info-item p, .stat-value, .lab-box p { color: #111 !important; }
+
+                /* Remove animations for print */
+                * { animation: none !important; transition: none !important; }
+            }
+            </style>
+
+</body>
+
+</html>
