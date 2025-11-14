@@ -36,8 +36,11 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF for now - enable it later with proper token handling
             .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                 var configuration = new org.springframework.web.cors.CorsConfiguration();
-                configuration.setAllowedOrigins(java.util.Arrays.asList("https://unpkg.com"));
-                configuration.setAllowedMethods(java.util.Arrays.asList("GET"));
+                // Allow all origins for local development; restrict in production
+                configuration.setAllowedOrigins(java.util.Arrays.asList("*"));
+                configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+                configuration.setAllowCredentials(true);
                 return configuration;
             }))
             .authorizeHttpRequests(auth -> auth
@@ -47,6 +50,10 @@ public class SecurityConfig {
                     "/verify",
                     "/otpverify",
                     "/forgot-password",
+                    "/forgot-password-submit",
+                    "/reset-password",
+                    "/reset-otp",
+                    "/reset-otp-verify",
                     "/css/**",
                     "/js/**",
                     "/images/**",

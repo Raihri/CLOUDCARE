@@ -128,6 +128,36 @@
                                 font-size: .7rem;
                             }
 
+                            .password-requirement {
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                color: #90a4ae;
+                                margin-bottom: 8px;
+                                font-size: 13px;
+                            }
+
+                            .password-requirement i {
+                                font-size: 16px;
+                                flex-shrink: 0;
+                                min-width: 16px;
+                                color: #90a4ae;
+                                /* override .input-group i which sets absolute positioning */
+                                position: static !important;
+                                transform: none !important;
+                                left: auto !important;
+                                top: auto !important;
+                                margin-right: 6px;
+                            }
+
+                            .password-requirement.met i {
+                                color: #388e3c;
+                            }
+
+                            .password-requirement.met {
+                                color: #388e3c;
+                            }
+
                             .flex-col {
                                 flex-direction: column;
                             }
@@ -355,6 +385,47 @@
                                     font-size: 2rem;
                                 }
                             }
+                         /* Container for all password rules */
+.password-requirements {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+/* Each individual rule */
+.password-requirement {
+    display: flex;            /* horizontal layout */
+    flex-direction: row;      /* ensure text & icon are side by side */
+    align-items: center;      /* vertically center icon & text */
+    gap: 8px;                 /* space between icon & text */
+    font-size: 14px;
+    color: #6b7280;           /* default gray */
+}
+
+/* Style for valid/invalid states */
+.password-requirement.valid {
+    color: #16a34a;           /* green */
+}
+
+.password-requirement.invalid {
+    color: #9ca3af;           /* light gray */
+}
+
+/* Icon inside each rule */
+.password-requirement i {
+    font-size: 16px;
+    display: inline-flex;     /* make icon a flex item */
+    align-items: center;      /* vertical alignment */
+    justify-content: center;
+    line-height: 1;
+    flex-shrink: 0;           /* prevent icon from shrinking */
+}
+
+/* Optional: slightly nudge icons to center perfectly */
+.password-requirement i.bxs-check-circle {
+    transform: translateY(1px); /* tweak for baseline differences in Boxicons */
+}
     </style>
 </head>
 <body>
@@ -364,7 +435,7 @@
         <!-- SIGN UP -->
         <div class="col align-items-center flex-col sign-up">
             <div class="form-wrapper align-items-center">
-                <form th:action="@{/register}" method="post" class="form sign-up" th:object="${user}">
+                <form th:action="@{/register}" method="post" class="form sign-up" th:object="${user}" id="signupForm">
                     <div class="input-group">
                         <i class='bx bxs-user'></i>
                         <input type="text" th:field="*{username}" placeholder="Username" required>
@@ -373,21 +444,42 @@
                         <i class='bx bx-mail-send'></i>
                         <input type="email" th:field="*{email}" placeholder="Email" required>
                     </div>
-                    <div class="input-group">
-                        <i class='bx bxs-lock-alt'></i>
-                        <input type="password" th:field="*{password}" placeholder="Password" required>
+
+                    <div class="input-group" style="flex-direction:column;align-items:flex-start;">
+                        <div style="width:100%;position:relative;">
+                            <i class='bx bxs-lock-alt' style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);"></i>
+                            <input id="signupPassword" type="password" th:field="*{password}" placeholder="Password" required style="padding-left:2.8rem;width:100%;">
+                        </div>
+                        <div class="password-strength" style="width:100%;margin-top:8px;display:flex;align-items:center;gap:12px;">
+                            <div class="strength-bar" style="flex:1;height:8px;background:#e8e8e8;border-radius:4px;overflow:hidden;">
+                                <div id="signupStrengthFill" style="height:100%;width:0%;background:#4EA685;transition:width .3s ease;"></div>
+                            </div>
+                            <div id="signupStrengthText" style="min-width:70px;font-weight:600;color:#90a4ae;font-size:12px;">-</div>
+                        </div>
+                        <div id="signupRequirements" style="margin-top:10px;padding:10px;background:#f5f5f5;border-radius:6px;display:none;font-size:13px;width:100%;">
+                            <div id="sr-req-length" class="password-requirement"><i class='bx bx-circle'></i><span>At least 8 characters</span></div>
+                            <div id="sr-req-uppercase" class="password-requirement"><i class='bx bx-circle'></i><span>One uppercase letter (A-Z)</span></div>
+                            <div id="sr-req-lowercase" class="password-requirement"><i class='bx bx-circle'></i><span>One lowercase letter (a-z)</span></div>
+                            <div id="sr-req-number" class="password-requirement"><i class='bx bx-circle'></i><span>One number (0-9)</span></div>
+                            <div id="sr-req-special" class="password-requirement"><i class='bx bx-circle'></i><span>One special character (!@#$%^&*)</span></div>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <i class='bx bxs-lock-alt'></i>
-                        <input type="password" name="confirmPassword" placeholder="Confirm password" required>
+
+                    <div class="input-group" style="flex-direction:column;align-items:flex-start;">
+                        <div style="width:100%;position:relative;">
+                            <i class='bx bxs-lock-alt' style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);"></i>
+                            <input id="signupConfirmPassword" type="password" name="confirmPassword" placeholder="Confirm password" required style="padding-left:2.8rem;width:100%;">
+                        </div>
+                        <div id="signupMatchMessage" style="margin-top:8px;font-size:13px;display:none;font-weight:600;"></div>
                     </div>
+
                     <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <button type="submit">Sign up</button>
+                    <button type="submit" id="signupSubmit" disabled style="cursor:not-allowed;">Sign up</button>
 
                     <p>
                         <span>Already have an account?</span>
                         <b onclick="toggle()" class="pointer">Sign in here</b>
-                    </p>c
+                    </p>
 
                     <p th:if="${errorMessage}" th:text="${errorMessage}" style="color:red;"></p>
                 </form>
@@ -459,6 +551,106 @@ function toggle() {
     container.classList.toggle('sign-in');
     container.classList.toggle('sign-up');
 }
+
+// Password strength & confirm logic for signup
+(function(){
+    const pwd = document.getElementById('signupPassword');
+    const cpwd = document.getElementById('signupConfirmPassword');
+    const strengthFill = document.getElementById('signupStrengthFill');
+    const strengthText = document.getElementById('signupStrengthText');
+    const reqBox = document.getElementById('signupRequirements');
+    const submitBtn = document.getElementById('signupSubmit');
+    const matchMsg = document.getElementById('signupMatchMessage');
+
+    if(!pwd) return; // signup form not present on some pages
+
+    function scorePassword(p){
+        let score = 0;
+        if(p.length >= 8) score += 1;
+        if(/[A-Z]/.test(p)) score += 1;
+        if(/[a-z]/.test(p)) score += 1;
+        if(/[0-9]/.test(p)) score += 1;
+        if(/[^A-Za-z0-9]/.test(p)) score += 1;
+        return score; // 0..5
+    }
+
+    function updateStrength(p){
+        const s = scorePassword(p);
+        const pct = Math.round((s/5)*100);
+        strengthFill.style.width = pct + '%';
+        if(s <= 1){ strengthText.textContent = 'Very Weak'; strengthFill.style.filter = 'grayscale(60%)'; }
+        else if(s === 2){ strengthText.textContent = 'Weak'; strengthFill.style.filter = 'none'; }
+        else if(s === 3){ strengthText.textContent = 'Fair'; }
+        else if(s === 4){ strengthText.textContent = 'Good'; }
+        else { strengthText.textContent = 'Strong'; }
+    }
+
+    function updateRequirements(p){
+        const checks = [
+            {id:'sr-req-length', ok: p.length >= 8},
+            {id:'sr-req-uppercase', ok: /[A-Z]/.test(p)},
+            {id:'sr-req-lowercase', ok: /[a-z]/.test(p)},
+            {id:'sr-req-number', ok: /[0-9]/.test(p)},
+            {id:'sr-req-special', ok: /[^A-Za-z0-9]/.test(p)}
+        ];
+        let anyVisible = false;
+        checks.forEach(c=>{
+            const el = document.getElementById(c.id);
+            if(!el) return;
+            anyVisible = true;
+            if(c.ok){ 
+                el.classList.add('met');
+                el.querySelector('i').className = 'bx bxs-check-circle'; 
+            }
+            else { 
+                el.classList.remove('met');
+                el.querySelector('i').className = 'bx bx-circle'; 
+            }
+        });
+        if(anyVisible) reqBox.style.display = p.length ? 'block' : 'none';
+    }
+
+    function checkMatch(){
+        const a = pwd.value || '';
+        const b = cpwd.value || '';
+        if(!b){ matchMsg.style.display = 'none'; return false; }
+        if(a === b){ matchMsg.style.display = 'block'; matchMsg.style.color = '#388e3c'; matchMsg.textContent = 'Passwords match'; return true; }
+        else { matchMsg.style.display = 'block'; matchMsg.style.color = '#d32f2f'; matchMsg.textContent = "Passwords don't match"; return false; }
+    }
+
+    function updateSubmitState(){
+        const p = pwd.value || '';
+        const s = scorePassword(p);
+        const meets = s === 5;
+        const matches = checkMatch();
+        if(meets && matches){ submitBtn.disabled = false; submitBtn.style.cursor = 'pointer'; submitBtn.style.opacity = 1; }
+        else { submitBtn.disabled = true; submitBtn.style.cursor = 'not-allowed'; submitBtn.style.opacity = 0.6; }
+    }
+
+    pwd.addEventListener('input', function(){
+        const v = pwd.value;
+        updateStrength(v);
+        updateRequirements(v);
+        checkMatch();
+        updateSubmitState();
+    });
+
+    cpwd.addEventListener('input', function(){
+        checkMatch();
+        updateSubmitState();
+    });
+
+    // Basic prevention: ensure passwords validated client-side before submit
+    const form = document.getElementById('signupForm');
+    form && form.addEventListener('submit', function(e){
+        const p = pwd.value || '';
+        if(scorePassword(p) < 5 || !checkMatch()){
+            e.preventDefault();
+            alert('Please ensure your password meets all requirements and both fields match.');
+        }
+    });
+})();
+
 </script>
 
 </body>

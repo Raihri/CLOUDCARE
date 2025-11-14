@@ -1,6 +1,7 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.dao.patient_dao;
+import com.example.cloud.care.service.EmailService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
 import com.example.cloud.care.var.doctor;
@@ -33,6 +34,9 @@ public class homeController {
 
     @Autowired
     patient_dao patient_dao;
+
+    @Autowired
+    EmailService emailService;
 
     @GetMapping({ "/doc" })
     public String home(Model m) {
@@ -180,6 +184,8 @@ public class homeController {
             return "redirect:/doctor/" + id;
         }
     }
+
+
 
     @GetMapping("/doctor/{id}")
     public String getDoctorById(@PathVariable("id") int id, Model model) {

@@ -1,0 +1,39 @@
+Replace this section in reset_password.html around line 467:
+
+            <form th:action="@{/reset-password}" method="post" onsubmit="return validateForm()">
+                <input type="hidden" name="token" th:value="${token}">
+                
+                <div class="input-group">
+
+With this:
+
+            <form th:action="@{/reset-password}" method="post" onsubmit="return validateForm()">
+                <input type="hidden" name="token" th:value="${token}">
+                <input type="hidden" name="email" th:value="${email}">
+                
+                <div class="input-group">
+
+---
+
+And replace around line 520-525:
+
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            class="input-field"
+                            placeholder="Confirm your password"
+                            required
+                            minlength="8"
+                            onkeyup="checkPasswordMatch()">
+
+With this:
+
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword"
+                            class="input-field"
+                            placeholder="Confirm your password"
+                            required
+                            minlength="8"
+                            onkeyup="checkPasswordMatch()">
