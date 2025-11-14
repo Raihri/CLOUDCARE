@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title> CloudCare | Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+</head>
+
+<body>
+<div class="sidebar">
+    <div class="logo-details">
+        <img src="image/logo.png" alt="CloudCare Logo" />
+        <span class="logo_name">CloudCare</span>
+    </div>
+    <ul class="nav-links">
+        <li class="active">
+            <a href="dashboard">
+                <i class='bx bxs-dashboard'></i>
+                <span class="link_name">Doctor's Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="#">Category</a></li>
+            </ul>
+        </li>
+
+         <li>
+            <a href="list">
+                <i class='bx bxs-dashboard'></i>
+                <span class="link_name">Doctor's List</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="list">Category</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="patient_data_entry">
+                <i class='bx bx-arrow-to-top'></i>
+                <span class="link_name">Patient Data Entry</span>
+            </a>
+            <ul class="sub-menu form blank">
+                <li><a class="link_name" href="patient_data_entry">Category</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="patient">
+                <i class="bx bxs-user"></i>
+                <span class="link_name">Patient Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Patient Profile</a></li>
+            </ul>
+        </li>
+
+
+        <li>
+            <a href="donor">
+                <i class='bx bxs-droplet'></i>
+                <span class="link_name">Find Donor</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="donor">Find Donor</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="baby">
+                <i class='bx bxs-baby-carriage'></i>
+                <span class="link_name">Baby Planner</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="baby">Baby Planner</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a href="epidemic">
+                <i class='bx bx-compass'></i>
+                <span class="link_name">Epidemic Analyzer</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="epidemic">Epidemic Analyzer</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bx-history'></i>
+                <span class="link_name">Depression Test</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="depression">Depression Test</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#">
+                <i class='bx bx-cog'></i>
+                <span class="link_name">Health Score</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="healthScore">Health Score</a></li>
+            </ul>
+        </li>
+        <li>
+            <!-- Doctor Content Here-->
+        <!-- Show doctor info only if the doctor object exists -->
+<li th:if="${doctor != null}">
+    <div class="profile-details">
+        <a th:href="@{/dashboard}"
+           style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+            <div class="profile-content">
+                <!-- show doctor image -->
+                <img th:if="${doctor.profileImage != null}"
+                     th:src="@{/doctor-pic-uploads/{image}(image=${doctor.profileImage})}"
+                     alt="profileImg">
+                <!-- show default if image missing -->
+                <img th:if="${doctor.profileImage == null}"
+                     th:src="@{/images/default-profile.png}"
+                     alt="default">
+                <div class="name-job">
+                    <div class="profile_name" th:text="${doctor.name} ?: 'N/A'">Doctor</div>
+                    <div class="job" th:text="${doctor.specialization} ?: 'N/A'">Specialization</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</li>
+
+<!-- If doctor itself is null, render nothing or maybe a placeholder -->
+<li th:if="${doctor == null}">
+    <!-- Optional: comment this out if you want literally nothing -->
+    <!--<div>No doctor info available</div>-->
+</li>
+        <!-- End Doctor Content Here-->
+        </li>
+    </ul>
+</div>
+<section class="home-section">
+    <div class="home-header">
+        <i class='bx bx-menu'></i>
+        <h1>Doctors Profile</h1>
+    </div>
+
+    <!-- MAIN ----------------------------------------------------------------------------------- -->
+    <!-- MAIN Content Here Please-->
+    
+    <!-- MAIN content ends Here ------------------------------------------------------------------------>
+
+
+    <script src="script.js"></script>
+    <script>
+        // If toast is present, show and auto-hide after a longer duration (8s)
+        document.addEventListener('DOMContentLoaded', function () {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+
+            const CLOSE_DELAY = 8000; // milliseconds
+
+            // show with pop-in
+            setTimeout(() => toast.classList.add('show'), 50);
+
+            // auto-hide timer
+            const hideTimer = setTimeout(() => {
+                toast.classList.add('hide');
+                // remove from DOM after animation
+                setTimeout(() => toast.remove(), 360);
+            }, CLOSE_DELAY);
+
+            // close button
+            const closeBtn = toast.querySelector('.toast-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    clearTimeout(hideTimer);
+                    toast.classList.add('hide');
+                    setTimeout(() => toast.remove(), 260);
+                });
+            }
+        });
+    </script>
+    <script>
+        const sidebarBtn = document.querySelector(".bx-menu");
+        const sidebar = document.querySelector(".sidebar");
+
+        if (sidebarBtn) {
+            sidebarBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("close");
+            });
+        }
+    </script>
+
+</body>
+
+</html>

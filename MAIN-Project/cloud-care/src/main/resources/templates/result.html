@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Result</title>
+  <link rel="stylesheet" th:href="@{/css/style3.css}"/>
+</head>
+<body>
+<div class="container">
+  <h1>Mental Health Assessment</h1>
+  <p><strong>Name:</strong> <span th:text="${result.name}"></span></p>
+  <div class="score">Your Score: <span th:text="${result.score}"></span> / 40</div>
+
+  <div th:class="'status ' + ${#strings.replace(#strings.replace(result.status,' ','-').toLowerCase(),'needs','moderate')}"
+       th:text="${result.status}"></div>
+
+  <div class="suggestion">
+    <strong>Recommendation:</strong><br/>
+    <span th:text="${result.suggestion}"></span>
+  </div>
+
+  <div class="actions">
+    <form th:action="@{/download-pdf}" method="get" style="display:inline;">
+      <input type="hidden" name="name" th:value="${result.name}"/>
+      <input type="hidden" name="score" th:value="${result.score}"/>
+      <input type="hidden" name="status" th:value="${result.status}"/>
+      <input type="hidden" name="suggestion" th:value="${result.suggestion}"/>
+      <button type="submit">Download PDF</button>
+    </form>
+    <button onclick="window.print()">Print</button>
+    <button onclick="navigator.clipboard.writeText(location.href)">Share Link</button>
+    <button onclick="alert('Helpline: 1800-XXX-XXXX\n24/7 support available.')">Helpline</button>
+  </div>
+
+  <div class="helpline">
+    <strong>24/7 Helpline:</strong> 1800-XXX-XXXX<br>
+    You're not alone. Help is available.
+  </div>
+</div>
+</body>
+</html>

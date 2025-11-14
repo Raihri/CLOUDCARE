@@ -1,0 +1,178 @@
+/* =======================================================================
+   FUTURISTIC GLASSMORPHIC QUIZ UI – PREMIUM BLUE/NEON/CRYSTAL THEME
+   Stunning, Modern, Cinematic Experience
+   ======================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ---------------------- GLOBAL RESET ---------------------- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  padding: 32px;
+  background: linear-gradient(135deg, #0a192f 0%, #0d47a1 100%);
+  background-attachment: fixed;
+  color: #e8f1fa;
+}
+
+/* ---------------------- GLASS CONTAINER ---------------------- */
+.container {
+  max-width: 850px;
+  margin: 40px auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.09);
+  backdrop-filter: blur(15px);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25), 
+              0 0 25px rgba(33, 150, 243, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 1.2s ease;
+}
+
+/* Smooth entrance */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------- HEADINGS ---------------------- */
+h1 {
+  text-align: center;
+  font-size: 2.6rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #76d1ff, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(33, 150, 243, 0.6);
+  letter-spacing: 1px;
+}
+
+h1::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 4px;
+  margin: 12px auto 0;
+  background: linear-gradient(90deg, #2196f3, #00eaff);
+  border-radius: 5px;
+  box-shadow: 0 0 10px #00eaff;
+}
+
+/* ---------------------- QUESTIONS ---------------------- */
+.question {
+  background: rgba(255, 255, 255, 0.07);
+  border-left: 5px solid #00eaff;
+  padding: 22px;
+  margin: 28px 0;
+  border-radius: 16px;
+  transition: all 0.35s ease;
+  box-shadow: 0 0 12px rgba(0, 234, 255, 0.15);
+}
+
+.question:hover {
+  transform: translateX(8px);
+  box-shadow: 0 0 18px rgba(0, 234, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.question strong {
+  font-size: 1.25rem;
+  color: #bbdefb;
+  text-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+/* ---------------------- OPTIONS ---------------------- */
+.options {
+  display: flex;
+  flex-direction: column;
+  margin-top: 14px;
+  gap: 12px;
+}
+
+.options label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.options label:hover {
+  border-color: #00eaff;
+  box-shadow: 0 0 10px rgba(0, 234, 255, 0.4);
+  transform: translateX(5px);
+}
+
+.options input[type="radio"] {
+  transform: scale(1.35);
+  accent-color: #00eaff;
+}
+
+/* ---------------------- BUTTON ---------------------- */
+button, input[type="submit"] {
+  background: linear-gradient(135deg, #00aaff, #005bea);
+  color: #ffffff;
+  padding: 15px 35px;
+  font-size: 1.15rem;
+  border-radius: 40px;
+  border: none;
+  cursor: pointer;
+  display: block;
+  margin: 30px auto 10px;
+  letter-spacing: 0.7px;
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.45);
+  transition: all 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 30px rgba(0, 191, 255, 0.8);
+  background: linear-gradient(135deg, #0099ff, #0049c7);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+/* Neon ripple click effect */
+button::before {
+  content: '';
+  position: absolute;
+  width: 0; 
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: width .5s ease, height .5s ease;
+}
+
+button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* ---------------------- RESPONSIVE ---------------------- */
+@media (max-width: 768px) {
+  .container { padding: 25px; }
+
+  h1 { font-size: 2.1rem; }
+
+  .question strong { font-size: 1.15rem; }
+
+  button { width: 100%; padding: 14px; }
+}
