@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Donor & Request Dashboard</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; background: #fff6f6; color: #333; }
+
+        /* Top Navigation */
+        .top-nav { display: flex; justify-content: center; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 100; }
+        .top-nav button { margin: 0 18px; padding: 14px 28px; border: none; background: none; cursor: pointer; font-weight: 600; color: #444; font-size: 15px; position: relative; transition: all 0.3s; }
+        .top-nav button:hover { color: #d32f2f; }
+        .top-nav button.active { color: #d32f2f; }
+        .top-nav button.active::after { content:""; position:absolute; bottom:0; left:0; right:0; height:3px; background: linear-gradient(to right, #c62828, #ef5350); border-radius: 3px 3px 0 0; }
+
+        /* Content Wrapper */
+        .content { padding: 20px; max-width: 1200px; margin:auto; }
+
+        /* Section & Cards */
+        .section { display:none; }
+        .section.active { display:block; }
+        .card { background:#fff; border-radius:10px; padding:25px; box-shadow:0 3px 10px rgba(0,0,0,0.06); margin-bottom:25px; transition: box-shadow 0.3s, transform 0.2s; }
+        .card:hover { box-shadow:0 5px 18px rgba(0,0,0,0.1); transform:translateY(-2px); }
+        h2 { text-align:center; color:#b71c1c; margin-bottom:15px; letter-spacing:0.5px; }
+
+        /* Filters */
+        .filter-container { margin:15px 0; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .filter-input { padding:8px 12px; width:170px; border-radius:6px; border:1px solid #ccc; transition:0.3s; }
+        .filter-input:focus { outline:none; border-color:#d32f2f; box-shadow:0 0 6px rgba(198,40,40,0.4); }
+
+        /* Table */
+        table { width:100%; border-collapse: separate; border-spacing:0; margin-top:15px; border-radius:10px; overflow:hidden; font-size:15px; background:#fff; border:1px solid #f0cfcf; }
+        table th, table td { padding:13px; text-align:center; border-bottom:1px solid #f5dada; border-right:1px solid #f5dada; }
+        table th:last-child, table td:last-child { border-right:none; }
+        table th { background:linear-gradient(to right,#d32f2f,#c62828); color:#fff; font-weight:600; }
+        table tr:nth-child(even) { background-color:#fff9f9; }
+        table tr:hover { background:#ffe3e3; transition:0.2s ease; }
+
+        /* Buttons */
+        .btn { padding:8px 16px; border:none; border-radius:6px; cursor:pointer; margin:3px; font-weight:600; transition:0.3s; }
+        .btn-primary { background: linear-gradient(to right,#d32f2f,#b71c1c); color:#fff; }
+        .btn-primary:hover { background:#a11414; }
+        .btn-success { background:#43a047; color:#fff; }
+        .btn-success:hover { background:#2e7d32; }
+        .btn-warning { background:#fbc02d; color:#fff; }
+        .btn-warning:hover { background:#f9a825; }
+        .btn-danger { background:#e53935; color:#fff; }
+        .btn-danger:hover { background:#c62828; }
+        .btn-secondary { background:#b0bec5; color:#fff; }
+        .btn-secondary:hover { background:#90a4ae; }
+
+        /* Modals */
+        .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition: all 0.3s ease; }
+        .modal.show { opacity:1; visibility:visible; }
+        .modal-content { background:#fff; padding:25px; border-radius:12px; width:480px; max-width:95%; position:relative; transform:translateY(-40px); transition: all 0.3s ease-in-out; box-shadow:0 10px 25px rgba(0,0,0,0.2); }
+        .modal.show .modal-content { transform:translateY(0); }
+        .close { position:absolute; top:15px; right:20px; cursor:pointer; font-size:22px; color:#666; transition: color 0.2s; }
+        .close:hover { color:#c62828; }
+
+        /* Status Badges */
+        .status-Pending { background:#ffb300; color:#fff; padding:6px 14px; border-radius:6px;font-weight:600; box-shadow:0 0 6px rgba(228, 173, 46, 0.3); }
+        .status-Approved { background:#4caf50; color:#fff; padding:6px 14px; border-radius:6px; font-weight:600; box-shadow:0 0 6px rgba(76,175,80,0.3); }
+        .status-Rejected { background:#e53935; color:#fff; padding:6px 14px; border-radius:6px; font-weight:600; box-shadow:0 0 6px rgba(229,57,53,0.3); }
+
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button data-section="donors" class="active">Blood Donor</button>
+        <button data-section="requests">Request Blood</button>
+        <button data-section="admin">Admin Dashboard</button>
+    </div>
+
+    <div class="content">
+        <!-- Donors Section -->
+        <section id="donors" class="section active card">
+            <h2>Blood Donors</h2>
+            <button class="btn btn-primary" onclick="openDonorModal()">Add Donor</button>
+
+            <div class="filter-container">
+                <input type="text" placeholder="Filter by Name" id="donorFilterName" class="filter-input" oninput="renderDonors()">
+                <input type="text" placeholder="Filter by Blood Group" id="donorFilterBlood" class="filter-input" oninput="renderDonors()">
+                <select id="donorFilterStatus" class="filter-input" onchange="renderDonors()">
+                    <option value="">All Status</option>
+                    <option>Pending</option>
+                    <option>Approved</option>
+                    <option>Rejected</option>
+                </select>
+            </div>
+
+            <table id="donorTable">
+                <thead>
+                    <tr>
+                        <th>Name</th><th>Age</th><th>Gender</th><th>Blood Group</th><th>Contact</th>
+                        <th>Status</th><th>Last Donated</th><th>Eligibility</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Requests Section -->
+        <section id="requests" class="section card">
+            <h2>Blood Requests</h2>
+            <button class="btn btn-primary" onclick="openRequestModal()">Add Request</button>
+            <div class="filter-container">
+                <input type="text" placeholder="Filter by Name" id="requestFilterName" class="filter-input" oninput="renderRequests()">
+                <input type="text" placeholder="Filter by Blood Group" id="requestFilterBlood" class="filter-input" oninput="renderRequests()">
+                <select id="requestFilterStatus" class="filter-input" onchange="renderRequests()">
+                    <option value="">All Status</option>
+                    <option>Pending</option>
+                    <option>Approved</option>
+                    <option>Rejected</option>
+                </select>
+            </div>
+            <table id="requestTable">
+                <thead>
+                    <tr><th>Name</th><th>Blood Group</th><th>Units</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+
+        <!-- Admin Section -->
+        <section id="admin" class="section card">
+            <h2>Admin Dashboard</h2>
+            <p>Total Donors: <span id="totalDonors">0</span></p>
+            <p>Total Requests: <span id="totalRequests">0</span></p>
+        </section>
+    </div>
+
+    <!-- Donor Modal -->
+    <div class="modal" id="donorModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDonorModal()">&times;</span>
+            <h3>Add / Edit Donor</h3>
+            <form id="donorForm">
+    <input type="hidden" name="donorIndex">
+    <label>Name:</label><br>
+    <input type="text" name="name" required><br>
+    <label>Email:</label><br>
+    <input type="email" name="email" required><br>
+    <label>Age:</label><br>
+    <input type="number" name="age" required min="18" max="100"><br>
+    <label>Gender:</label><br>
+    <select name="gender" required>
+        <option>Male</option>
+        <option>Female</option>
+    </select><br>
+    <label>Blood Group:</label><br>
+    <select name="bloodGroup" required>
+        <option>A+</option><option>A-</option>
+        <option>B+</option><option>B-</option>
+        <option>AB+</option><option>AB-</option>
+        <option>O+</option><option>O-</option>
+    </select><br>
+    <label>Contact No:</label><br>
+    <input type="text" name="contact" required><br>
+    <label>Status:</label><br>
+    <select name="status" required>
+        <option>Pending</option>
+        <option>Approved</option>
+        <option>Rejected</option>
+    </select><br>
+    <!-- add required in lastDonated -->
+     
+    <label>Last Donated:</label><br>
+    <input type="date" name="lastDonated" required><br>
+    <label>Severe Diseases:</label><br>
+    <input type="checkbox" name="disease" value="HIV" data-level="3"> HIV<br>
+    <input type="checkbox" name="disease" value="Hepatitis B" data-level="3"> Hepatitis B<br>
+    <input type="checkbox" name="disease" value="Malaria" data-level="2"> Malaria<br>
+    <input type="checkbox" name="disease" value="Heart Disease" data-level="2"> Heart Disease<br>
+    <input type="checkbox" name="disease" value="Diabetes" data-level="1"> Diabetes<br>
+    <button class="btn btn-success" type="submit">Save</button>
+    <button type="button" class="btn btn-secondary" onclick="closeDonorModal()">Cancel</button>
+</form>
+
+        </div>
+    </div>
+
+    <!-- Request Modal -->
+    <div class="modal" id="requestModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRequestModal()">&times;</span>
+            <h3>Add / Edit Request</h3>
+            <form id="requestForm">
+                <input type="hidden" name="requestIndex">
+                <label>Name:</label><br><input type="text" name="name" required><br>
+                <label>Email:</label><br><input type="email" name="email" required><br>
+                <label>Blood Group:</label><br>
+                <select name="bloodGroup" required><option>A+</option><option>A-</option>
+                    <option>B+</option><option>B-</option><option>O+</option><option>O-</option></select><br>
+                <label>Units:</label><br><input type="number" name="units" min="1" required><br>
+                <label>Status:</label><br><select name="status"><option>Pending</option><option>Approved</option><option>Rejected</option></select><br><br>
+                <button class="btn btn-success" type="submit">Save</button>
+                <button type="button" class="btn btn-secondary" onclick="closeRequestModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Disease Modal -->
+    <div class="modal" id="diseaseModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDiseaseModal()">&times;</span>
+            <h3>Donor Diseases</h3>
+            <ul id="diseaseList" style="max-height:200px; overflow-y:auto; padding-left:20px;"></ul>
+        </div>
+    </div>
+
+    <script>
+        const donorAPI = "http://localhost:8080/api/donors";
+        const requestAPI = "http://localhost:8080/api/requests";
+
+        const navButtons = document.querySelectorAll('.top-nav button');
+        const sections = document.querySelectorAll('.section');
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                navButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                sections.forEach(s => s.classList.remove('active'));
+                document.getElementById(btn.dataset.section).classList.add('active');
+            });
+        });
+
+        const donorModal = document.getElementById('donorModal');
+        const requestModal = document.getElementById('requestModal');
+        const diseaseModal = document.getElementById('diseaseModal');
+        const diseaseList = document.getElementById('diseaseList');
+
+        function openDonorModal() { donorModal.classList.add('show'); }
+        function closeDonorModal() { donorModal.classList.remove('show'); document.forms['donorForm'].reset(); }
+
+        function openRequestModal() { requestModal.classList.add('show'); }
+        function closeRequestModal() { requestModal.classList.remove('show'); document.forms['requestForm'].reset(); }
+
+        function closeDiseaseModal() { diseaseModal.classList.remove('show'); }
+
+        async function loadDonors() {
+            const res = await fetch(donorAPI);
+            return await res.json();
+        }
+
+        async function saveDonorBackend(donor) {
+            if (donor.id) {
+                await fetch(`${donorAPI}/${donor.id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(donor)
+                });
+            } else {
+                await fetch(donorAPI, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(donor)
+                });
+            }
+        }
+
+        async function deleteDonorBackend(id) {
+            await fetch(`${donorAPI}/${id}`, {method: 'DELETE'});
+        }
+
+        async function loadRequests() {
+            const res = await fetch(requestAPI);
+            return await res.json();
+        }
+
+        async function saveRequestBackend(request) {
+            if (request.id) {
+                await fetch(`${requestAPI}/${request.id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(request)
+                });
+            } else {
+                await fetch(requestAPI, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(request)
+                });
+            }
+        }
+
+        async function deleteRequestBackend(id) {
+            await fetch(`${requestAPI}/${id}`, {method: 'DELETE'});
+        }
+
+        function computeEligibility(lastDonated, diseases) {
+            const today = new Date();
+            const lastDate = lastDonated ? new Date(lastDonated) : new Date('2000-01-01');
+            const monthsDiff = (today.getFullYear() - lastDate.getFullYear()) * 12 + (today.getMonth() - lastDate.getMonth());
+            if (monthsDiff < 3) return "Cannot Donate (Recent)";
+            if (diseases.some(d => parseInt(d.level) >= 2)) return "Cannot Donate (Disease)";
+            return "Eligible";
+        }
+
+        const donorTableBody = document.querySelector('#donorTable tbody');
+        async function renderDonors() {
+            const donors = await loadDonors();
+            donorTableBody.innerHTML = '';
+
+            donors.forEach(d => {
+                const eligibility = computeEligibility(d.lastDonated, d.diseases || []);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${d.name}</td>
+                    <td>${d.age}</td>
+                    <td>${d.gender}</td>
+                    <td>${d.bloodGroup}</td>
+                    <td>${d.contact}</td>
+                    <td class="status-${d.status}">${d.status}</td>
+                    <td>${d.lastDonated || ''}</td>
+                    <td>${eligibility}</td>
+                    <td>
+                        <button class="btn btn-warning edit-donor">Edit</button>
+                        <button class="btn btn-danger delete-donor">Delete</button>
+                        <button class="btn btn-primary view-diseases">DiseaseDetails</button>
+                    </td>
+                `;
+                donorTableBody.appendChild(row);
+
+                row.querySelector('.edit-donor').addEventListener('click', () => editDonor(d.id));
+                row.querySelector('.delete-donor').addEventListener('click', () => deleteDonor(d.id));
+                row.querySelector('.view-diseases').addEventListener('click', () => viewDiseases(d.id));
+            });
+
+            filterDonors();
+            updateAdminCounts();
+        }
+
+        const requestTableBody = document.querySelector('#requestTable tbody');
+        async function renderRequests() {
+            const requests = await loadRequests();
+            requestTableBody.innerHTML = '';
+
+            requests.forEach(r => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${r.name}</td>
+                    <td>${r.bloodGroup}</td>
+                    <td>${r.units}</td>
+                    <td class="status-${r.status}">${r.status}</td>
+                    <td>
+                        <button class="btn btn-warning edit-request">Edit</button>
+                        <button class="btn btn-danger delete-request">Delete</button>
+                    </td>
+                `;
+                requestTableBody.appendChild(row);
+
+                row.querySelector('.edit-request').addEventListener('click', () => editRequest(r.id));
+                row.querySelector('.delete-request').addEventListener('click', () => deleteRequest(r.id));
+            });
+
+            filterRequests();
+            updateAdminCounts();
+        }
+
+       document.getElementById('donorForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const f = e.target;
+
+    // Frontend validation (check if required fields are filled)
+    if (!f.name.value || !f.email.value || !f.age.value || !f.gender.value || !f.bloodGroup.value || !f.contact.value || !f.status.value || !f.lastDonated.value) {
+        alert('Please fill in all required fields.');
+        return;  // Prevent submission if fields are missing
+    }
+
+    // Disease selection
+    const diseases = Array.from(f.querySelectorAll('input[name="disease"]:checked'))
+        .map(chk => ({name: chk.value, level: chk.dataset.level}));
+
+    const donor = {
+        id: f.donorIndex.value || null,
+        name: f.name.value,
+        email: f.email.value,
+        age: parseInt(f.age.value),
+        gender: f.gender.value,
+        bloodGroup: f.bloodGroup.value,
+        contact: f.contact.value,
+        status: f.status.value,
+        lastDonated: f.lastDonated.value || null,
+        diseases: diseases
+    };
+
+    // Save donor to backend
+    await saveDonorBackend(donor);
+    closeDonorModal();
+    renderDonors();  // Refresh donors table
+});
+
+
+        document.getElementById('requestForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const f = e.target;
+
+            const request = {
+                id: f.requestIndex.value || null,
+                name: f.name.value,
+                email: f.email.value,
+                bloodGroup: f.bloodGroup.value,
+                units: parseInt(f.units.value),
+                status: f.status.value
+            };
+
+            await saveRequestBackend(request);
+            closeRequestModal();
+            renderRequests();
+        });
+
+        async function editDonor(id) {
+            const donors = await loadDonors();
+            const d = donors.find(x => x.id == id);
+            const f = document.forms['donorForm'];
+
+            f.donorIndex.value = d.id;
+            f.name.value = d.name;
+            f.age.value = d.age;
+            f.gender.value = d.gender;
+            f.bloodGroup.value = d.bloodGroup;
+            f.contact.value = d.contact;
+            f.status.value = d.status;
+            f.lastDonated.value = d.lastDonated || '';
+
+            f.querySelectorAll('input[name="disease"]').forEach(chk => chk.checked = false);
+            (d.diseases || []).forEach(ds => {
+                const el = f.querySelector(`input[value="${ds.name}"]`);
+                if (el) el.checked = true;
+            });
+
+            openDonorModal();
+        }
+
+        async function deleteDonor(id) {
+            if (confirm("Delete this donor?")) {
+                await deleteDonorBackend(id);
+                renderDonors();
+            }
+        }
+
+        async function editRequest(id) {
+            const requests = await loadRequests();
+            const r = requests.find(x => x.id == id);
+            const f = document.forms['requestForm'];
+
+            f.requestIndex.value = r.id;
+            f.name.value = r.name;
+            f.email.value = r.email;
+            f.bloodGroup.value = r.bloodGroup;
+            f.units.value = r.units;
+            f.status.value = r.status;
+
+            openRequestModal();
+        }
+
+        async function deleteRequest(id) {
+            if (confirm("Delete this request?")) {
+                await deleteRequestBackend(id);
+                renderRequests();
+            }
+        }
+
+        async function viewDiseases(id) {
+            const donors = await loadDonors();
+            const d = donors.find(x => x.id == id);
+
+            diseaseList.innerHTML = '';
+            (d.diseases || []).forEach(ds => {
+                const li = document.createElement('li');
+                li.textContent = `${ds.name} (Danger Level: ${ds.level})`;
+                diseaseList.appendChild(li);
+            });
+
+            diseaseModal.classList.add('show');
+        }
+
+        function filterDonors() {
+            const nameFilter = donorFilterName.value.toLowerCase();
+            const bloodFilter = donorFilterBlood.value.toLowerCase();
+            const statusFilter = donorFilterStatus.value;
+
+            Array.from(donorTableBody.rows).forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const blood = row.cells[3].textContent.toLowerCase();
+                const status = row.cells[5].textContent;
+
+                row.style.display =
+                    name.includes(nameFilter) &&
+                    blood.includes(bloodFilter) &&
+                    (statusFilter === "" || status === statusFilter)
+                        ? ""
+                        : "none";
+            });
+        }
+
+        function filterRequests() {
+            const nameFilter = requestFilterName.value.toLowerCase();
+            const bloodFilter = requestFilterBlood.value.toLowerCase();
+            const statusFilter = requestFilterStatus.value;
+
+            Array.from(requestTableBody.rows).forEach(row => {
+                const name = row.cells[0].textContent.toLowerCase();
+                const blood = row.cells[1].textContent.toLowerCase();
+                const status = row.cells[3].textContent;
+
+                row.style.display =
+                    name.includes(nameFilter) &&
+                    blood.includes(bloodFilter) &&
+                    (statusFilter === "" || status === statusFilter)
+                        ? ""
+                        : "none";
+            });
+        }
+
+        async function updateAdminCounts() {
+            const donors = await loadDonors();
+            const requests = await loadRequests();
+            document.getElementById('totalDonors').textContent = donors.length;
+            document.getElementById('totalRequests').textContent = requests.length;
+        }
+
+        renderDonors();
+        renderRequests();
+    </script>
+</body>
+</html>

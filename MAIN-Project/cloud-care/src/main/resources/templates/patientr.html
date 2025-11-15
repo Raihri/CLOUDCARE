@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <h2>Patient Page</h2>
+
+    <div>Waiting for notification...</div>
+
+    <div id="msg"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      let patientId = /*[[${patientId}]]*/ "";
+
+      console.log("patientr page loaded, patientId=", patientId);
+
+      let socket = new SockJS("/ws");
+      let stomp = Stomp.over(socket);
+
+      stomp.connect(
+        {},
+        function (frame) {
+          console.log("STOMP connected:", frame);
+          if (!patientId || patientId === "" || patientId === "null") {
+            console.warn(
+              "No patientId available; subscription will use empty id."
+            );
+          }
+          stomp.subscribe("/topic/patient/" + patientId, function (message) {
+            console.log("WS message received:", message);
+            try {
+              let body = JSON.parse(message.body);
+              document.getElementById("msg").innerHTML = body.message;
+            } catch (e) {
+              console.error("Failed to parse message body", e, message.body);
+            }
+          });
+        },
+        function (error) {
+          console.error("STOMP connection error:", error);
+        }
+      );
+      /*]]>*/
+    </script>
+  </body>
+</html>
