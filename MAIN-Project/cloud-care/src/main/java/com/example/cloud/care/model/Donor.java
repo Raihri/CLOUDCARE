@@ -18,8 +18,6 @@ public class Donor {
     private String bloodGroup;
     private String contact;
     private String email;
-    private String confirmToken;
-    private java.time.Instant confirmTokenCreated;
     private String status;
     private LocalDate lastDonated;
 
@@ -47,15 +45,6 @@ public class Donor {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
-
-    public String getConfirmToken() { return confirmToken; }
-    public void setConfirmToken(String confirmToken) { this.confirmToken = confirmToken; }
-
-    public java.time.Instant getConfirmTokenCreated() { return confirmTokenCreated; }
-    public void setConfirmTokenCreated(java.time.Instant confirmTokenCreated) {
-        this.confirmTokenCreated = confirmTokenCreated;
-    }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
