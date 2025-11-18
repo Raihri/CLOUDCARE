@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,8 +31,15 @@
         }
 
         @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(10px);}
-            to {opacity: 1; transform: translateY(0);}
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h2 {
@@ -77,7 +85,8 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        video, img {
+        video,
+        img {
             width: 100%;
             border-radius: 10px;
             margin-top: 15px;
@@ -118,73 +127,78 @@
         }
     </style>
 </head>
+
 <body>
-<div class="form-container">
-    <h2>Welcome!</h2>
-    <div class="id-display">
-        Your ID is: <span th:text="${patient.id}">PAT-001</span>
+    <div class="form-container">
+        <h2>Welcome!</h2>
+        <div class="id-display">
+            Your ID is: <span th:text="${patient.id}">PAT-001</span>
+        </div>
+
+        <form th:action="@{/patient/submit}" method="post" enctype="multipart/form-data">
+            <!-- Pass userId to controller so it can fetch the correct user -->
+            <input type="hidden" name="userId" th:value="${patient.id}">
+
+            <div class="input-group">
+                <label for="name">Enter Your Name</label>
+                <input type="text" id="name" name="name" th:value="${patient.name}" required>
+            </div>
+
+            <div class="camera-section">
+                <label>Take a Selfie</label>
+                <video id="camera" autoplay playsinline></video>
+                <img id="preview" alt="Captured Selfie" style="display:none;">
+                <input type="hidden" id="capturedImage" name="capturedImage">
+
+                <button type="button" id="captureBtn" class="camera-btn">📸 Capture Selfie</button>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
     </div>
 
-    <form th:action="@{/patient/submit}" method="post" enctype="multipart/form-data">
-        <div class="input-group">
-            <label for="name">Enter Your Name</label>
-            <input type="text" id="name" name="name" th:value="${patient.name}" required>
-        </div>
+    <script>
+        const camera = document.getElementById('camera');
+        const preview = document.getElementById('preview');
+        const captureBtn = document.getElementById('captureBtn');
+        const capturedImageInput = document.getElementById('capturedImage');
+        let stream;
 
-        <div class="camera-section">
-            <label>Take a Selfie</label>
-            <video id="camera" autoplay playsinline></video>
-            <img id="preview" alt="Captured Selfie" style="display:none;">
-            <input type="hidden" id="capturedImage" name="capturedImage">
-
-            <button type="button" id="captureBtn" class="camera-btn">📸 Capture Selfie</button>
-        </div>
-
-        <button type="submit" class="submit-btn">Submit</button>
-    </form>
-</div>
-
-<script>
-    const camera = document.getElementById('camera');
-    const preview = document.getElementById('preview');
-    const captureBtn = document.getElementById('captureBtn');
-    const capturedImageInput = document.getElementById('capturedImage');
-    let stream;
-
-    async function startCamera() {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            camera.srcObject = stream;
-        } catch (err) {
-            alert("Unable to access camera. Please allow camera permissions.");
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                camera.srcObject = stream;
+            } catch (err) {
+                alert("Unable to access camera. Please allow camera permissions.");
+            }
         }
-    }
 
-    captureBtn.addEventListener('click', () => {
-        if (camera.style.display !== 'none') {
-            const canvas = document.createElement('canvas');
-            canvas.width = camera.videoWidth;
-            canvas.height = camera.videoHeight;
-            canvas.getContext('2d').drawImage(camera, 0, 0);
-            const imageDataUrl = canvas.toDataURL('image/png');
+        captureBtn.addEventListener('click', () => {
+            if (camera.style.display !== 'none') {
+                const canvas = document.createElement('canvas');
+                canvas.width = camera.videoWidth;
+                canvas.height = camera.videoHeight;
+                canvas.getContext('2d').drawImage(camera, 0, 0);
+                const imageDataUrl = canvas.toDataURL('image/png');
 
-            preview.src = imageDataUrl;
-            preview.style.display = 'block';
-            camera.style.display = 'none';
-            capturedImageInput.value = imageDataUrl; // send image to backend as base64
-            captureBtn.textContent = "📷 Retake Selfie";
+                preview.src = imageDataUrl;
+                preview.style.display = 'block';
+                camera.style.display = 'none';
+                capturedImageInput.value = imageDataUrl; // send image to backend as base64
+                captureBtn.textContent = "📷 Retake Selfie";
 
-            // stop camera stream
-            stream.getTracks().forEach(track => track.stop());
-        } else {
-            preview.style.display = 'none';
-            camera.style.display = 'block';
-            captureBtn.textContent = "📸 Capture Selfie";
-            startCamera();
-        }
-    });
+                // stop camera stream
+                stream.getTracks().forEach(track => track.stop());
+            } else {
+                preview.style.display = 'none';
+                camera.style.display = 'block';
+                captureBtn.textContent = "📸 Capture Selfie";
+                startCamera();
+            }
+        });
 
-    startCamera();
-</script>
+        startCamera();
+    </script>
 </body>
+
 </html>

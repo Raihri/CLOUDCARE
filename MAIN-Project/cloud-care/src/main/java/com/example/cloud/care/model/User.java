@@ -19,6 +19,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Name is required")
+    
+    @Column( nullable = false)
+    private String name;
+
     
 
     @NotBlank(message = "Username is required")
@@ -39,4 +44,6 @@ public class User {
     private boolean enabled = false;
 
     private String verificationCode;
+    @Column(name = "photo_url")
+    private String photoUrl;
 }

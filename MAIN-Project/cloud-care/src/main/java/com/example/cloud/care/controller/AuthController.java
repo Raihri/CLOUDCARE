@@ -1,6 +1,8 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.model.User;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.cloud.care.model.ForgotPasswordRequest;
 import com.example.cloud.care.model.OtpForm;
 import com.example.cloud.care.service.EmailService;
@@ -18,6 +20,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.method.P;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+
+import java.io.IOException;
+import java.util.Base64;
+import java.util.Map;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +34,18 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    private  UserService userService;
+    private UserService userService;
+    private final Cloudinary cloudinary;
     private final patient_service patientService;
     private final EmailService emailService;
+    private User user;
 
-    public AuthController(UserService userService, patient_service patientService, EmailService emailService) {
+    public AuthController(UserService userService, patient_service patientService, EmailService emailService,
+            Cloudinary cloudinary) {
         this.userService = userService;
         this.patientService = patientService;
         this.emailService = emailService;
+        this.cloudinary = cloudinary;
     }
 
     @GetMapping("/")
@@ -45,27 +57,42 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@ModelAttribute User user, Model model) {
         try {
+
             userService.registerUser(user);
             // Redirect to verification page with email param
+
             return "redirect:/verify?email=" + user.getEmail();
         } catch (Exception e) {
+            // If the email already exists but user is not enabled, resend code and redirect
+            // to verify
+            try {
+                if (user.getEmail() != null) {
+                    java.util.Optional<User> existing = userService.findByEmailOptional(user.getEmail().trim());
+                    if (existing.isPresent() && !existing.get().isEnabled()) {
+                        try {
+                            userService.resendVerification(user.getEmail().trim());
+                        } catch (Exception resendEx) {
+                            model.addAttribute("errorMessage",
+                                    "Unable to resend verification: " + resendEx.getMessage());
+                            return "index";
+                        }
+                        return "redirect:/verify?email=" + user.getEmail();
+                    }
+                }
+            } catch (Exception ignored) {
+                // fall through to show original error
+            }
+
             model.addAttribute("errorMessage", e.getMessage());
             return "index";
         }
-    }
-
-    // Corrected route to match the redirect from /register
-    @GetMapping("/verify")
-    public String showVerificationPage(@RequestParam String email, Model model) {
-        model.addAttribute("email", email);
-        model.addAttribute("otpForm", new OtpForm());
-        return "otp"; // OTP verification page
     }
 
     @PostMapping("/otpverify")
     public String verifyCode(@RequestParam String email,
             @ModelAttribute OtpForm otpForm,
             Model model) {
+
         String code = buildOtpCode(otpForm);
         if (code == null) {
             model.addAttribute("errorMessage", "Please enter the full 6-digit code.");
@@ -80,30 +107,41 @@ public class AuthController {
 
         if (verified) {
             logger.info("User {} successfully verified.", email);
-            System.out.println("User " + email + " successfully verified.");
-            patient newPatient = new patient();
-            newPatient.setEmail(email);
-            // save via patient service and capture saved entity (to get generated ID)
-            patient saved = patientService.savePatient(newPatient);
-            if (saved != null) {
-                model.addAttribute("toastMessage", "Congratulations, your ID is - " + saved.getPatientId());
-            } else {
-                model.addAttribute("toastMessage", "Congratulations — patient created.");
-            }
 
-            return "dashboard";
+            // Get the existing user
+            Optional<User> optionalUser = userService.findByEmail(email);
+            if (optionalUser.isEmpty()) {
+                model.addAttribute("errorMessage", "User not found!");
+                return "index";
+            }
+            User verifiedUser = optionalUser.get();
+
+            // Redirect to selfie upload page with userId
+            return "redirect:/selfie-upload?userId=" + verifiedUser.getId();
+
         } else {
             logger.warn("Verification failed for user {} with code {}", email, code);
             model.addAttribute("errorMessage", "Invalid or expired verification code!");
             model.addAttribute("email", email);
             model.addAttribute("otpForm", otpForm);
-            model.addAttribute("otp", code);
             return "otp";
         }
     }
 
+    // Corrected route to match the redirect from /register
+    @GetMapping("/verify")
+    public String showVerificationPage(@RequestParam String email, Model model) {
+        model.addAttribute("email", email);
+        model.addAttribute("otpForm", new OtpForm());
+        return "otp"; // OTP verification page
+    }
+
     @PostMapping("/login")
     public String login(@ModelAttribute User user, Model model) {
+        if (!user.isEnabled()) {
+            System.out.println("User not enabled, redirecting to verification page.--------------------------");
+            return "redirect:/verify?email=" + user.getEmail();
+        }
         // Authentication is handled by Spring Security
         return "redirect:/dashboard";
     }
@@ -116,6 +154,48 @@ public class AuthController {
         return "redirect:/";
     }
 
+    @GetMapping("/selfie-upload")
+    public String selfiePage(@RequestParam("userId") Long userId, Model model) {
+        Optional<User> optionalUser = userService.findById(userId);
+        if (optionalUser.isEmpty()) {
+            model.addAttribute("errorMessage", "User not found!");
+            return "index";
+        }
+        // Template expects attribute name 'patient'
+        model.addAttribute("patient", optionalUser.get());
+        return "selfieupload"; // Thymeleaf page
+    }
+
+    // The selfie form in the template posts to /patient/submit, so accept that URL
+    @PostMapping("/patient/submit")
+    public String submitSelfie(
+            @RequestParam("userId") Long userId,
+            @RequestParam("capturedImage") String base64Image,
+            Model model) throws IOException {
+
+        Optional<User> optionalUser = userService.findById(userId);
+        if (optionalUser.isEmpty()) {
+            model.addAttribute("errorMessage", "User not found!");
+            return "index";
+        }
+        User user = optionalUser.get();
+
+        // Remove prefix and decode Base64
+        String cleanBase64 = base64Image.replaceAll("^data:image/\\w+;base64,", "");
+        byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
+
+        // Upload to Cloudinary
+        Map uploadResult = cloudinary.uploader().upload(imageBytes,
+                ObjectUtils.asMap("folder", "users", "resource_type", "image"));
+
+        String imageUrl = uploadResult.get("secure_url").toString();
+
+        // Update existing user
+        user.setPhotoUrl(imageUrl);
+        userService.saveUser(user);
+
+        return "redirect:/dashboard"; // or success page
+    }
 
     // Show the forgot-password form
     @GetMapping("/forgot-password")
@@ -126,7 +206,8 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password-submit")
-    public String handleForgotPassword(@ModelAttribute("forgotPasswordRequest") ForgotPasswordRequest request, Model model) throws Exception {
+    public String handleForgotPassword(@ModelAttribute("forgotPasswordRequest") ForgotPasswordRequest request,
+            Model model) throws Exception {
         String email = request.getEmail();
 
         if (email == null || email.trim().isEmpty()) {
@@ -149,10 +230,8 @@ public class AuthController {
             model.addAttribute("error", e.getMessage() == null ? "Unable to process request." : e.getMessage());
             return "forgot_password";
         }
-    
 
-
-}
+    }
 
     @GetMapping("/reset-otp")
     public String showResetOtpForm(@RequestParam String email, Model model) {
@@ -193,16 +272,17 @@ public class AuthController {
     // Handle password reset submission
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam(required = false) String email,
-                                @RequestParam String password,
-                                @RequestParam String confirmPassword,
-                                Model model) {
+            @RequestParam String password,
+            @RequestParam String confirmPassword,
+            Model model) {
         // Validate email is provided
         if (email == null || email.trim().isEmpty()) {
             model.addAttribute("error", "Email information missing. Please try again.");
             return "reset_password";
         }
 
-        // Validate passwords match (frontend already validates, but check server-side too)
+        // Validate passwords match (frontend already validates, but check server-side
+        // too)
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match!");
             model.addAttribute("email", email);
@@ -222,18 +302,38 @@ public class AuthController {
         }
     }
 
-    // Helper: build a 6-digit string from OtpForm, return null if any digit missing/invalid
+    // Helper: build a 6-digit string from OtpForm, return null if any digit
+    // missing/invalid
     private String buildOtpCode(OtpForm otpForm) {
-        if (otpForm == null) return null;
-        String[] parts = {otpForm.getDigit1(), otpForm.getDigit2(), otpForm.getDigit3(), otpForm.getDigit4(), otpForm.getDigit5(), otpForm.getDigit6()};
+        if (otpForm == null)
+            return null;
+        String[] parts = { otpForm.getDigit1(), otpForm.getDigit2(), otpForm.getDigit3(), otpForm.getDigit4(),
+                otpForm.getDigit5(), otpForm.getDigit6() };
         StringBuilder sb = new StringBuilder();
         for (String p : parts) {
-            if (p == null || p.trim().isEmpty()) return null;
+            if (p == null || p.trim().isEmpty())
+                return null;
             String t = p.trim();
-            if (t.length() != 1 || !t.matches("\\d")) return null;
+            if (t.length() != 1 || !t.matches("\\d"))
+                return null;
             sb.append(t);
         }
         return sb.toString();
+    }
+
+    // Dev-only debug endpoint: check verification status by email
+    @GetMapping("/debug/verification-status")
+    @ResponseBody
+    public ResponseEntity<?> debugVerificationStatus(@RequestParam String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", "email required"));
+        }
+        return userService.findByEmailOptional(email.trim())
+                .map(u -> ResponseEntity.ok().body(java.util.Map.of(
+                        "email", u.getEmail(),
+                        "enabled", u.isEnabled(),
+                        "verificationCode", u.getVerificationCode())))
+                .orElseGet(() -> ResponseEntity.status(404).body(java.util.Map.of("error", "user not found")));
     }
 }
 

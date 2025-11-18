@@ -20,7 +20,8 @@ public class UserService {
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, EmailService emailService, BCryptPasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, EmailService emailService,
+            BCryptPasswordEncoder passwordEncoder) {
         if (userRepository == null) {
             throw new IllegalArgumentException("UserRepository cannot be null");
         }
@@ -39,6 +40,11 @@ public class UserService {
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
     public void registerUser(User user) throws Exception {
         logger.info("Starting registration for user: {}", user.getEmail());
 
@@ -68,7 +74,8 @@ public class UserService {
         // Save user first
         userRepository.save(user);
 
-        // Send code by email using the exact code we just saved so delivery matches stored code
+        // Send code by email using the exact code we just saved so delivery matches
+        // stored code
         // This now runs asynchronously in background thread
         emailService.sendVerificationEmail(user.getEmail(), verificationCode);
         logger.info("User registered successfully with email: {}", user.getEmail());
@@ -111,9 +118,11 @@ public class UserService {
         }
     }
 
-    // Dev helper: return raw user data for debugging verification (email, enabled, verificationCode)
+    // Dev helper: return raw user data for debugging verification (email, enabled,
+    // verificationCode)
     public Optional<User> findByEmailOptional(String email) {
-        if (email == null) return Optional.empty();
+        if (email == null)
+            return Optional.empty();
         return userRepository.findByEmail(email.trim());
     }
 
@@ -124,7 +133,7 @@ public class UserService {
         if (optUser.isEmpty()) {
             throw new Exception("Email not found");
         }
-        
+
         User user = optUser.get();
         // Generate new code
         String verificationCode = String.format("%06d", new Random().nextInt(1000000));
@@ -136,6 +145,26 @@ public class UserService {
         // This now runs asynchronously in background thread
         emailService.sendVerificationEmail(email, verificationCode);
         logger.info("Password reset code {} queued for sending to {} successfully", verificationCode, email);
+    }
+
+    // Resend verification code for an existing unverified user
+    @Transactional
+    public void resendVerification(String email) throws Exception {
+        Optional<User> optUser = userRepository.findByEmail(email.trim());
+        if (optUser.isEmpty()) {
+            throw new Exception("Email not found");
+        }
+
+        User user = optUser.get();
+        if (user.isEnabled()) {
+            throw new Exception("User already verified");
+        }
+
+        String verificationCode = String.format("%06d", new Random().nextInt(1000000));
+        user.setVerificationCode(verificationCode);
+        User saved = userRepository.save(user);
+        logger.info("Resent verification code {} for user {} (ID: {})", verificationCode, email, saved.getId());
+        emailService.sendVerificationEmail(email, verificationCode);
     }
 
     // Save user (encapsulated method instead of exposing repository directly)
