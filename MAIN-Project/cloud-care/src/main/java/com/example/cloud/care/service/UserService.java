@@ -1,5 +1,6 @@
 package com.example.cloud.care.service;
 
+import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.model.User;
 import com.example.cloud.care.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +20,8 @@ public class UserService {
     public final UserRepository userRepository;
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    
 
     public UserService(UserRepository userRepository, EmailService emailService,
             BCryptPasswordEncoder passwordEncoder) {
@@ -43,6 +46,26 @@ public class UserService {
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+     
+    public Optional<User> authenticate(String email, String rawPassword) {
+
+        // 1. Find user by email
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            return Optional.empty(); // no such email
+        }
+
+        User user = userOptional.get();
+
+        // 2. Compare raw password with hashed password
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            return Optional.empty(); // password mismatch
+        }
+
+        // 3. User authenticated successfully
+        return Optional.of(user);
     }
 
     public void registerUser(User user) throws Exception {

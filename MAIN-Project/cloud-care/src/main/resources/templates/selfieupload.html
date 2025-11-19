@@ -135,7 +135,7 @@
             Your ID is: <span th:text="${patient.id}">PAT-001</span>
         </div>
 
-        <form th:action="@{/patient/submit}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/dashboard}" method="post" enctype="multipart/form-data">
             <!-- Pass userId to controller so it can fetch the correct user -->
             <input type="hidden" name="userId" th:value="${patient.id}">
 
@@ -194,6 +194,14 @@
                 camera.style.display = 'block';
                 captureBtn.textContent = "📸 Capture Selfie";
                 startCamera();
+            }
+        });
+
+        // Prevent form submission if no selfie is captured
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (!capturedImageInput.value) {
+                alert('Please capture a selfie before submitting.');
+                e.preventDefault();
             }
         });
 

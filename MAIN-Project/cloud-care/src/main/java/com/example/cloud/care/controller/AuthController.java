@@ -9,14 +9,16 @@ import com.example.cloud.care.service.EmailService;
 import com.example.cloud.care.service.UserService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
-import com.example.cloud.care.var.patient;
+import com.example.cloud.care.model.Patient;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.method.P;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -31,14 +33,14 @@ import org.slf4j.LoggerFactory;
 
 @Controller
 public class AuthController {
+    // Remove field injection for session; use method parameter instead
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    private UserService userService;
+    private final UserService userService;
     private final Cloudinary cloudinary;
     private final patient_service patientService;
     private final EmailService emailService;
-    private User user;
 
     public AuthController(UserService userService, patient_service patientService, EmailService emailService,
             Cloudinary cloudinary) {
@@ -136,15 +138,43 @@ public class AuthController {
         return "otp"; // OTP verification page
     }
 
-    @PostMapping("/login")
-    public String login(@ModelAttribute User user, Model model) {
-        if (!user.isEnabled()) {
-            System.out.println("User not enabled, redirecting to verification page.--------------------------");
-            return "redirect:/verify?email=" + user.getEmail();
-        }
-        // Authentication is handled by Spring Security
-        return "redirect:/dashboard";
+    // Remove duplicate login mapping
+
+    // @GetMapping("/dashboard")
+    // public String dashboard(HttpSession session, Model model) {
+
+    // System.out.println("arrived at dashboard");
+
+    // Long pid = (Long) session.getAttribute("loggedPatientId");
+
+    // if (pid == null) {
+    // return "redirect:/login";
+    // }
+
+    // Optional<Patient> patient = patientService.findById(pid);
+
+    // if (patient.isEmpty()) {
+    // return "redirect:/login";
+    // }
+
+    // model.addAttribute("patient", patient.get());
+    // return "what"; // dummy
+    // }
+
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        System.out.println("Came to dashboard-------------------------------");
+        return "what1";
+
     }
+
+    // @PostMapping("/dashboard")
+    // public String dashboard2()
+    // {
+    // System.out.println("Came to dashboard-
+    // 2222222------------------------------");
+    // return "what1";
+    // }
 
     @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
@@ -159,10 +189,12 @@ public class AuthController {
         Optional<User> optionalUser = userService.findById(userId);
         if (optionalUser.isEmpty()) {
             model.addAttribute("errorMessage", "User not found!");
+            System.out.println("i love u ahan");
             return "index";
         }
         // Template expects attribute name 'patient'
         model.addAttribute("patient", optionalUser.get());
+        System.out.println("i love u ahan 2222");
         return "selfieupload"; // Thymeleaf page
     }
 
@@ -171,6 +203,7 @@ public class AuthController {
     public String submitSelfie(
             @RequestParam("userId") Long userId,
             @RequestParam("capturedImage") String base64Image,
+            HttpSession session,
             Model model) throws IOException {
 
         Optional<User> optionalUser = userService.findById(userId);
@@ -185,7 +218,7 @@ public class AuthController {
         byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
 
         // Upload to Cloudinary
-        Map uploadResult = cloudinary.uploader().upload(imageBytes,
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(imageBytes,
                 ObjectUtils.asMap("folder", "users", "resource_type", "image"));
 
         String imageUrl = uploadResult.get("secure_url").toString();
@@ -194,7 +227,19 @@ public class AuthController {
         user.setPhotoUrl(imageUrl);
         userService.saveUser(user);
 
-        return "redirect:/dashboard"; // or success page
+        // Set session attribute for patient if exists
+        Optional<Patient> patient = patientService.findById(user.getId());
+        if (patient.isPresent()) {
+            session.setAttribute("loggedPatientId", patient.get().getId());
+            session.setAttribute("role", "PATIENT");
+        } else {
+            session.setAttribute("loggedUserId", user.getId());
+            session.setAttribute("role", "USER");
+        }
+
+        System.out.println("Should Redirect to Daashboard now--------------------------------------");
+
+        return "redirect:/dashboard";
     }
 
     // Show the forgot-password form
@@ -231,6 +276,41 @@ public class AuthController {
             return "forgot_password";
         }
 
+    }
+
+    @PostMapping("/login")
+    public String login(@ModelAttribute User userForm,
+            HttpSession session,
+            Model model) {
+
+        Optional<User> optionalUser = userService.authenticate(userForm.getEmail(), userForm.getPassword());
+
+        if (optionalUser.isEmpty()) {
+            model.addAttribute("error", "Invalid email or password");
+            return "login";
+        }
+
+        User user = optionalUser.get();
+
+        if (!user.isEnabled()) {
+            return "redirect:/verify?email=" + user.getEmail();
+        }
+
+        // Now find if this user is a Patient
+        Optional<Patient> patient = patientService.findById(user.getId());
+
+        if (patient.isPresent()) {
+            // This user is a patient
+            session.setAttribute("loggedPatientId", patient.get().getId());
+            session.setAttribute("role", "PATIENT");
+            return "redirect:/dashboard";
+        }
+
+        // If not patient, maybe doctor or admin
+        session.setAttribute("loggedUserId", user.getId());
+        session.setAttribute("role", "USER");
+
+        return "dashboard";
     }
 
     @GetMapping("/reset-otp")

@@ -9,14 +9,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "patients")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(
+        name = "patient_seq",
+        sequenceName = "patient_sequence",
+        initialValue = 292800,
+        allocationSize = 1
+    )
+@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "patient_seq")
     private Long id;
 
     @NotBlank(message = "Name is required")

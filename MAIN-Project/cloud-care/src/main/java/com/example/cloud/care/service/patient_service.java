@@ -1,16 +1,19 @@
 package com.example.cloud.care.service;
 import com.example.cloud.care.dao.patient_dao;
-import com.example.cloud.care.var.patient;
+import com.example.cloud.care.model.Patient;
+import com.example.cloud.care.model.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 @Service
 public class patient_service
 {
     @Autowired
     patient_dao patient_dao;
-    public List<patient> getPatients() {
+    public List<Patient> getPatients() {
         try {
             return patient_dao.findAll();
         } catch (Exception e) {
@@ -19,7 +22,7 @@ public class patient_service
         }
     }
 
-    public patient savePatient(patient p) {
+    public Patient savePatient(Patient p) {
         try {
             return patient_dao.save(p);
         } catch (Exception e) {
@@ -37,9 +40,13 @@ public class patient_service
         }
     }
 
-    public patient getPatientData(int patientId) {
-        return patient_dao.findById(patientId).orElse(null);
-}
+    
+public Optional<Patient> findById(Long id) {
+        return patient_dao.findById(id);
+    }
+//     public Patient getPatientData(int patientId) {
+//         return patient_dao.findById(patientId).orElse(null);
+// }
 
 
 }

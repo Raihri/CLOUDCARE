@@ -4,8 +4,8 @@ import com.example.cloud.care.dao.patient_dao;
 import com.example.cloud.care.service.EmailService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
-import com.example.cloud.care.var.doctor;
-import com.example.cloud.care.var.patient;
+
+import com.example.cloud.care.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,13 +27,13 @@ import java.nio.file.StandardCopyOption;
 public class homeController {
 
     @Autowired
-    patient_service patientService;
+    patient_service PatientService;
 
     @Autowired
     doctor_service doctor_service;
 
     @Autowired
-    patient_dao patient_dao;
+    patient_dao Patient_dao;
 
     @Autowired
     EmailService emailService;
@@ -46,29 +46,29 @@ public class homeController {
         return "dashboard";
     }
 
-    @GetMapping({ "/patient" })
-    public String patient(Model m) {
+    @GetMapping({ "/Patient" })
+    public String Patient(Model m) {
 
-        return "patient";
+        return "Patient";
     }
 
-    @PostMapping("/patient/getPatientData")
-    public String getPatientData(int patientId, Model m) {
+    // @PostMapping("/Patient/getPatientData")
+    // public String getPatientData(int PatientId, Model m) {
 
-        patient patientData = patientService.getPatientData(patientId);
-        m.addAttribute("patient", patientData);
+    //     Patient PatientData = PatientService.getPatientData(PatientId);
+    //     m.addAttribute("Patient", PatientData);
 
-        return "patient";
-    }
+    //     return "Patient";
+    // }
 
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        model.addAttribute("message", "Welcome to your CloudCare Dashboard!");
-        // model.addAttribute("doctor", doctor_service.getDoctorByID(1));
-        model.addAttribute("doctor", doctor_service.getDoctorByID(1));
+    // @GetMapping("/dashboard")
+    // public String dashboard(Model model) {
+    //     model.addAttribute("message", "Welcome to your CloudCare Dashboard!");
+    //     // model.addAttribute("doctor", doctor_service.getDoctorByID(1));
+    //     model.addAttribute("doctor", doctor_service.getDoctorByID(1));
 
-        return "dashboard";
-    }
+    //     return "dashboard";
+    // }
 
     @GetMapping("/list")
     public String listPatients(Model m) {
@@ -82,196 +82,79 @@ public class homeController {
         return "list";
     }
 
-    @GetMapping("/patient_data_entry")
+    @GetMapping("/Patient_data_entry")
     public String showForm(Model model) {
-        model.addAttribute("patient", new patient()); // prevents Thymeleaf binding errors
-        return "patient_data_entry";
+        model.addAttribute("Patient", new Patient()); // prevents Thymeleaf binding errors
+        return "Patient_data_entry";
     }
 
-    @GetMapping("/patient/getPatientProfileData")
-    public String getPatientProfileData(@RequestParam int patientId, Model model) {
-        try {
-            patient p = patientService.getPatientData(patientId);
-            if (p == null) {
-                model.addAttribute("error", "No patient found with ID: " + patientId);
-                return "patient"; // stays on same page with message
-            }
-            model.addAttribute("patient", p);
-            return "patient";
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "An error occurred while fetching data.");
-            return "patient";
-        }
-    }
+    // @GetMapping("/Patient/getPatientProfileData")
+    // public String getPatientProfileData(@RequestParam int PatientId, Model model) {
+    //     try {
+    //         Patient p = PatientService.getPatientData(PatientId);
+    //         if (p == null) {
+    //             model.addAttribute("error", "No Patient found with ID: " + PatientId);
+    //             return "Patient"; // stays on same page with message
+    //         }
+    //         model.addAttribute("Patient", p);
+    //         return "Patient";
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         model.addAttribute("error", "An error occurred while fetching data.");
+    //         return "Patient";
+    //     }
+    // }
 
-    @PostMapping("/editPatientData")
-    public String editPatientData(@ModelAttribute patient patient, Model model) {
-        try {
-            patient existingPatient = patientService.getPatientData(patient.getPatientId());
-            if (existingPatient != null) {
-                model.addAttribute("patient", existingPatient);
-            } else {
-                model.addAttribute("error", "No patient found with ID: " + patient.getPatientId());
-            }
-        } catch (Exception e) {
-            model.addAttribute("error", "Something went wrong while fetching patient data.");
-        }
-        return "patient_data_entry";
-    }
+    // @PostMapping("/editPatientData")
+    // public String editPatientData(@ModelAttribute Patient Patient, Model model) {
+    //     try {
+    //         Patient existingPatient = PatientService.getPatientData(Patient.getId());
+    //         if (existingPatient != null) {
+    //             model.addAttribute("Patient", existingPatient);
+    //         } else {
+    //             model.addAttribute("error", "No Patient found with ID: " + Patient.getId());
+    //         }
+    //     } catch (Exception e) {
+    //         model.addAttribute("error", "Something went wrong while fetching Patient data.");
+    //     }
+    //     return "Patient_data_entry";
+    // }
 
-    @PostMapping("/patient/fetch/patientId")
-    public String fetchPatientData(@RequestParam("patientId") int patientId, Model model) {
-        try {
-            patient p = patientService.getPatientData(patientId);
-            if (p != null) {
-                model.addAttribute("patient", p);
-            } else {
-                model.addAttribute("error", "No patient found with ID: " + patientId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "An error occurred while fetching patient data.");
-        }
-        return "patient_data_entry";
-    }
+    // @PostMapping("/Patient/fetch/PatientId")
+    // public String fetchPatientData(@RequestParam("PatientId") int PatientId, Model model) {
+    //     try {
+    //         Patient p = PatientService.getPatientData(PatientId);
+    //         if (p != null) {
+    //             model.addAttribute("Patient", p);
+    //         } else {
+    //             model.addAttribute("error", "No Patient found with ID: " + PatientId);
+    //         }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         model.addAttribute("error", "An error occurred while fetching Patient data.");
+    //     }
+    //     return "Patient_data_entry";
+    // }
 
-    @PostMapping("/doctor/{id}/upload-photo")
-    public String uploadDoctorPhoto(
-            @PathVariable("id") int id,
-            @RequestParam("profileImage") MultipartFile file,
-            Model model) {
-        try {
-            if (file.isEmpty()) {
-                model.addAttribute("error", "Please select a file to upload");
-                return "redirect:/doctor/" + id;
-            }
+  
 
-            // Get the doctor
-            doctor doc = doctor_service.getDoctorByID(id);
-            if (doc == null) {
-                return "redirect:/list";
-            }
+   
 
-            // Create doctor-pic-uploads directory if it doesn't exist
-            Path uploadDir = Paths.get(System.getProperty("user.dir"), "MAIN", "cloud-care", "doctor-pic-uploads");
-            if (!Files.exists(uploadDir)) {
-                Files.createDirectories(uploadDir);
-            }
+    // @GetMapping("/Patient/fetch/PatientId")
+    // public String fetchPatientDataget(@RequestParam("PatientId") int PatientId, Model model) {
+    //     try {
+    //         Patient p = PatientService.getPatientData(PatientId);
+    //         if (p != null) {
+    //             model.addAttribute("Patient", p);
+    //         } else {
+    //             model.addAttribute("error", "No Patient found with ID: " + PatientId);
+    //         }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         model.addAttribute("error", "An error occurred while fetching Patient data.");
+    //     }
+    //     return "Patient_data_entry";
+    // }
 
-            // Generate unique filename
-            String fileName = id + "_" + System.currentTimeMillis() + "_"
-                    + file.getOriginalFilename().replaceAll("\\s+", "_");
-            Path filePath = uploadDir.resolve(fileName);
-
-            // Delete old image if exists
-            if (doc.getProfileImage() != null) {
-                Path oldFilePath = uploadDir.resolve(doc.getProfileImage());
-                Files.deleteIfExists(oldFilePath);
-            }
-
-            // Copy the file
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Update doctor profile
-            doc.setProfileImage(fileName);
-            doctor_service.saveDoctor(doc);
-
-            return "redirect:/doctor/" + id;
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Failed to upload image: " + e.getMessage());
-            return "redirect:/doctor/" + id;
-        }
-    }
-
-
-
-    @GetMapping("/doctor/{id}")
-    public String getDoctorById(@PathVariable("id") int id, Model model) {
-        doctor doc = doctor_service.getDoctorByID(id);
-        if (doc == null) {
-            // Handle case when doctor is not found
-            return "redirect:/list";
-        }
-        System.out.println("Doctor found with ID: " + id);
-        System.out.println("Doctor name: " + doc.getName());
-        System.out.println("Doctor profile image: " + doc.getProfileImage());
-        model.addAttribute("doctor", doc);
-        return "view"; // Your Thymeleaf view for a single doctor
-    }
-
-    @GetMapping("/patient/fetch/patientId")
-    public String fetchPatientDataget(@RequestParam("patientId") int patientId, Model model) {
-        try {
-            patient p = patientService.getPatientData(patientId);
-            if (p != null) {
-                model.addAttribute("patient", p);
-            } else {
-                model.addAttribute("error", "No patient found with ID: " + patientId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "An error occurred while fetching patient data.");
-        }
-        return "patient_data_entry";
-    }
-
-    // Patient photo upload
-    @PostMapping("/patient/uploadPhoto")
-    public String uploadProfileImage(
-            Model model,
-            @RequestParam("patientId") int patientId,
-            @RequestParam("profileImage") MultipartFile file) {
-
-        try {
-            if (file.isEmpty()) {
-                model.addAttribute("error", "Please select a file to upload");
-                return "redirect:/patient/fetch/patientId?patientId=" + patientId;
-            }
-
-            // Create the upload directory inside MAIN if it doesn't exist
-            String uploadDir = System.getProperty("user.dir") + "/MAIN/cloud-care/doctor-pic-uploads/";
-            Files.createDirectories(Paths.get(uploadDir));
-
-            // Generate a unique filename to prevent overwriting
-            String originalFilename = file.getOriginalFilename();
-            String fileName = patientId + "_" + System.currentTimeMillis();
-
-            // Add file extension if present
-            if (originalFilename != null && originalFilename.contains(".")) {
-                fileName += originalFilename.substring(originalFilename.lastIndexOf("."));
-            } else {
-                fileName += ".jpg"; // Default extension if none provided
-            }
-
-            Path filePath = Paths.get(uploadDir, fileName);
-
-            // Save the file
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Update database record
-            patient patient = patientService.getPatientData(patientId);
-            if (patient == null) {
-                throw new RuntimeException("Patient not found with ID: " + patientId);
-            }
-
-            // Delete old image if it exists
-            if (patient.getProfileImage() != null) {
-                Path oldFilePath = Paths.get(uploadDir, patient.getProfileImage());
-                Files.deleteIfExists(oldFilePath);
-            }
-
-            patient.setProfileImage(fileName);
-            patient_dao.save(patient);
-
-            model.addAttribute("success", "Profile image updated successfully");
-            return "redirect:/patient/fetch/patientId?patientId=" + patientId;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            model.addAttribute("error", "Failed to upload image: " + e.getMessage());
-            return "redirect:/patient/fetch/patientId?patientId=" + patientId;
-        }
-    }
+   
 }
