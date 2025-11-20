@@ -1,0 +1,375 @@
+WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::staticFieldBase has been called by com.google.inject.internal.aop.HiddenClassDefiner (file:/Users/raihri/.m2/wrapper/dists/apache-maven-3.9.11/a2d47e15/lib/guice-5.1.0-classes.jar)
+WARNING: Please consider reporting this to the maintainers of class com.google.inject.internal.aop.HiddenClassDefiner
+WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.example:cloud-care >-----------------------
+[INFO] Building cloud-care 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.7:run (default-cli) > test-compile @ cloud-care >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ cloud-care ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 24 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ cloud-care ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ cloud-care ---
+[INFO] skip non existing resourceDirectory /Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ cloud-care ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:3.5.7:run (default-cli) < test-compile @ cloud-care <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.7:run (default-cli) @ cloud-care ---
+[INFO] Attaching agents: []
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2025-11-20T12:43:54.955+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Starting CloudCareApplication using Java 25.0.1 with PID 58463 (/Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care/target/classes started by raihri in /Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care)
+2025-11-20T12:43:54.955+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : The following 1 profile is active: "dev"
+2025-11-20T12:43:54.968+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-11-20T12:43:54.968+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-11-20T12:43:55.143+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-20T12:43:55.158+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 13 ms. Found 3 JPA repository interfaces.
+2025-11-20T12:43:55.318+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-11-20T12:43:55.322+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-20T12:43:55.322+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2025-11-20T12:43:55.331+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-11-20T12:43:55.331+06:00  INFO 58463 --- [cloud-care] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 363 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2025-11-20T12:43:55.379+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-20T12:43:55.389+06:00  INFO 58463 --- [cloud-care] [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.33.Final
+2025-11-20T12:43:55.396+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-11-20T12:43:55.465+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-20T12:43:55.472+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-11-20T12:43:58.997+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@28021d70
+2025-11-20T12:43:58.999+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-11-20T12:43:59.190+06:00  WARN 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-20T12:43:59.508+06:00  INFO 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-20T12:43:59.810+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-20T12:44:01.229+06:00  INFO 58463 --- [cloud-care] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-20T12:44:01.346+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.service.UserService       : UserService initialized successfully with all dependencies
+2025-11-20T12:44:01.374+06:00  WARN 58463 --- [cloud-care] [  restartedMain] c.e.c.care.service.PasswordResetService  : PasswordResetService is deprecated; use AuthController.resetPassword() instead
+2025-11-20T12:44:01.382+06:00  INFO 58463 --- [cloud-care] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-11-20T12:44:01.388+06:00  WARN 58463 --- [cloud-care] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-20T12:44:01.415+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [templates/index.html]
+2025-11-20T12:44:01.545+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-11-20T12:44:01.553+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-11-20T12:44:01.556+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Started CloudCareApplication in 6.706 seconds (process running for 6.823)
+2025-11-20T12:44:18.154+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-20T12:44:18.155+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-20T12:44:18.155+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2025-11-20T13:01:57.960+06:00  INFO 58463 --- [cloud-care] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-11-20T13:01:57.961+06:00  INFO 58463 --- [cloud-care] [       Thread-5] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-11-20T13:01:57.964+06:00  INFO 58463 --- [cloud-care] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-11-20T13:01:57.965+06:00  INFO 58463 --- [cloud-care] [       Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-20T13:01:57.966+06:00  INFO 58463 --- [cloud-care] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-11-20T13:01:58.428+06:00  INFO 58463 --- [cloud-care] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2025-11-20T13:01:58.459+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Starting CloudCareApplication using Java 25.0.1 with PID 58463 (/Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care/target/classes started by raihri in /Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care)
+2025-11-20T13:01:58.459+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : The following 1 profile is active: "dev"
+2025-11-20T13:01:58.506+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-20T13:01:58.510+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 3 ms. Found 3 JPA repository interfaces.
+2025-11-20T13:01:58.552+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-11-20T13:01:58.552+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-20T13:01:58.552+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2025-11-20T13:01:58.556+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-11-20T13:01:58.556+06:00  INFO 58463 --- [cloud-care] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 96 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2025-11-20T13:01:58.573+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-20T13:01:58.574+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-11-20T13:01:58.576+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-20T13:01:58.576+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2025-11-20T13:01:59.191+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@650b184a
+2025-11-20T13:01:59.191+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2025-11-20T13:01:59.249+06:00  WARN 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-20T13:01:59.423+06:00  INFO 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-20T13:01:59.477+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-20T13:01:59.985+06:00  INFO 58463 --- [cloud-care] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-20T13:02:00.011+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.service.UserService       : UserService initialized successfully with all dependencies
+2025-11-20T13:02:00.030+06:00  WARN 58463 --- [cloud-care] [  restartedMain] c.e.c.care.service.PasswordResetService  : PasswordResetService is deprecated; use AuthController.resetPassword() instead
+2025-11-20T13:02:00.036+06:00  INFO 58463 --- [cloud-care] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-11-20T13:02:00.040+06:00  WARN 58463 --- [cloud-care] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-20T13:02:00.047+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [templates/index.html]
+2025-11-20T13:02:00.114+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-11-20T13:02:00.118+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-11-20T13:02:00.119+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Started CloudCareApplication in 1.668 seconds (process running for 1085.364)
+2025-11-20T13:02:00.120+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2025-11-20T13:02:12.625+06:00  INFO 58463 --- [cloud-care] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-11-20T13:02:12.625+06:00  INFO 58463 --- [cloud-care] [       Thread-7] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-11-20T13:02:12.626+06:00  INFO 58463 --- [cloud-care] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-11-20T13:02:12.627+06:00  INFO 58463 --- [cloud-care] [       Thread-7] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-20T13:02:12.628+06:00  INFO 58463 --- [cloud-care] [       Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2025-11-20T13:02:13.180+06:00  INFO 58463 --- [cloud-care] [       Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2025-11-20T13:02:13.208+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Starting CloudCareApplication using Java 25.0.1 with PID 58463 (/Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care/target/classes started by raihri in /Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care)
+2025-11-20T13:02:13.208+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : The following 1 profile is active: "dev"
+2025-11-20T13:02:13.243+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-20T13:02:13.246+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2 ms. Found 3 JPA repository interfaces.
+2025-11-20T13:02:13.279+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-11-20T13:02:13.280+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-20T13:02:13.280+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2025-11-20T13:02:13.282+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-11-20T13:02:13.282+06:00  INFO 58463 --- [cloud-care] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 74 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2025-11-20T13:02:13.297+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-20T13:02:13.297+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-11-20T13:02:13.299+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-20T13:02:13.299+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2025-11-20T13:02:13.799+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@64e3b1fc
+2025-11-20T13:02:13.799+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2025-11-20T13:02:13.929+06:00  WARN 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-20T13:02:14.128+06:00  INFO 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-3)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-20T13:02:14.170+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-20T13:02:14.689+06:00  INFO 58463 --- [cloud-care] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-20T13:02:14.712+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.service.UserService       : UserService initialized successfully with all dependencies
+2025-11-20T13:02:14.728+06:00  WARN 58463 --- [cloud-care] [  restartedMain] c.e.c.care.service.PasswordResetService  : PasswordResetService is deprecated; use AuthController.resetPassword() instead
+2025-11-20T13:02:14.731+06:00  INFO 58463 --- [cloud-care] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-11-20T13:02:14.734+06:00  WARN 58463 --- [cloud-care] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-20T13:02:14.740+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [templates/index.html]
+2025-11-20T13:02:14.801+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-11-20T13:02:14.804+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-11-20T13:02:14.805+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Started CloudCareApplication in 1.603 seconds (process running for 1100.05)
+2025-11-20T13:02:14.806+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2025-11-20T13:04:29.819+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-20T13:04:29.820+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-20T13:04:29.820+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2025-11-20T13:05:36.038+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-4] c.e.cloud.care.service.UserService       : Starting registration for user: gfvjkbkn@gmail.com
+Hibernate: select u1_0.id,case when u1_1.id is not null then 1 when u1_0.id is not null then 0 end,u1_0.email,u1_0.enabled,u1_0.name,u1_0.password,u1_0.photo_url,u1_0.username,u1_0.verification_code,u1_1.address,u1_1.age,u1_1.alcohol_consumer,u1_1.allergies,u1_1.alt,u1_1.anxiety_score,u1_1.appointment,u1_1.ast,u1_1.bdnf,u1_1.bilirubin,u1_1.blood_group,u1_1.blood_pressure,u1_1.blood_sugar,u1_1.blood_sugar_level,u1_1.bmi,u1_1.bmr,u1_1.body_temperature,u1_1.breast_feeding,u1_1.cholesterol,u1_1.cholesterolhdl,u1_1.cholesterolldl,u1_1.cholesterol_total,u1_1.cortisol,u1_1.created_at,u1_1.creatinine,u1_1.creatinine_level,u1_1.date_of_birth,u1_1.diastolicbp,u1_1.diseases,u1_1.division,u1_1.dopamine,u1_1.emergency_contact,u1_1.family_disease_history,u1_1.father_id,u1_1.father_name,u1_1.feeling_left_out,u1_1.gender,u1_1.have_been_bullied,u1_1.hb,u1_1.heart_rate,u1_1.heart_rate_latest,u1_1.height,u1_1.home_environment,u1_1.lab_report_files,u1_1.last_donated,u1_1.last_menstrual_date,u1_1.marital_status,u1_1.medications,u1_1.menstruation_regular,u1_1.mental_diseases,u1_1.mother_id,u1_1.mother_name,u1_1.national_id,u1_1.norepinephrine,u1_1.oxygen_saturation,u1_1.parental_care_state,u1_1.past_surgeries,u1_1.physical_activity,u1_1.platelet,u1_1.pregnancy_week,u1_1.pregnant,u1_1.radiology_reports,u1_1.rbc,u1_1.recent_updates,u1_1.respiratory_rate,u1_1.respiratory_rate_latest,u1_1.rh_factor,u1_1.serotonin,u1_1.sleep_hours,u1_1.smoker,u1_1.stress_level,u1_1.sugar_level,u1_1.symptoms,u1_1.systolicbp,u1_1.triglyceride,u1_1.updated_at,u1_1.vaccination_history,u1_1.water_intake,u1_1.wbc,u1_1.weight,u1_1.zilla from users u1_0 left join patient u1_1 on u1_0.id=u1_1.id where u1_0.email=?
+Hibernate: select u1_0.id,case when u1_1.id is not null then 1 when u1_0.id is not null then 0 end,u1_0.email,u1_0.enabled,u1_0.name,u1_0.password,u1_0.photo_url,u1_0.username,u1_0.verification_code,u1_1.address,u1_1.age,u1_1.alcohol_consumer,u1_1.allergies,u1_1.alt,u1_1.anxiety_score,u1_1.appointment,u1_1.ast,u1_1.bdnf,u1_1.bilirubin,u1_1.blood_group,u1_1.blood_pressure,u1_1.blood_sugar,u1_1.blood_sugar_level,u1_1.bmi,u1_1.bmr,u1_1.body_temperature,u1_1.breast_feeding,u1_1.cholesterol,u1_1.cholesterolhdl,u1_1.cholesterolldl,u1_1.cholesterol_total,u1_1.cortisol,u1_1.created_at,u1_1.creatinine,u1_1.creatinine_level,u1_1.date_of_birth,u1_1.diastolicbp,u1_1.diseases,u1_1.division,u1_1.dopamine,u1_1.emergency_contact,u1_1.family_disease_history,u1_1.father_id,u1_1.father_name,u1_1.feeling_left_out,u1_1.gender,u1_1.have_been_bullied,u1_1.hb,u1_1.heart_rate,u1_1.heart_rate_latest,u1_1.height,u1_1.home_environment,u1_1.lab_report_files,u1_1.last_donated,u1_1.last_menstrual_date,u1_1.marital_status,u1_1.medications,u1_1.menstruation_regular,u1_1.mental_diseases,u1_1.mother_id,u1_1.mother_name,u1_1.national_id,u1_1.norepinephrine,u1_1.oxygen_saturation,u1_1.parental_care_state,u1_1.past_surgeries,u1_1.physical_activity,u1_1.platelet,u1_1.pregnancy_week,u1_1.pregnant,u1_1.radiology_reports,u1_1.rbc,u1_1.recent_updates,u1_1.respiratory_rate,u1_1.respiratory_rate_latest,u1_1.rh_factor,u1_1.serotonin,u1_1.sleep_hours,u1_1.smoker,u1_1.stress_level,u1_1.sugar_level,u1_1.symptoms,u1_1.systolicbp,u1_1.triglyceride,u1_1.updated_at,u1_1.vaccination_history,u1_1.water_intake,u1_1.wbc,u1_1.weight,u1_1.zilla from users u1_0 left join patient u1_1 on u1_0.id=u1_1.id where u1_0.username=?
+Hibernate: select nextval('patient_sequence')
+Hibernate: insert into users (email,enabled,name,password,photo_url,username,verification_code,id) values (?,?,?,?,?,?,?,?)
+2025-11-20T13:05:36.516+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-4] c.e.cloud.care.service.UserService       : User registered successfully with email: gfvjkbkn@gmail.com
+2025-11-20T13:05:36.516+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-4] c.e.cloud.care.service.UserService       : Verification email queued for sending to: gfvjkbkn@gmail.com
+2025-11-20T13:05:36.516+06:00  INFO 58463 --- [cloud-care] [         task-1] c.e.cloud.care.service.EmailService      : Preparing verification email for: gfvjkbkn@gmail.com (using provided code)
+DEBUG: Jakarta Mail version 2.1.5
+DEBUG: URL jar:file:/Users/raihri/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.5/jakarta.mail-2.0.5.jar!/META-INF/jakarta.providers
+DEBUG: successfully loaded resource: jar:file:/Users/raihri/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.5/jakarta.mail-2.0.5.jar!/META-INF/jakarta.providers
+DEBUG: successfully loaded resource: /META-INF/jakarta.default.providers
+DEBUG: Tables of loaded providers
+DEBUG: Providers Listed By Class Name: {org.eclipse.angus.mail.imap.IMAPStore=jakarta.mail.Provider[STORE,imap,org.eclipse.angus.mail.imap.IMAPStore,Oracle], org.eclipse.angus.mail.smtp.SMTPTransport=jakarta.mail.Provider[TRANSPORT,smtp,org.eclipse.angus.mail.smtp.SMTPTransport,Oracle], org.eclipse.angus.mail.pop3.POP3Store=jakarta.mail.Provider[STORE,pop3,org.eclipse.angus.mail.pop3.POP3Store,Oracle], org.eclipse.angus.mail.pop3.POP3SSLStore=jakarta.mail.Provider[STORE,pop3s,org.eclipse.angus.mail.pop3.POP3SSLStore,Oracle], org.eclipse.angus.mail.smtp.SMTPSSLTransport=jakarta.mail.Provider[TRANSPORT,smtps,org.eclipse.angus.mail.smtp.SMTPSSLTransport,Oracle], org.eclipse.angus.mail.imap.IMAPSSLStore=jakarta.mail.Provider[STORE,imaps,org.eclipse.angus.mail.imap.IMAPSSLStore,Oracle]}
+DEBUG: Providers Listed By Protocol: {imap=jakarta.mail.Provider[STORE,imap,org.eclipse.angus.mail.imap.IMAPStore,Oracle], smtp=jakarta.mail.Provider[TRANSPORT,smtp,org.eclipse.angus.mail.smtp.SMTPTransport,Oracle], pop3=jakarta.mail.Provider[STORE,pop3,org.eclipse.angus.mail.pop3.POP3Store,Oracle], imaps=jakarta.mail.Provider[STORE,imaps,org.eclipse.angus.mail.imap.IMAPSSLStore,Oracle], smtps=jakarta.mail.Provider[TRANSPORT,smtps,org.eclipse.angus.mail.smtp.SMTPSSLTransport,Oracle], pop3s=jakarta.mail.Provider[STORE,pop3s,org.eclipse.angus.mail.pop3.POP3SSLStore,Oracle]}
+DEBUG: successfully loaded resource: /META-INF/jakarta.default.address.map
+DEBUG: URL jar:file:/Users/raihri/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.5/jakarta.mail-2.0.5.jar!/META-INF/jakarta.address.map
+DEBUG: successfully loaded resource: jar:file:/Users/raihri/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.5/jakarta.mail-2.0.5.jar!/META-INF/jakarta.address.map
+DEBUG: getProvider() returning jakarta.mail.Provider[TRANSPORT,smtp,org.eclipse.angus.mail.smtp.SMTPTransport,Oracle]
+DEBUG SMTP: useEhlo true, useAuth true
+DEBUG SMTP: trying to connect to host "smtp.gmail.com", port 587, isSSL false
+220 smtp.gmail.com ESMTP d9443c01a7336-29b5b272cd8sm15411515ad.73 - gsmtp
+DEBUG SMTP: connected to host "smtp.gmail.com", port: 587
+EHLO 10.33.18.210
+250-smtp.gmail.com at your service, [103.221.253.120]
+250-SIZE 35882577
+250-8BITMIME
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+DEBUG SMTP: Found extension "SIZE", arg "35882577"
+DEBUG SMTP: Found extension "8BITMIME", arg ""
+DEBUG SMTP: Found extension "STARTTLS", arg ""
+DEBUG SMTP: Found extension "ENHANCEDSTATUSCODES", arg ""
+DEBUG SMTP: Found extension "PIPELINING", arg ""
+DEBUG SMTP: Found extension "CHUNKING", arg ""
+DEBUG SMTP: Found extension "SMTPUTF8", arg ""
+STARTTLS
+220 2.0.0 Ready to start TLS
+EHLO 10.33.18.210
+250-smtp.gmail.com at your service, [103.221.253.120]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+DEBUG SMTP: Found extension "SIZE", arg "35882577"
+DEBUG SMTP: Found extension "8BITMIME", arg ""
+DEBUG SMTP: Found extension "AUTH", arg "LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH"
+DEBUG SMTP: Found extension "ENHANCEDSTATUSCODES", arg ""
+DEBUG SMTP: Found extension "PIPELINING", arg ""
+DEBUG SMTP: Found extension "CHUNKING", arg ""
+DEBUG SMTP: Found extension "SMTPUTF8", arg ""
+DEBUG SMTP: protocolConnect login, host=smtp.gmail.com, user=cloudcare2928@gmail.com, password=<non-null>
+DEBUG SMTP: Attempt to authenticate using mechanisms: LOGIN PLAIN DIGEST-MD5 NTLM XOAUTH2 
+DEBUG SMTP: Using mechanism LOGIN
+DEBUG SMTP: AUTH LOGIN command trace suppressed
+DEBUG SMTP: AUTH LOGIN succeeded
+DEBUG SMTP: use8bit false
+MAIL FROM:<cloudcare2928@gmail.com>
+250 2.1.0 OK d9443c01a7336-29b5b272cd8sm15411515ad.73 - gsmtp
+RCPT TO:<gfvjkbkn@gmail.com>
+250 2.1.5 OK d9443c01a7336-29b5b272cd8sm15411515ad.73 - gsmtp
+DEBUG SMTP: Verified Addresses
+DEBUG SMTP:   gfvjkbkn@gmail.com
+DATA
+354 Go ahead d9443c01a7336-29b5b272cd8sm15411515ad.73 - gsmtp
+Date: Thu, 20 Nov 2025 13:05:43 +0600 (GMT+06:00)
+From: cloudcare2928@gmail.com
+To: gfvjkbkn@gmail.com
+Message-ID: <1413325607.0.1763622343905@[10.33.18.210]>
+Subject: CloudCare Email Verification Code
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Welcome to CloudCare!
+
+Your verification code is: 550228
+
+Please enter this code on the verification page to activate your account.
+
+If you didn't sign up, you can safely ignore this email.
+
+Best regards,
+CloudCare Team
+.
+250 2.0.0 OK  1763622345 d9443c01a7336-29b5b272cd8sm15411515ad.73 - gsmtp
+DEBUG SMTP: message successfully delivered to mail server
+QUIT
+221 2.0.0 closing connection d9443c01a7336-29b5b272cd8sm15411515ad.73 - gsmtp
+2025-11-20T13:05:45.726+06:00  INFO 58463 --- [cloud-care] [         task-1] c.e.cloud.care.service.EmailService      : Verification code 550228 sent to gfvjkbkn@gmail.com
+2025-11-20T13:09:36.595+06:00  INFO 58463 --- [cloud-care] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-11-20T13:09:36.596+06:00  INFO 58463 --- [cloud-care] [      Thread-11] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-11-20T13:09:36.597+06:00  INFO 58463 --- [cloud-care] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-11-20T13:09:36.598+06:00  INFO 58463 --- [cloud-care] [      Thread-11] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-11-20T13:09:36.598+06:00  INFO 58463 --- [cloud-care] [      Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2025-11-20T13:09:36.806+06:00  INFO 58463 --- [cloud-care] [      Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+Exception in thread "restartedMain" java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:119)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50)
+Caused by: java.lang.Error: Unresolved compilation problem: 
+	Syntax error, insert "}" to complete ClassBody
+
+	at com.example.cloud.care.CloudCareApplication.main(CloudCareApplication.java:13)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	... 2 more
+Exception in thread "restartedMain" java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:119)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50)
+Caused by: java.lang.Error: Unresolved compilation problem: 
+	Syntax error, insert "}" to complete ClassBody
+
+	at com.example.cloud.care.CloudCareApplication.main(CloudCareApplication.java:13)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	... 2 more
+Exception in thread "restartedMain" java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:119)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50)
+Caused by: java.lang.Error: Unresolved compilation problem: 
+	Syntax error, insert "}" to complete ClassBody
+
+	at com.example.cloud.care.CloudCareApplication.main(CloudCareApplication.java:13)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	... 2 more
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2025-11-20T13:10:10.342+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Starting CloudCareApplication using Java 25.0.1 with PID 58463 (/Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care/target/classes started by raihri in /Users/raihri/Documents/GIT /CLOUDCARE/MAIN-Project/cloud-care)
+2025-11-20T13:10:10.342+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : The following 1 profile is active: "dev"
+2025-11-20T13:10:10.385+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-11-20T13:10:10.388+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 3 ms. Found 3 JPA repository interfaces.
+2025-11-20T13:10:10.428+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-11-20T13:10:10.429+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-11-20T13:10:10.429+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2025-11-20T13:10:10.432+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-11-20T13:10:10.432+06:00  INFO 58463 --- [cloud-care] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 89 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2025-11-20T13:10:10.459+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-11-20T13:10:10.460+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-11-20T13:10:10.463+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-11-20T13:10:10.463+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2025-11-20T13:10:11.173+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection org.postgresql.jdbc.PgConnection@7fbb1cc8
+2025-11-20T13:10:11.174+06:00  INFO 58463 --- [cloud-care] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2025-11-20T13:10:11.234+06:00  WARN 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-11-20T13:10:11.402+06:00  INFO 58463 --- [cloud-care] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-4)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-11-20T13:10:11.438+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-11-20T13:10:11.957+06:00  INFO 58463 --- [cloud-care] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-11-20T13:10:11.981+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.service.UserService       : UserService initialized successfully with all dependencies
+2025-11-20T13:10:11.999+06:00  WARN 58463 --- [cloud-care] [  restartedMain] c.e.c.care.service.PasswordResetService  : PasswordResetService is deprecated; use AuthController.resetPassword() instead
+2025-11-20T13:10:12.003+06:00  INFO 58463 --- [cloud-care] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2025-11-20T13:10:12.006+06:00  WARN 58463 --- [cloud-care] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-11-20T13:10:12.013+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [templates/index.html]
+2025-11-20T13:10:12.075+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-11-20T13:10:12.078+06:00  INFO 58463 --- [cloud-care] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-11-20T13:10:12.080+06:00  INFO 58463 --- [cloud-care] [  restartedMain] c.e.cloud.care.CloudCareApplication      : Started CloudCareApplication in 1.744 seconds (process running for 1577.299)
+2025-11-20T13:10:12.080+06:00  INFO 58463 --- [cloud-care] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2025-11-20T13:11:12.849+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-20T13:11:12.850+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-11-20T13:11:12.850+06:00  INFO 58463 --- [cloud-care] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms

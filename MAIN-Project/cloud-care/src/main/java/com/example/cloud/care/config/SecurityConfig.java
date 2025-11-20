@@ -11,108 +11,114 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
+        private final CustomUserDetailsService userDetailsService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+        public SecurityConfig(CustomUserDetailsService userDetailsService) {
+                this.userDetailsService = userDetailsService;
+        }
 
-    // Password encoder bean
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        // Password encoder bean
+        @Bean
+        public BCryptPasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    // Authentication manager bean
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+        // Authentication manager bean
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+                return authConfig.getAuthenticationManager();
+        }
 
-    // Security filter chain
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for now - enable it later with proper token handling
-                .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
-                    var configuration = new org.springframework.web.cors.CorsConfiguration();
-                    // Allow all origins for local development; restrict in production
-                    configuration.setAllowedOrigins(java.util.Arrays.asList("*"));
-                    configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
-                    configuration.setAllowCredentials(true);
-                    return configuration;
-                }))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/register",
-                                "/debug/verification-status",
-                                "/verify",
-                                "/otpverify",
-                                "/selfie-upload",
-                                "/patient/submit",
-                                "/forgot-password",
-                                "/forgot-password-submit",
-                                "/reset-password",
-                                "/reset-otp",
-                                "/reset-otp-verify",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/test-mail", // Your email test endpoint
-                                "/error")
-                        .permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Admin endpoints
-                        .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/")
-                        .loginProcessingUrl("/login") // The URL to submit the login form
-                        .usernameParameter("username")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/dashboard", true)
-                        .failureHandler((request, response, exception) -> {
-                            request.getSession().setAttribute("loginError", "Invalid username or password");
-                            response.sendRedirect("/?error=true");
-                        })
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/?logout=true")
-                        .deleteCookies("JSESSIONID")
-                        .clearAuthentication(true)
-                        .invalidateHttpSession(true)
-                        .permitAll())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(
-                                org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
-                        .invalidSessionUrl("/")
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false))
-                .rememberMe(remember -> remember
-                        .key("uniqueAndSecureKey")
-                        .tokenValiditySeconds(86400) // 24 hours
-                        .rememberMeParameter("remember-me"))
-                // .headers(headers -> headers
-                // .frameOptions(frame -> frame.sameOrigin())
-                // .contentSecurityPolicy(csp ->
-                // csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'
-                // 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-                // img-src 'self' data:; font-src 'self' https://fonts.gstatic.com;")
-                // )
-                // )
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin())
-                        .contentSecurityPolicy(csp -> csp.policyDirectives(
-                                "default-src 'self'; " +
-                                        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-                                        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
-                                        +
-                                        "font-src 'self' https://fonts.gstatic.com https://unpkg.com; " +
-                                        "img-src 'self' data:;")))
-                .userDetailsService(userDetailsService);
+        // Security filter chain
+        @Bean
+        public SecurityFilterChain securityFilterChain(
+                        org.springframework.security.config.annotation.web.builders.HttpSecurity http)
+                        throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable()) // Disable CSRF for now - enable it later with proper
+                                                              // token handling
+                                .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
+                                        var configuration = new org.springframework.web.cors.CorsConfiguration();
+                                        // Allow all origins for local development; restrict in production
+                                        configuration.setAllowedOrigins(java.util.Arrays.asList("*"));
+                                        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT",
+                                                        "DELETE", "OPTIONS"));
+                                        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+                                        configuration.setAllowCredentials(true);
+                                        return configuration;
+                                }))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/",
+                                                                "/register",
+                                                                "/debug/verification-status",
+                                                                "/verify",
+                                                                "/otpverify",
 
-        return http.build();
-    }
+                                                                "/forgot-password",
+                                                                "/forgot-password-submit",
+                                                                "/reset-password",
+                                                                "/reset-otp",
+                                                                "/reset-otp-verify",
+                                                                "/css/**",
+                                                                "/js/**",
+                                                                "/images/**",
+                                                                "/test-mail", // Your email test endpoint
+                                                                "/error")
+                                                .permitAll()
+                                                .requestMatchers("/admin/**").hasRole("ADMIN") // Admin endpoints
+                                                .requestMatchers("/selfie-upload").authenticated()
+                                                .anyRequest().authenticated())
+                                .formLogin(form -> form
+                                                .loginPage("/")
+                                                .loginProcessingUrl("/login") // The URL to submit the login form
+                                                .usernameParameter("username")
+                                                .passwordParameter("password")
+                                                .defaultSuccessUrl("/dashboard", true)
+                                                .failureHandler((request, response, exception) -> {
+                                                        request.getSession().setAttribute("loginError",
+                                                                        "Invalid username or password");
+                                                        response.sendRedirect("/?error=true");
+                                                })
+                                                .permitAll())
+                                .logout(logout -> logout
+                                                .logoutUrl("/logout")
+                                                .logoutSuccessUrl("/?logout=true")
+                                                .deleteCookies("JSESSIONID")
+                                                .clearAuthentication(true)
+                                                .invalidateHttpSession(true)
+                                                .permitAll())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(
+                                                                org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
+                                                .invalidSessionUrl("/")
+                                                .maximumSessions(1)
+                                                .maxSessionsPreventsLogin(false))
+                                .rememberMe(remember -> remember
+                                                .key("uniqueAndSecureKey")
+                                                .tokenValiditySeconds(86400) // 24 hours
+                                                .rememberMeParameter("remember-me"))
+                                // .headers(headers -> headers
+                                // .frameOptions(frame -> frame.sameOrigin())
+                                // .contentSecurityPolicy(csp ->
+                                // csp.policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'
+                                // 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                                // img-src 'self' data:; font-src 'self' https://fonts.gstatic.com;")
+                                // )
+                                // )
+                                .headers(headers -> headers
+                                                .frameOptions(frame -> frame.sameOrigin())
+                                                .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                                                "default-src 'self'; " +
+                                                                                "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+                                                                                +
+                                                                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; "
+                                                                                +
+                                                                                "font-src 'self' https://fonts.gstatic.com https://unpkg.com; "
+                                                                                +
+                                                                                "img-src 'self' data:;")))
+                                .userDetailsService(userDetailsService);
+
+                return http.build();
+        }
 }

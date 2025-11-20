@@ -19,7 +19,7 @@ import java.util.Hashtable;
 public class EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
-    
+
     // Email regex pattern for validation
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
@@ -27,7 +27,7 @@ public class EmailService {
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
-    
+
     /**
      * Validates if the email address is in a valid format.
      * 
@@ -58,21 +58,51 @@ public class EmailService {
      * Checks whether the domain has MX or A DNS records.
      * Falls back to checking A records if MX records are not present.
      */
-    private boolean isDomainValid(String domain) {
+    public boolean isDomainValid(String domain) {
         if (domain == null || domain.isEmpty()) {
             return false;
         }
+
+        int maxAttempts = 3;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                Hashtable<String, String> env = new Hashtable<>();
+                env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
+                DirContext dirContext = new InitialDirContext(env);
+                Attributes attrs = dirContext.getAttributes(domain, new String[] { "MX", "A" });
+                if (attrs == null)
+                    return false;
+                if (attrs.get("MX") != null && attrs.get("MX").size() > 0)
+                    return true;
+                if (attrs.get("A") != null && attrs.get("A").size() > 0)
+                    return true;
+                return false;
+            } catch (NamingException e) {
+                String msg = e.getMessage() == null ? "" : e.getMessage();
+                logger.warn("DNS lookup failed for domain {} (attempt {}): {}", domain, attempt, msg);
+
+                // If it's a SERVFAIL (response code 2), consider retrying
+                if (msg.contains("response code 2") && attempt < maxAttempts) {
+                    try {
+                        Thread.sleep(500L);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    }
+                    continue;
+                }
+
+                // Non-recoverable error or final attempt — break out and fallback
+                break;
+            }
+        }
+
+        // Final fallback: try a simple A-record resolution via InetAddress
         try {
-            Hashtable<String, String> env = new Hashtable<>();
-            env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
-            DirContext dirContext = new InitialDirContext(env);
-            Attributes attrs = dirContext.getAttributes(domain, new String[]{"MX", "A"});
-            if (attrs == null) return false;
-            if (attrs.get("MX") != null && attrs.get("MX").size() > 0) return true;
-            if (attrs.get("A") != null && attrs.get("A").size() > 0) return true;
-            return false;
-        } catch (NamingException e) {
-            logger.warn("DNS lookup failed for domain {}: {}", domain, e.getMessage());
+            java.net.InetAddress.getByName(domain);
+            return true;
+        } catch (Exception ex) {
+            logger.warn("InetAddress fallback failed for domain {}: {}", domain, ex.getMessage());
             return false;
         }
     }
@@ -90,19 +120,21 @@ public class EmailService {
     /**
      * Send a verification email asynchronously using the provided code.
      * Validates email format before sending.
-     * Ensures the code saved in the database matches the code delivered to the user.
+     * Ensures the code saved in the database matches the code delivered to the
+     * user.
      * Returns immediately; email sent in background thread.
      */
     @Async
     public void sendVerificationEmail(String to, String code) {
         logger.info("Preparing verification email for: {} (using provided code)", to);
         if (to == null || to.isEmpty() || code == null || code.isEmpty()) {
-            String warningMsg = "⚠️ WARNING: Recipient email or code is null/empty. Email: " + to + ", Code present: " + (code != null && !code.isEmpty());
+            String warningMsg = "⚠️ WARNING: Recipient email or code is null/empty. Email: " + to + ", Code present: "
+                    + (code != null && !code.isEmpty());
             System.out.println(warningMsg);
             logger.warn(warningMsg);
             return;
         }
-        
+
         // Validate email format before sending
         if (!isValidEmail(to)) {
             String warningMsg = "⚠️ WARNING: Invalid email format provided: " + to;

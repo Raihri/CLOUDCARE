@@ -21,18 +21,28 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.method.P;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
 public class AuthController {
+    @Autowired
+    private com.example.cloud.care.service.CustomUserDetailsService customUserDetailsService;
     // Remove field injection for session; use method parameter instead
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -59,6 +69,12 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@ModelAttribute User user, Model model) {
         try {
+            // Validate email domain
+            if (!emailService.isDomainValid(user.getEmail().substring(user.getEmail().indexOf('@') + 1))) {
+                model.addAttribute("errorMessage",
+                        "Invalid email domain. Please use a valid domain with MX/A records.");
+                return "index";
+            }
 
             userService.registerUser(user);
             // Redirect to verification page with email param
@@ -91,10 +107,8 @@ public class AuthController {
     }
 
     @PostMapping("/otpverify")
-    public String verifyCode(@RequestParam String email,
-            @ModelAttribute OtpForm otpForm,
-            Model model) {
-
+    public String verifyCode(@RequestParam String email, @ModelAttribute OtpForm otpForm, Model model,
+            jakarta.servlet.http.HttpServletRequest request) {
         String code = buildOtpCode(otpForm);
         if (code == null) {
             model.addAttribute("errorMessage", "Please enter the full 6-digit code.");
@@ -103,26 +117,36 @@ public class AuthController {
             return "otp";
         }
 
-        logger.info("Verifying code for email: {} provided={}", email, code);
-
         boolean verified = userService.verify(email, code);
 
         if (verified) {
-            logger.info("User {} successfully verified.", email);
-
-            // Get the existing user
             Optional<User> optionalUser = userService.findByEmail(email);
             if (optionalUser.isEmpty()) {
                 model.addAttribute("errorMessage", "User not found!");
                 return "index";
             }
             User verifiedUser = optionalUser.get();
+            verifiedUser.setEnabled(true);
+            userService.saveUser(verifiedUser);
 
-            // Redirect to selfie upload page with userId
-            return "redirect:/selfie-upload?userId=" + verifiedUser.getId();
+            // Authenticate properly
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
 
+            // Persist security context in session so authentication survives redirect
+            try {
+                jakarta.servlet.http.HttpSession session = request.getSession(true);
+                session.setAttribute(
+                        org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                        SecurityContextHolder.getContext());
+            } catch (Exception ex) {
+                logger.warn("Failed to store security context in session: {}", ex.getMessage());
+            }
+
+            return "redirect:/selfie-upload"; // no userId
         } else {
-            logger.warn("Verification failed for user {} with code {}", email, code);
             model.addAttribute("errorMessage", "Invalid or expired verification code!");
             model.addAttribute("email", email);
             model.addAttribute("otpForm", otpForm);
@@ -164,7 +188,7 @@ public class AuthController {
     @GetMapping("/dashboard")
     public String dashboard() {
         System.out.println("Came to dashboard-------------------------------");
-        return "what1";
+        return "what";
 
     }
 
@@ -185,17 +209,20 @@ public class AuthController {
     }
 
     @GetMapping("/selfie-upload")
-    public String selfiePage(@RequestParam("userId") Long userId, Model model) {
-        Optional<User> optionalUser = userService.findById(userId);
-        if (optionalUser.isEmpty()) {
-            model.addAttribute("errorMessage", "User not found!");
-            System.out.println("i love u ahan");
-            return "index";
+    public String selfiePage(Model model) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails userDetails) {
+            Optional<User> optionalUser = userService.findByEmail(userDetails.getUsername());
+            if (optionalUser.isEmpty()) {
+                model.addAttribute("errorMessage", "User not found!");
+                return "index";
+            }
+            model.addAttribute("patient", optionalUser.get());
+            return "selfieupload";
+        } else {
+            return "redirect:/"; // Not authenticated
         }
-        // Template expects attribute name 'patient'
-        model.addAttribute("patient", optionalUser.get());
-        System.out.println("i love u ahan 2222");
-        return "selfieupload"; // Thymeleaf page
     }
 
     // The selfie form in the template posts to /patient/submit, so accept that URL
@@ -223,8 +250,9 @@ public class AuthController {
 
         String imageUrl = uploadResult.get("secure_url").toString();
 
-        // Update existing user
+        // Update existing user and enable them
         user.setPhotoUrl(imageUrl);
+        user.setEnabled(true); // Ensure user is enabled for authentication
         userService.saveUser(user);
 
         // Set session attribute for patient if exists
@@ -236,6 +264,12 @@ public class AuthController {
             session.setAttribute("loggedUserId", user.getId());
             session.setAttribute("role", "USER");
         }
+
+        // Authenticate user with Spring Security
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+                userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
 
         System.out.println("Should Redirect to Daashboard now--------------------------------------");
 
@@ -349,20 +383,18 @@ public class AuthController {
         return "otp_reset";
     }
 
-    // Handle password reset submission
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam(required = false) String email,
             @RequestParam String password,
             @RequestParam String confirmPassword,
             Model model) {
-        // Validate email is provided
+        // Validate email
         if (email == null || email.trim().isEmpty()) {
             model.addAttribute("error", "Email information missing. Please try again.");
             return "reset_password";
         }
 
-        // Validate passwords match (frontend already validates, but check server-side
-        // too)
+        // Validate passwords match
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match!");
             model.addAttribute("email", email);
@@ -370,10 +402,19 @@ public class AuthController {
         }
 
         try {
-            // Delegate password reset logic to UserService
+            // Reset the password
             userService.resetPassword(email.trim(), password);
             logger.info("Password successfully reset for user: {}", email);
-            return "redirect:/?passwordReset=success";
+
+            // Authenticate the user automatically after successful reset
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email.trim());
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            // Redirect to dashboard or home page
+            return "redirect:/dashboard";
+
         } catch (Exception e) {
             logger.error("Error resetting password for {}: {}", email, e.getMessage());
             model.addAttribute("error", "An error occurred while resetting your password. Please try again.");

@@ -20,20 +20,23 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // Only allow login if user is enabled (verified)
-        if(!user.isEnabled()) {
-            System.out.println("User " + username + " attempted to log in but is not verified.");
+        if (!user.isEnabled()) {
+            System.out.println("User " + email + " attempted to log in but is not verified.");
             throw new UsernameNotFoundException("Email not verified");
         }
 
+        // Grant the application role expected by the security configuration and
+        // controllers.
+        // Use the standard 'ROLE_' prefix so checks like hasRole("PATIENT") work
+        // correctly.
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getEmail(),
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority("USER"))
-        );
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_PATIENT")));
     }
 }
