@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Inheritance(strategy = InheritanceType.JOINED)
+
 public class User {
 
     @Id
@@ -53,4 +53,7 @@ public class User {
     private String verificationCode;
     @Column(name = "photo_url")
     private String photoUrl;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Patient patient;
+
 }

@@ -1,6 +1,6 @@
 package com.example.cloud.care.controller;
 
-import com.example.cloud.care.dao.patient_dao;
+
 import com.example.cloud.care.service.EmailService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
@@ -32,11 +32,11 @@ public class homeController {
     @Autowired
     doctor_service doctor_service;
 
-    @Autowired
-    patient_dao Patient_dao;
+    
 
     @Autowired
     EmailService emailService;
+    
 
     @GetMapping({ "/doc" })
     public String home(Model m) {

@@ -1,6 +1,7 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.model.User;
+import com.example.cloud.care.repository.UserRepository;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.cloud.care.model.ForgotPasswordRequest;
@@ -26,6 +27,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -35,7 +37,7 @@ import java.util.Optional;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
+import org.springframework.security.core.Authentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,30 +79,29 @@ public class AuthController {
             }
 
             userService.registerUser(user);
-            // Redirect to verification page with email param
 
+            // Create Patient linked to User
+            Patient patient = new Patient();
+            patient.setUser(user);
+            user.setPatient(patient); // link both sides
+            patientService.save(patient); // save patient
+
+            // Redirect to verification page with email param
             return "redirect:/verify?email=" + user.getEmail();
         } catch (Exception e) {
-            // If the email already exists but user is not enabled, resend code and redirect
-            // to verify
-            try {
-                if (user.getEmail() != null) {
+            // If the email already exists but user is not enabled, do NOT resend code if
+            // registration already sent one
+            if (e.getMessage() != null && e.getMessage().contains("Email already in use.")) {
+                try {
                     java.util.Optional<User> existing = userService.findByEmailOptional(user.getEmail().trim());
                     if (existing.isPresent() && !existing.get().isEnabled()) {
-                        try {
-                            userService.resendVerification(user.getEmail().trim());
-                        } catch (Exception resendEx) {
-                            model.addAttribute("errorMessage",
-                                    "Unable to resend verification: " + resendEx.getMessage());
-                            return "index";
-                        }
-                        return "redirect:/verify?email=" + user.getEmail();
+                        // Redirect to forgot password page for unverified user
+                        return "redirect:/forgot-password?email=" + user.getEmail();
                     }
+                } catch (Exception ignored) {
+                    // fall through to show original error
                 }
-            } catch (Exception ignored) {
-                // fall through to show original error
             }
-
             model.addAttribute("errorMessage", e.getMessage());
             return "index";
         }
@@ -162,44 +163,6 @@ public class AuthController {
         return "otp"; // OTP verification page
     }
 
-    // Remove duplicate login mapping
-
-    // @GetMapping("/dashboard")
-    // public String dashboard(HttpSession session, Model model) {
-
-    // System.out.println("arrived at dashboard");
-
-    // Long pid = (Long) session.getAttribute("loggedPatientId");
-
-    // if (pid == null) {
-    // return "redirect:/login";
-    // }
-
-    // Optional<Patient> patient = patientService.findById(pid);
-
-    // if (patient.isEmpty()) {
-    // return "redirect:/login";
-    // }
-
-    // model.addAttribute("patient", patient.get());
-    // return "what"; // dummy
-    // }
-
-    @GetMapping("/dashboard")
-    public String dashboard() {
-        System.out.println("Came to dashboard-------------------------------");
-        return "what";
-
-    }
-
-    // @PostMapping("/dashboard")
-    // public String dashboard2()
-    // {
-    // System.out.println("Came to dashboard-
-    // 2222222------------------------------");
-    // return "what1";
-    // }
-
     @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
@@ -223,57 +186,6 @@ public class AuthController {
         } else {
             return "redirect:/"; // Not authenticated
         }
-    }
-
-    // The selfie form in the template posts to /patient/submit, so accept that URL
-    @PostMapping("/patient/submit")
-    public String submitSelfie(
-            @RequestParam("userId") Long userId,
-            @RequestParam("capturedImage") String base64Image,
-            HttpSession session,
-            Model model) throws IOException {
-
-        Optional<User> optionalUser = userService.findById(userId);
-        if (optionalUser.isEmpty()) {
-            model.addAttribute("errorMessage", "User not found!");
-            return "index";
-        }
-        User user = optionalUser.get();
-
-        // Remove prefix and decode Base64
-        String cleanBase64 = base64Image.replaceAll("^data:image/\\w+;base64,", "");
-        byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
-
-        // Upload to Cloudinary
-        Map<String, Object> uploadResult = cloudinary.uploader().upload(imageBytes,
-                ObjectUtils.asMap("folder", "users", "resource_type", "image"));
-
-        String imageUrl = uploadResult.get("secure_url").toString();
-
-        // Update existing user and enable them
-        user.setPhotoUrl(imageUrl);
-        user.setEnabled(true); // Ensure user is enabled for authentication
-        userService.saveUser(user);
-
-        // Set session attribute for patient if exists
-        Optional<Patient> patient = patientService.findById(user.getId());
-        if (patient.isPresent()) {
-            session.setAttribute("loggedPatientId", patient.get().getId());
-            session.setAttribute("role", "PATIENT");
-        } else {
-            session.setAttribute("loggedUserId", user.getId());
-            session.setAttribute("role", "USER");
-        }
-
-        // Authenticate user with Spring Security
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
-                userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        System.out.println("Should Redirect to Daashboard now--------------------------------------");
-
-        return "redirect:/dashboard";
     }
 
     // Show the forgot-password form
@@ -320,8 +232,8 @@ public class AuthController {
         Optional<User> optionalUser = userService.authenticate(userForm.getEmail(), userForm.getPassword());
 
         if (optionalUser.isEmpty()) {
-            model.addAttribute("error", "Invalid email or password");
-            return "login";
+            // Redirect to home with error param so index.html can show error
+            return "redirect:/?error";
         }
 
         User user = optionalUser.get();
@@ -332,9 +244,7 @@ public class AuthController {
 
         // Now find if this user is a Patient
         Optional<Patient> patient = patientService.findById(user.getId());
-
         if (patient.isPresent()) {
-            // This user is a patient
             session.setAttribute("loggedPatientId", patient.get().getId());
             session.setAttribute("role", "PATIENT");
             return "redirect:/dashboard";
@@ -342,7 +252,6 @@ public class AuthController {
 
         // If not patient, maybe doctor or admin
         session.setAttribute("loggedUserId", user.getId());
-        session.setAttribute("role", "USER");
 
         return "dashboard";
     }
@@ -442,35 +351,50 @@ public class AuthController {
         return sb.toString();
     }
 
-    // Dev-only debug endpoint: check verification status by email
-    @GetMapping("/debug/verification-status")
-    @ResponseBody
-    public ResponseEntity<?> debugVerificationStatus(@RequestParam String email) {
-        if (email == null || email.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("error", "email required"));
+    @PostMapping("/selfie-upload")
+    public String handleSelfieUpload(@RequestParam Long userId,
+            @RequestParam(required = false) String base64Image,
+            @RequestParam(required = false) String skip,
+            HttpSession session, Model model) {
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (skip != null) {
+            user.setPhotoUrl(null);
+            user.setEnabled(true);
+            userService.saveUser(user);
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+                    userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+            return "redirect:/dashboard";
         }
-        return userService.findByEmailOptional(email.trim())
-                .map(u -> ResponseEntity.ok().body(java.util.Map.of(
-                        "email", u.getEmail(),
-                        "enabled", u.isEnabled(),
-                        "verificationCode", u.getVerificationCode())))
-                .orElseGet(() -> ResponseEntity.status(404).body(java.util.Map.of("error", "user not found")));
+
+        if (base64Image != null && !base64Image.isEmpty()) {
+            try {
+                String cleanBase64 = base64Image.replaceAll("^data:image/\\w+;base64,", "");
+                byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(imageBytes,
+                        ObjectUtils.asMap("folder", "users", "resource_type", "image"));
+                String imageUrl = uploadResult.get("secure_url").toString();
+                user.setPhotoUrl(imageUrl);
+                user.setEnabled(true);
+                userService.saveUser(user);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+                        null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                return "redirect:/dashboard";
+            } catch (IOException e) {
+                model.addAttribute("errorMessage", "Photo upload failed: " + e.getMessage());
+                model.addAttribute("userId", userId);
+                return "selfieupload";
+            }
+        }
+
+        model.addAttribute("errorMessage", "Please upload a photo or click skip.");
+        model.addAttribute("userId", userId);
+        return "selfieupload";
     }
 }
-
-// // Dev-only debug endpoint
-// @GetMapping("/debug/verification-status")
-// @ResponseBody
-// public ResponseEntity<?> debugVerificationStatus(@RequestParam String email)
-// {
-// return userService.findByEmailOptional(email)
-// .map(u -> ResponseEntity.ok().body(
-// java.util.Map.of(
-// "email", u.getEmail(),
-// "enabled", u.isEnabled(),
-// "verificationCode", u.getVerificationCode()
-// )
-// ))
-// .orElseGet(() -> ResponseEntity.status(404)
-// .body(java.util.Map.of("error", "user not found")));
-// }

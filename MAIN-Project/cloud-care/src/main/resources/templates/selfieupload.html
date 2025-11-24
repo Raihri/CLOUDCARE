@@ -125,6 +125,23 @@
             transform: translateY(-3px);
             box-shadow: 0 4px 15px rgba(255, 81, 47, 0.5);
         }
+
+        button.skip-btn {
+            margin-top: 25px;
+            padding: 12px 30px;
+            border-radius: 25px;
+            border: none;
+            font-size: 16px;
+            color: white;
+            background: #888;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        button.skip-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 
@@ -135,7 +152,7 @@
             Your ID is: <span th:text="${patient.id}">PAT-001</span>
         </div>
 
-        <form th:action="@{/dashboard}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/selfie-upload}" method="post" enctype="multipart/form-data">
             <!-- Pass userId to controller so it can fetch the correct user -->
             <input type="hidden" name="userId" th:value="${patient.id}">
 
@@ -148,12 +165,13 @@
                 <label>Take a Selfie</label>
                 <video id="camera" autoplay playsinline></video>
                 <img id="preview" alt="Captured Selfie" style="display:none;">
-                <input type="hidden" id="capturedImage" name="capturedImage">
+                <input type="hidden" id="capturedImage" name="base64Image">
 
                 <button type="button" id="captureBtn" class="camera-btn">📸 Capture Selfie</button>
             </div>
 
             <button type="submit" class="submit-btn">Submit</button>
+            <button type="submit" name="skip" value="true" class="submit-btn skip-btn">Skip</button>
         </form>
     </div>
 
@@ -197,10 +215,10 @@
             }
         });
 
-        // Prevent form submission if no selfie is captured
+        // Remove selfie required check for skip
         document.querySelector('form').addEventListener('submit', function (e) {
-            if (!capturedImageInput.value) {
-                alert('Please capture a selfie before submitting.');
+            if (!capturedImageInput.value && !e.submitter.name) {
+                alert('Please capture a selfie before submitting or click Skip.');
                 e.preventDefault();
             }
         });
