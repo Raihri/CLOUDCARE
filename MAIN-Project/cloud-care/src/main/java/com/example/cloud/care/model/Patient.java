@@ -24,7 +24,7 @@ public class Patient {
     // Personal Info
     private String bloodGroup = "";
     private Integer age = 0;
-    private char gender = 'U'; // U = unknown
+    private Character gender = 'U'; // U = unknown
     private String division = "";
     private String zilla = "";
     private String address = "";
