@@ -14,6 +14,9 @@ public interface doctor_dao extends JpaRepository<doctor, Long> {
     Optional<doctor> findByEmail(String email);
 
     boolean existsByEmail(String email);
+    
+    boolean existsByBmdcRegNo(String bmdcRegNo);
+
 
     List<doctor> findByStatus(Status status);
 }

@@ -68,13 +68,20 @@ public class doctor_service {
 
         // Upload certificate file
         Map certUploadResult = cloudinary.uploader().upload(certificateFile.getBytes(),
-                ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "auto"));
+                ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "raw"));
         doctorRequest.setCertifications((String) certUploadResult.get("secure_url"));
 
         // Hash password
         doctorRequest.setPassword(passwordEncoder.encode(doctorRequest.getPassword()));
         doctorRequest.setConfirmPassword(null); // remove confirmPassword
+       if (emailExists(doctorRequest.getEmail())) {
+        throw new IllegalArgumentException("Email already in use");
+    }
 
+    // Check if BMDC number exists (if not null)
+    if (doctorRequest.getBmdcRegNo() != null && bmdcExists(doctorRequest.getBmdcRegNo())) {
+        throw new IllegalArgumentException("BMDC Registration No. already in use");
+    }
         // Set status pending
         doctorRequest.setStatus(doctor.Status.PENDING);
 
@@ -128,4 +135,7 @@ public void approveDoctor(Long doctorId) {
         emailServiceD.sendEmail(doc.getEmail(), subject, body);
     }
 }
+    public boolean bmdcExists(String bmdcRegNo) {
+        return doctor_dao.existsByBmdcRegNo(bmdcRegNo);
+    }
 }

@@ -23,6 +23,7 @@ public class doctor {
     private String bloodGroup;
     
     // Contact
+    @Column(unique = true)
     private String email;
     private String phoneNumber;
     private String altPhone;
@@ -35,6 +36,7 @@ public class doctor {
     private String password;
     @Transient
     private String confirmPassword;
+    @Column(unique = true)
     private String bmdcRegNo;
 
     // Professional

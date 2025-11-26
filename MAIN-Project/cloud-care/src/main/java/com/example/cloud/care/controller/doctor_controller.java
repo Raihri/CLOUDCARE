@@ -79,6 +79,10 @@ public class doctor_controller {
     public boolean checkEmail(@RequestParam String email) {
         return doctorService.emailExists(email);
     }
-
+    @GetMapping("/check-bmdc")
+@ResponseBody
+public boolean checkBmdc(@RequestParam String bmdc) {
+    return doctorService.bmdcExists(bmdc);
+}
     // Logout is handled by Spring Security automatically via /doctor/logout
 }

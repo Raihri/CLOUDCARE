@@ -205,7 +205,7 @@
                 <input type="hidden" name="doctorId" th:value="${doc.id}" />
                 <button type="submit" class="btn approve">Approve</button>
             </form>
-            <form th:action="@{/admin/reject-doctor}" method="post">
+            <form th:action="@{/admin/doctor/reject}" method="post">
                 <input type="hidden" name="doctorId" th:value="${doc.id}" />
                 <input type="text" name="reason" placeholder="Reason" class="reason-input" required />
                 <button type="submit" class="btn reject">Reject</button>

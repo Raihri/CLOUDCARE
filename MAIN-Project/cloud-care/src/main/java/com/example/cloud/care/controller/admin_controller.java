@@ -1,6 +1,8 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.service.doctor_service;
+import com.example.cloud.care.var.doctor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +31,7 @@ public class admin_controller {
     @PostMapping("/admin/doctor/reject")
     public String rejectDoctor(@RequestParam Long doctorId, @RequestParam String reason) {
     doctorService.rejectDoctor(doctorId, reason); // <-- email is sent here
+    doctorService.deleteDoctor(doctorId); // <-- doctor is deleted here
     return "redirect:/admin/pending-doctors";
 }
 }
