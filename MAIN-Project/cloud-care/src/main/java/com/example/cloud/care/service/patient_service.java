@@ -1,7 +1,6 @@
 package com.example.cloud.care.service;
 
 import com.example.cloud.care.model.Patient;
-import com.example.cloud.care.model.User;
 import com.example.cloud.care.repository.PatientRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,8 @@ public class patient_service {
             return null;
         }
     }
+
+
 
     public void deletePatient(long id) {
         try {
