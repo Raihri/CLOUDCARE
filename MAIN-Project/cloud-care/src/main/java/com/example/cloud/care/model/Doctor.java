@@ -1,4 +1,4 @@
-package com.example.cloud.care.var;
+package com.example.cloud.care.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.Date;
@@ -8,7 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Data
 @Entity
 @Table(name = "doctor")
-public class doctor {
+public class Doctor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

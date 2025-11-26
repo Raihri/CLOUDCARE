@@ -679,7 +679,7 @@
             </div>
         </form>
 
-       
+
         <!-- Menstrual Cycle Section (Conditional for Female patients) -->
         <div th:if="${patient.gender != null and #strings.trim(patient.gender.toString()).equalsIgnoreCase('F')}">
             <form th:action="@{/patient/MenstrualCycleInfo}" method="post">

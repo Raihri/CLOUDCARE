@@ -3,6 +3,7 @@ import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.model.User;
 import com.example.cloud.care.repository.PatientRepository;
 import com.example.cloud.care.service.UserService;
+import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.loggedInUserFind;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,9 @@ public class PatientDashboardController {
     @Autowired
     private loggedInUserFind logger;
 
+    @Autowired
+    private doctor_service doctorService;
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         // Get logged-in user's email
@@ -43,5 +47,13 @@ public class PatientDashboardController {
 
         ;
         return "patient_dashboard";
+    }
+
+    @GetMapping("/doctor_list")
+    public String docList(Model model)
+    {
+        model.addAttribute("dcotpr",doctorService.getDoctors());
+
+        return "doctor_list";
     }
 }

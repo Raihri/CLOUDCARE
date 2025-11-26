@@ -1,10 +1,8 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.service.doctor_service;
-import com.example.cloud.care.var.doctor;
+import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.service.DoctorUserDetails;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/doctor")
@@ -30,13 +27,13 @@ public class doctor_controller {
     // Show signup form
     @GetMapping("/signup")
     public String showSignupForm(Model model) {
-        model.addAttribute("doctor", new doctor());
+        model.addAttribute("doctor", new Doctor());
         return "doctor_signup"; // Thymeleaf template
     }
 
     // Handle signup request
     @PostMapping("/signup/request")
-    public String handleSignupRequest(@ModelAttribute doctor doctorRequest,
+    public String handleSignupRequest(@ModelAttribute Doctor doctorRequest,
                                       @RequestParam("profileImageFile") MultipartFile profileImage,
                                       @RequestParam("certificateFile") MultipartFile certificateFile,
                                       Model model) {
@@ -68,7 +65,7 @@ public class doctor_controller {
         }
 
         DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
-        doctor loggedInDoctor = userDetails.getDoctor();
+        Doctor loggedInDoctor = userDetails.getDoctor();
         model.addAttribute("doctor", loggedInDoctor);
         return "doctor_dashboard"; // Thymeleaf template showing doctor info
     }
