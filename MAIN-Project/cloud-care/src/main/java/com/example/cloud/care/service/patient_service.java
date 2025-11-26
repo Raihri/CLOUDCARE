@@ -49,6 +49,12 @@ public class patient_service {
     // return patient_dao.findById(patientId).orElse(null);
     // }
 
+    public Optional<Patient> findByEmail(String email) {
+        return patientRepository.findByUserEmail(email);
+    }
+
+
+
     public void save(Patient patient) {
         patientRepository.save(patient);
     }

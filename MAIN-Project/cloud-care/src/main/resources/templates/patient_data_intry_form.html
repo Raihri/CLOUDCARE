@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title> CloudCare | Patient Data Entry</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <!-- <script th:src="@{/js/script.js}"></script> -->
+
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Additional CSS for the patient form -->
+    <style>
+        /* Patient Form Specific Styles */
+        .patient-form-container {
+            background: #fff;
+            padding: 28px 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(4, 13, 114, 0.08);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            min-height: 300px;
+        }
+
+        .form-section {
+            border: 1px solid #e2e4e7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9fafb;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e4e7;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #040d72;
+        }
+
+        .section-submit-btn {
+            background: #040d72;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .section-submit-btn:hover {
+            background: #1d1b31;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            flex: 1 1 200px;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #23282d;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e4e9f7;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 14px;
+            color: #11101d;
+            transition: border 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #040d72;
+            outline: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+        }
+
+        .form-message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .patient-id-form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(35, 40, 45, 0.07);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .patient-id-input {
+            flex: 1;
+        }
+
+        .patient-id-input label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #23282d;
+        }
+
+        .patient-id-input input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e4e9f7;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 14px;
+            color: #11101d;
+        }
+
+        .fetch-btn {
+            background: #1d8cf8;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .fetch-btn:hover {
+            background: #0a6ed1;
+        }
+
+        .multi-select-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .multi-select-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .multi-select-item input {
+            width: auto;
+        }
+
+        .multi-select-item label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+
+        .photo-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .patient-photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1d8cf8;
+            background: #f7f8fa;
+        }
+
+        .photo-upload-btn {
+            background: #040d72;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .photo-upload-btn:hover {
+            background: #1d1b31;
+        }
+
+        .conditional-fields {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f0f4f8;
+            border-radius: 8px;
+            border-left: 4px solid #1d8cf8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <img src="image/logo.png" alt="CloudCare Logo" />
+            <span class="logo_name">CloudCare</span>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a th:href="@{/dashboard}">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="link_name">Doctor's Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="#">Category</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/list}">
+                    <i class='bx bxs-dashboard'></i>
+                    <span class="link_name">Doctor's List</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="list">Category</a></li>
+                </ul>
+            </li>
+
+            <li class="active">
+                <a th:href="@{/patient-data-entry}">
+                    <i class='bx bx-arrow-to-top'></i>
+                    <span class="link_name">Patient Data Entry</span>
+                </a>
+                <ul class="sub-menu form blank">
+                    <li><a class="link_name" href="patient_data_entry">Category</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/patient}">
+                    <i class="bx bxs-user"></i>
+                    <span class="link_name">Patient Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="patient">Patient Profile</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/donor}">
+                    <i class='bx bxs-droplet'></i>
+                    <span class="link_name">Find Donor</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="donor">Find Donor</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/baby}">
+                    <i class='bx bxs-baby-carriage'></i>
+                    <span class="link_name">Baby Planner</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="baby">Baby Planner</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a th:href="@{/epidemic}">
+                    <i class='bx bx-compass'></i>
+                    <span class="link_name">Epidemic Analyzer</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="epidemic">Epidemic Analyzer</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/depression}">
+                    <i class='bx bx-history'></i>
+                    <span class="link_name">Depression Test</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="depression">Depression Test</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/healthScore}">
+                    <i class='bx bx-cog'></i>
+                    <span class="link_name">Health Score</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="healthScore">Health Score</a></li>
+                </ul>
+            </li>
+            <li>
+            <li>
+                <!-- Patient Content Here -->
+                <div class="profile-details" th:if="${patient != null}">
+                    <a th:href="@{/patient}"
+                        style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                        <div class="profile-content">
+                            <!-- show patient image -->
+                            <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                                th:src="${patient.user.photoUrl}" alt="profileImg"
+                                style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+                            <img th:if="${patient.user == null or patient.user.photoUrl == null}"
+                                src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
+                                alt="defaultProfile"
+                                style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+
+                            <div class="name-job">
+                                <div class="profile_name"
+                                    th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">
+                                    Patient</div>
+                                <div class="job"
+                                    th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </li>
+
+
+            <!-- End Patient Content Here-->
+            </li>
+        </ul>
+    </div>
+    <section class="home-section">
+        <div class="home-header">
+            <i class='bx bx-menu'></i>
+            <h1>Edit Profile</h1>
+        </div>
+
+        <!-- MAIN ----------------------------------------------------------------------------------- -->
+        <!-- MAIN Content Here Please-->
+        <div class="patient-form-container">
+            <!-- Patient Name Show -->
+
+            <h2>Patient </h2>
+            <!-- <h1 th:text="${patient != null atient.user.name : 'N/A'}">Patient Name</h2> -->
+            <div class="home-header">
+                <h1 th:text="${
+    patient != null and patient.user != null and patient.user.name != null 
+        ? patient.user.name 
+        : 'N/A'
+}">Patient Name</h1>
+            </div>
+            <!-- Photo Upload Section -->
+
+            <form th:action="@{/picEdit}" method="post" enctype="multipart/form-data" class="form-section"
+                id="photoSection">
+
+                <!-- controller expects userId and base64 image -->
+                <input type="hidden" name="userId" th:value="${patient?.id}" />
+                <input type="hidden" name="base64Image" id="base64ImageHidden" />
+
+                <div class="section-header">
+                    <h3 class="section-title">Patient Photo</h3>
+                </div>
+
+                <div class="photo-upload-container">
+
+                    <!-- IF patient has a photo -->
+                    <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                        id="photoPreview" th:src="${patient.user.photoUrl}" alt="Patient Photo"
+                        class="patient-photo-preview">
+
+                    <!-- ELSE use default -->
+                    <img th:if="${patient == null or patient.user == null or patient.user.photoUrl == null}"
+                        id="photoPreview" src="https://via.placeholder.com/150" alt="Default Patient Photo"
+                        class="patient-photo-preview">
+
+                    <input type="file" id="patientPhoto" name="patientPhoto" accept="image/*" style="display:none;">
+
+                    <button type="button" class="photo-upload-btn"
+                        onclick="document.getElementById('patientPhoto').click()">
+                        Upload Photo
+                    </button>
+
+                    <button type="submit" class="section-submit-btn">Save Photo</button>
+
+                    <div style="font-size:0.85rem; color:#6b7280; margin-top:6px;">
+                        Allowed file types: JPG, PNG. Recommended size: &lt; 2MB.
+                    </div>
+                </div>
+            </form>
+
+            <!-- Personal Information Section -->
+            <form th:action="@{/updatePersonalInfo}" th:object="${patient}" method="post">
+
+<div class="form-section" id="personalInfoSection">
+    <div class="section-header">
+        <h3 class="section-title">Personal Information</h3>
+        <button class="section-submit-btn" type="submit">Save Personal Info</button>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="bloodGroup">Blood Group</label>
+            <select id="bloodGroup" th:field="*{bloodGroup}">
+                <option value="">Select Blood Group</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" th:field="*{age}" placeholder="Enter age">
+        </div>
+
+        <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" th:field="*{gender}">
+                <option value="">Select Gender</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="division">Division</label>
+            <select id="division" th:field="*{division}">
+                <option value="">Select Division</option>
+                <option value="Dhaka">Dhaka</option>
+                <option value="Chittagong">Chittagong</option>
+                <option value="Rajshahi">Rajshahi</option>
+                <option value="Khulna">Khulna</option>
+                <option value="Barisal">Barisal</option>
+                <option value="Sylhet">Sylhet</option>
+                <option value="Rangpur">Rangpur</option>
+                <option value="Mymensingh">Mymensingh</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="zilla">Zilla</label>
+            <select id="zilla" th:field="*{zilla}">
+                <option value="">Select Zilla</option>
+
+                <!-- Barisal Division -->
+                <option value="Barguna">Barguna</option>
+                <option value="Barisal">Barisal</option>
+                <option value="Bhola">Bhola</option>
+                <option value="Jhalokati">Jhalokati</option>
+                <option value="Patuakhali">Patuakhali</option>
+                <option value="Pirojpur">Pirojpur</option>
+
+                <!-- Chittagong Division -->
+                <option value="Bandarban">Bandarban</option>
+                <option value="Brahmanbaria">Brahmanbaria</option>
+                <option value="Chandpur">Chandpur</option>
+                <option value="Chittagong">Chittagong</option>
+                <option value="Comilla">Comilla</option>
+                <option value="Cox's Bazar">Cox's Bazar</option>
+                <option value="Feni">Feni</option>
+                <option value="Khagrachhari">Khagrachhari</option>
+                <option value="Lakshmipur">Lakshmipur</option>
+                <option value="Noakhali">Noakhali</option>
+                <option value="Rangamati">Rangamati</option>
+
+                <!-- Dhaka Division -->
+                <option value="Dhaka">Dhaka</option>
+                <option value="Faridpur">Faridpur</option>
+                <option value="Gazipur">Gazipur</option>
+                <option value="Gopalganj">Gopalganj</option>
+                <option value="Kishoreganj">Kishoreganj</option>
+                <option value="Madaripur">Madaripur</option>
+                <option value="Manikganj">Manikganj</option>
+                <option value="Munshiganj">Munshiganj</option>
+                <option value="Narayanganj">Narayanganj</option>
+                <option value="Narsingdi">Narsingdi</option>
+                <option value="Rajbari">Rajbari</option>
+                <option value="Shariatpur">Shariatpur</option>
+                <option value="Tangail">Tangail</option>
+
+                <!-- Khulna Division -->
+                <option value="Bagerhat">Bagerhat</option>
+                <option value="Chuadanga">Chuadanga</option>
+                <option value="Jashore">Jashore</option>
+                <option value="Jhenaidah">Jhenaidah</option>
+                <option value="Khulna">Khulna</option>
+                <option value="Kushtia">Kushtia</option>
+                <option value="Magura">Magura</option>
+                <option value="Meherpur">Meherpur</option>
+                <option value="Narail">Narail</option>
+                <option value="Satkhira">Satkhira</option>
+
+                <!-- Mymensingh Division -->
+                <option value="Jamalpur">Jamalpur</option>
+                <option value="Mymensingh">Mymensingh</option>
+                <option value="Netrokona">Netrokona</option>
+                <option value="Sherpur">Sherpur</option>
+
+                <!-- Rajshahi Division -->
+                <option value="Bogura">Bogura</option>
+                <option value="Chapainawabganj">Chapainawabganj</option>
+                <option value="Joypurhat">Joypurhat</option>
+                <option value="Naogaon">Naogaon</option>
+                <option value="Natore">Natore</option>
+                <option value="Pabna">Pabna</option>
+                <option value="Rajshahi">Rajshahi</option>
+                <option value="Sirajganj">Sirajganj</option>
+
+                <!-- Rangpur Division -->
+                <option value="Rangpur">Rangpur</option>
+                <option value="Dinajpur">Dinajpur</option>
+                <option value="Gaibandha">Gaibandha</option>
+                <option value="Kurigram">Kurigram</option>
+                <option value="Lalmonirhat">Lalmonirhat</option>
+                <option value="Nilphamari">Nilphamari</option>
+                <option value="Panchagarh">Panchagarh</option>
+                <option value="Thakurgaon">Thakurgaon</option>
+
+                <!-- Sylhet Division -->
+                <option value="Sylhet">Sylhet</option>
+                <option value="Habiganj">Habiganj</option>
+                <option value="Moulvibazar">Moulvibazar</option>
+                <option value="Sunamganj">Sunamganj</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" th:field="*{address}" placeholder="Enter address">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="weight">Weight (kg)</label>
+            <input type="number" step="0.1" th:field="*{weight}" placeholder="Enter weight">
+        </div>
+
+        <div class="form-group">
+            <label for="height">Height (cm)</label>
+            <input type="number" step="0.1" th:field="*{height}" placeholder="Enter height">
+        </div>
+
+        <div class="form-group">
+            <label for="nationalId">National ID</label>
+            <input type="text" th:field="*{nationalId}" placeholder="Enter National ID">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="emergencyContact">Emergency Contact</label>
+            <input type="text" th:field="*{emergencyContact}" placeholder="Enter emergency contact">
+        </div>
+
+        <div class="form-group">
+            <label for="fatherName">Father's Name</label>
+            <input type="text" th:field="*{fatherName}" placeholder="Enter father's name">
+        </div>
+
+        <div class="form-group">
+            <label for="motherName">Mother's Name</label>
+            <input type="text" th:field="*{motherName}" placeholder="Enter mother's name">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="maritalStatus">Marital Status</label>
+            <select th:field="*{maritalStatus}">
+                <option value="">Select Status</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="dateOfBirth">Date of Birth</label>
+            <input type="date" th:field="*{dateOfBirth}">
+        </div>
+
+        <div class="form-group">
+            <label for="lastDonated">Last Donated Blood</label>
+            <input type="date" th:field="*{lastDonated}">
+        </div>
+    </div>
+
+    <div class="form-message" id="personalMessage"></div>
+</div>
+
+</form>
+
+
+            <!-- Blood & Biochemistry Section
+        <div class="form-section" id="biochemistrySection">
+            <div class="section-header">
+                <h3 class="section-title">Blood & Biochemistry</h3>
+                <button class="section-submit-btn" data-section="biochemistry">Save Biochemistry</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="rbc">RBC (million/μL)</label>
+                    <input type="number" step="0.01" id="rbc" name="rbc" th:value="${patient?.rbc}" placeholder="Enter RBC count">
+                </div>
+                <div class="form-group">
+                    <label for="platelet">Platelet (×10^9/L)</label>
+                    <input type="number" step="0.01" id="platelet" name="platelet" th:value="${patient?.platelet}" placeholder="Enter platelet count">
+                </div>
+                <div class="form-group">
+                    <label for="triglyceride">Triglyceride (mg/dL)</label>
+                    <input type="number" step="0.01" id="triglyceride" name="triglyceride" th:value="${patient?.triglyceride}" placeholder="Enter triglyceride level">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="hb">Hemoglobin (g/dL)</label>
+                    <input type="number" step="0.1" id="hb" name="hb" th:value="${patient?.hb}" placeholder="Enter hemoglobin level">
+                </div>
+                <div class="form-group">
+                    <label for="creatinineLevel">Creatinine Level (mg/dL)</label>
+                    <input type="number" step="0.01" id="creatinineLevel" name="creatinineLevel" th:value="${patient?.creatinineLevel}" placeholder="Enter creatinine level">
+                </div>
+                <div class="form-group">
+                    <label for="wbc">WBC (×10^9/L)</label>
+                    <input type="number" step="0.01" id="wbc" name="wbc" th:value="${patient?.wbc}" placeholder="Enter WBC count">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sugarLevel">Sugar Level (mg/dL)</label>
+                    <input type="number" step="0.1" id="sugarLevel" name="sugarLevel" th:value="${patient?.sugarLevel}" placeholder="Enter sugar level">
+                </div>
+                <div class="form-group">
+                    <label for="rhFactor">Rh Factor</label>
+                    <select id="rhFactor" name="rhFactor">
+                        <option value="">Select Rh Factor</option>
+                        <option th:selected="${patient?.rhFactor == 'Positive'}" value="Positive">Positive</option>
+                        <option th:selected="${patient?.rhFactor == 'Negative'}" value="Negative">Negative</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="cholesterolTotal">Total Cholesterol (mg/dL)</label>
+                    <input type="number" step="0.1" id="cholesterolTotal" name="cholesterolTotal" th:value="${patient?.cholesterolTotal}" placeholder="Enter total cholesterol">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cholesterolLDL">LDL Cholesterol (mg/dL)</label>
+                    <input type="number" step="0.1" id="cholesterolLDL" name="cholesterolLDL" th:value="${patient?.cholesterolLDL}" placeholder="Enter LDL cholesterol">
+                </div>
+                <div class="form-group">
+                    <label for="cholesterolHDL">HDL Cholesterol (mg/dL)</label>
+                    <input type="number" step="0.1" id="cholesterolHDL" name="cholesterolHDL" th:value="${patient?.cholesterolHDL}" placeholder="Enter HDL cholesterol">
+                </div>
+                <div class="form-group">
+                    <label for="creatinine">Creatinine (mg/dL)</label>
+                    <input type="number" step="0.01" id="creatinine" name="creatinine" th:value="${patient?.creatinine}" placeholder="Enter creatinine">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="alt">ALT (SGPT) U/L</label>
+                    <input type="number" step="0.1" id="alt" name="alt" th:value="${patient?.alt}" placeholder="Enter ALT level">
+                </div>
+                <div class="form-group">
+                    <label for="ast">AST (SGOT) U/L</label>
+                    <input type="number" step="0.1" id="ast" name="ast" th:value="${patient?.ast}" placeholder="Enter AST level">
+                </div>
+                <div class="form-group">
+                    <label for="bilirubin">Bilirubin (mg/dL)</label>
+                    <input type="number" step="0.01" id="bilirubin" name="bilirubin" th:value="${patient?.bilirubin}" placeholder="Enter bilirubin level">
+                </div>
+            </div>
+            <div class="form-message" id="biochemistryMessage"></div>
+        </div>
+         -->
+            <!-- Vital Signs Section -->
+            <div class="form-section" id="vitalSignsSection">
+                <div class="section-header">
+                    <h3 class="section-title">Vital Signs</h3>
+                    <button class="section-submit-btn" data-section="vital">Save Vital Signs</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="systolicBP">Systolic BP (mmHg)</label>
+                        <input type="number" id="systolicBP" name="systolicBP" th:value="${patient?.systolicBP}"
+                            placeholder="Enter systolic BP">
+                    </div>
+                    <div class="form-group">
+                        <label for="diastolicBP">Diastolic BP (mmHg)</label>
+                        <input type="number" id="diastolicBP" name="diastolicBP" th:value="${patient?.diastolicBP}"
+                            placeholder="Enter diastolic BP">
+                    </div>
+                    <div class="form-group">
+                        <label for="heartRate">Heart Rate (bpm)</label>
+                        <input type="number" id="heartRate" name="heartRate" th:value="${patient?.heartRate}"
+                            placeholder="Enter heart rate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="oxygenSaturation">Oxygen Saturation (%)</label>
+                        <input type="number" id="oxygenSaturation" name="oxygenSaturation"
+                            th:value="${patient?.oxygenSaturation}" placeholder="Enter SpO2 %">
+                    </div>
+                    <div class="form-group">
+                        <label for="respiratoryRate">Respiratory Rate (breaths/min)</label>
+                        <input type="number" step="0.1" id="respiratoryRate" name="respiratoryRate"
+                            th:value="${patient?.respiratoryRate}" placeholder="Enter respiratory rate">
+                    </div>
+                    <div class="form-group">
+                        <label for="bodyTemperature">Body Temperature (°C)</label>
+                        <input type="number" step="0.1" id="bodyTemperature" name="bodyTemperature"
+                            th:value="${patient?.bodyTemperature}" placeholder="Enter body temperature">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bloodSugarLevel">Blood Sugar Level (mg/dL)</label>
+                        <input type="number" step="0.1" id="bloodSugarLevel" name="bloodSugarLevel"
+                            th:value="${patient?.bloodSugarLevel}" placeholder="Enter blood sugar level">
+                    </div>
+                </div>
+                <div class="form-message" id="vitalMessage"></div>
+            </div>
+
+            <!-- Lifestyle Information Section -->
+            <div class="form-section" id="lifestyleSection">
+                <div class="section-header">
+                    <h3 class="section-title">Lifestyle Information</h3>
+                    <button class="section-submit-btn" data-section="lifestyle">Save Lifestyle Info</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sleepHours">Sleep Hours (per day)</label>
+                        <input type="number" step="0.1" id="sleepHours" name="sleepHours"
+                            th:value="${patient?.sleepHours}" placeholder="Enter sleep hours">
+                    </div>
+                    <div class="form-group">
+                        <label for="waterIntake">Water Intake (liters/day)</label>
+                        <input type="number" step="0.1" id="waterIntake" name="waterIntake"
+                            th:value="${patient?.waterIntake}" placeholder="Enter water intake">
+                    </div>
+                    <div class="form-group">
+                        <label for="physicalActivity">Physical Activity Level</label>
+                        <select id="physicalActivity" name="physicalActivity">
+                            <option value="">Select Activity Level</option>
+                            <option th:selected="${patient?.physicalActivity == 1}" value="1">Sedentary</option>
+                            <option th:selected="${patient?.physicalActivity == 2}" value="2">Lightly Active</option>
+                            <option th:selected="${patient?.physicalActivity == 3}" value="3">Moderately Active</option>
+                            <option th:selected="${patient?.physicalActivity == 4}" value="4">Very Active</option>
+                            <option th:selected="${patient?.physicalActivity == 5}" value="5">Extremely Active</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="smoker" name="smoker" th:checked="${patient?.smoker}">
+                        <label for="smoker">Smoker</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="alcoholConsumer" name="alcoholConsumer"
+                            th:checked="${patient?.alcoholConsumer}">
+                        <label for="alcoholConsumer">Alcohol Consumer</label>
+                    </div>
+                </div>
+                <div class="form-message" id="lifestyleMessage"></div>
+            </div>
+
+            <!-- Menstrual Cycle Section (Conditional for Female patients) -->
+            <li th:if="${patient != null and patient.gender == 'F'}">
+                <div class="form-section" id="menstrualSection">
+                    <div class="section-header">
+                        <h3 class="section-title">Menstrual Cycle Information</h3>
+                        <button class="section-submit-btn" data-section="menstrual">Save Menstrual Info</button>
+                    </div>
+                    <div class="form-row">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="pregnant" name="pregnant" th:checked="${patient?.pregnant}">
+                            <label for="pregnant">Currently Pregnant</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="breastFeeding" name="breastFeeding"
+                                th:checked="${patient?.breastFeeding}">
+                            <label for="breastFeeding">Breast Feeding</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="menstruationRegular" name="menstruationRegular"
+                                th:checked="${patient?.menstruationRegular}">
+                            <label for="menstruationRegular">Regular Menstruation</label>
+                        </div>
+                    </div>
+                    <div class="conditional-fields" id="pregnancyFields">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pregnancyWeek">Pregnancy Week</label>
+                                <input type="number" id="pregnancyWeek" name="pregnancyWeek"
+                                    th:value="${patient?.pregnancyWeek}" placeholder="Enter pregnancy week">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="lastMenstrualDate">Last Menstrual Date</label>
+                            <input type="date" id="lastMenstrualDate" name="lastMenstrualDate"
+                                th:value="${#dates.format(patient?.lastMenstrualDate, 'yyyy-MM-dd')}">
+                        </div>
+                    </div>
+                    <div class="form-message" id="menstrualMessage"></div>
+                </div>
+            </li>
+
+            <!-- Mental Health Section -->
+            <!-- <div class="form-section" id="mentalHealthSection">
+            <div class="section-header">
+                <h3 class="section-title">Mental Health</h3>
+                <button class="section-submit-btn" data-section="mental">Save Mental Health</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="serotonin">Serotonin Level</label>
+                    <input type="number" step="0.01" id="serotonin" name="serotonin" th:value="${patient?.serotonin}" placeholder="Enter serotonin level">
+                </div>
+                <div class="form-group">
+                    <label for="dopamine">Dopamine Level</label>
+                    <input type="number" step="0.01" id="dopamine" name="dopamine" th:value="${patient?.dopamine}" placeholder="Enter dopamine level">
+                </div>
+                <div class="form-group">
+                    <label for="norepinephrine">Norepinephrine Level</label>
+                    <input type="number" step="0.01" id="norepinephrine" name="norepinephrine" th:value="${patient?.norepinephrine}" placeholder="Enter norepinephrine level">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="cortisol">Cortisol Level</label>
+                    <input type="number" step="0.01" id="cortisol" name="cortisol" th:value="${patient?.cortisol}" placeholder="Enter cortisol level">
+                </div>
+                <div class="form-group">
+                    <label for="bdnf">BDNF Level</label>
+                    <input type="number" step="0.01" id="bdnf" name="bdnf" th:value="${patient?.bdnf}" placeholder="Enter BDNF level">
+                </div>
+                <div class="form-group">
+                    <label for="stressLevel">Stress Level (1-10)</label>
+                    <input type="number" min="1" max="10" id="stressLevel" name="stressLevel" th:value="${patient?.stressLevel}" placeholder="Enter stress level">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="anxietyScore">Anxiety Score (1-10)</label>
+                    <input type="number" min="1" max="10" id="anxietyScore" name="anxietyScore" th:value="${patient?.anxietyScore}" placeholder="Enter anxiety score">
+                </div>
+            </div>
+            <div class="form-message" id="mentalMessage"></div>
+        </div> -->
+
+            <!-- Medical History Section -->
+            <!-- <div class="form-section" id="medicalHistorySection">
+            <div class="section-header">
+                <h3 class="section-title">Medical History</h3>
+                <button class="section-submit-btn" data-section="medical">Save Medical History</button>
+            </div>
+            <div class="form-group">
+                <label>Allergies</label>
+                <div class="multi-select-container">
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="allergy_dust" value="Dust" th:checked="${#lists.contains(patient.allergies, 'Dust')}">
+                        <label for="allergy_dust">Dust</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="allergy_pollen" value="Pollen" th:checked="${#lists.contains(patient.allergies, 'Pollen')}">
+                        <label for="allergy_pollen">Pollen</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="allergy_peanuts" value="Peanuts" th:checked="${#lists.contains(patient.allergies, 'Peanuts')}">
+                        <label for="allergy_peanuts">Peanuts</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="allergy_penicillin" value="Penicillin" th:checked="${#lists.contains(patient.allergies, 'Penicillin')}">
+                        <label for="allergy_penicillin">Penicillin</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="allergy_other" value="Other" th:checked="${#lists.contains(patient.allergies, 'Other')}">
+                        <label for="allergy_other">Other</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Diseases</label>
+                <div class="multi-select-container">
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="disease_diabetes" value="Diabetes" th:checked="${#lists.contains(patient.diseases, 'Diabetes')}">
+                        <label for="disease_diabetes">Diabetes</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="disease_hypertension" value="Hypertension" th:checked="${#lists.contains(patient.diseases, 'Hypertension')}">
+                        <label for="disease_hypertension">Hypertension</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="disease_asthma" value="Asthma" th:checked="${#lists.contains(patient.diseases, 'Asthma')}">
+                        <label for="disease_asthma">Asthma</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="disease_heart" value="Heart Disease" th:checked="${#lists.contains(patient.diseases, 'Heart Disease')}">
+                        <label for="disease_heart">Heart Disease</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="disease_other" value="Other" th:checked="${#lists.contains(patient.diseases, 'Other')}">
+                        <label for="disease_other">Other</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Mental Diseases</label>
+                <div class="multi-select-container">
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="mental_depression" value="Depression" th:checked="${#lists.contains(patient.mentalDiseases, 'Depression')}">
+                        <label for="mental_depression">Depression</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="mental_anxiety" value="Anxiety" th:checked="${#lists.contains(patient.mentalDiseases, 'Anxiety')}">
+                        <label for="mental_anxiety">Anxiety</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="mental_bipolar" value="Bipolar" th:checked="${#lists.contains(patient.mentalDiseases, 'Bipolar')}">
+                        <label for="mental_bipolar">Bipolar</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="mental_schizophrenia" value="Schizophrenia" th:checked="${#lists.contains(patient.mentalDiseases, 'Schizophrenia')}">
+                        <label for="mental_schizophrenia">Schizophrenia</label>
+                    </div>
+                    <div class="multi-select-item">
+                        <input type="checkbox" id="mental_other" value="Other" th:checked="${#lists.contains(patient.mentalDiseases, 'Other')}">
+                        <label for="mental_other">Other</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="medications">Current Medications</label>
+                <textarea id="medications" name="medications" rows="3" th:text="${patient?.medications}" placeholder="List current medications"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="symptoms">Current Symptoms</label>
+                <textarea id="symptoms" name="symptoms" rows="3" th:text="${patient?.symptoms}" placeholder="Describe current symptoms"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="familyDiseaseHistory">Family Disease History</label>
+                <textarea id="familyDiseaseHistory" name="familyDiseaseHistory" rows="3" th:text="${patient?.familyDiseaseHistory}" placeholder="List family disease history"></textarea>
+            </div>
+            <div class="form-message" id="medicalMessage"></div>
+        </div> -->
+
+            <!-- Environment & Family Info Section -->
+            <div class="form-section" id="environmentSection">
+                <div class="section-header">
+                    <h3 class="section-title">Environment & Family Information</h3>
+                    <button class="section-submit-btn" data-section="environment">Save Environment Info</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="parentalCareState">Parental Care State</label>
+                        <select id="parentalCareState" name="parentalCareState">
+                            <option value="">Select Parental Care</option>
+                            <option th:selected="${patient?.parentalCareState == 'Good'}" value="Good">Good</option>
+                            <option th:selected="${patient?.parentalCareState == 'Average'}" value="Average">Average
+                            </option>
+                            <option th:selected="${patient?.parentalCareState == 'Poor'}" value="Poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="homeEnvironment">Home Environment</label>
+                        <select id="homeEnvironment" name="homeEnvironment">
+                            <option value="">Select Home Environment</option>
+                            <option th:selected="${patient?.homeEnvironment == 'Supportive'}" value="Supportive">
+                                Supportive</option>
+                            <option th:selected="${patient?.homeEnvironment == 'Neutral'}" value="Neutral">Neutral
+                            </option>
+                            <option th:selected="${patient?.homeEnvironment == 'Stressful'}" value="Stressful">Stressful
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="haveBeenBullied" name="haveBeenBullied"
+                            th:checked="${patient?.haveBeenBullied}">
+                        <label for="haveBeenBullied">Have Been Bullied</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="feelingLeftOut" name="feelingLeftOut"
+                            th:checked="${patient?.feelingLeftOut}">
+                        <label for="feelingLeftOut">Feeling Left Out</label>
+                    </div>
+                </div>
+                <div class="form-message" id="environmentMessage"></div>
+            </div>
+
+            <!-- Report Files Section -->
+            <!-- <div class="form-section" id="reportsSection">
+            <div class="section-header">
+                <h3 class="section-title">Medical Reports & Files</h3>
+                <button class="section-submit-btn" data-section="reports">Save Reports Info</button>
+            </div>
+            <div class="form-group">
+                <label>Vaccination History Files</label>
+                <input type="file" multiple accept=".pdf,.jpg,.png">
+                <small>Upload vaccination records (PDF, JPG, PNG)</small>
+            </div>
+            <div class="form-group">
+                <label>Radiology Reports</label>
+                <input type="file" multiple accept=".pdf,.jpg,.png">
+                <small>Upload X-ray, MRI reports (PDF, JPG, PNG)</small>
+            </div>
+            <div class="form-group">
+                <label>Lab Report Files</label>
+                <input type="file" multiple accept=".pdf,.jpg,.png">
+                <small>Upload lab test reports (PDF, JPG, PNG)</small>
+            </div>
+            <div class="form-message" id="reportsMessage"></div>
+        </div>
+    </div> -->
+            <!-- MAIN content ends Here ------------------------------------------------------------------------>
+            <div id="toast-container"></div>
+            <script>
+
+
+                // Photo upload preview + set hidden base64 input for controller
+                const photoInput = document.getElementById('patientPhoto');
+                const photoPreview = document.getElementById('photoPreview') || document.querySelector('.patient-photo-preview');
+                const base64Hidden = document.getElementById('base64ImageHidden');
+                const skipHidden = document.createElement('input');
+                skipHidden.type = 'hidden';
+                skipHidden.name = 'skip';
+                skipHidden.id = 'skipHidden';
+                skipHidden.value = '';
+                const photoForm = document.getElementById('photoSection');
+                if (photoForm && !document.getElementById('skipHidden')) photoForm.appendChild(skipHidden);
+
+                if (photoInput) {
+                    photoInput.addEventListener('change', function () {
+                        const file = this.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                photoPreview.src = e.target.result;
+                                // set the base64 hidden input so the controller can upload to Cloudinary
+                                if (base64Hidden) base64Hidden.value = e.target.result;
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+            </script>
+
+            <script>
+                // Toast
+                const successMsg = "[[${successMessage}]]".trim();
+                const errorMsg = "[[${errorMessage}]]".trim();
+
+                function showToast(message, type) {
+                    const container = document.getElementById("toast-container");
+
+                    const toast = document.createElement("div");
+                    toast.classList.add("toast", type);
+
+                    const icon = type === "success" ? "✔" : "⚠";
+
+                    toast.innerHTML = `
+            <span class="toast-icon">${icon}</span>
+            <span>${message}</span>
+        `;
+
+                    container.appendChild(toast);
+
+                    // Remove after animation completes (4s)
+                    setTimeout(() => toast.remove(), 4000);
+                }
+
+                if (successMsg && successMsg !== "null") {
+                    showToast(successMsg, "success");
+                }
+
+                if (errorMsg && errorMsg !== "null") {
+                    showToast(errorMsg, "error");
+                }
+            </script>
+
+            <script>
+                let arrow = document.querySelectorAll(".arrow");
+                for (var i = 0; i < arrow.length; i++) {
+                    arrow[i].addEventListener("click", (e) => {
+                        let arrowParent = e.target.parentElement.parentElement;//selecting main parent of arrow
+                        arrowParent.classList.toggle("showMenu");
+                    });
+                }
+
+                let sidebar = document.querySelector(".sidebar");
+                let sidebarBtn = document.querySelector(".bx-menu");
+
+                // Ensure sidebar is open by default
+                if (sidebar && sidebar.classList.contains("close")) {
+                    sidebar.classList.remove("close");
+                }
+
+                console.log(sidebarBtn);
+                if (sidebarBtn) {
+                    sidebarBtn.addEventListener("click", () => {
+                        sidebar.classList.toggle("close");
+                    });
+                }
+            </script>
+
+
+</body>
+
+</html>

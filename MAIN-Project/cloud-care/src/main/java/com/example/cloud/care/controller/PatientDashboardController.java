@@ -3,6 +3,7 @@ import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.model.User;
 import com.example.cloud.care.repository.PatientRepository;
 import com.example.cloud.care.service.UserService;
+import com.example.cloud.care.service.loggedInUserFind;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,22 +21,27 @@ public class PatientDashboardController {
     @Autowired
     private UserService userService;  // <-- inject UserService
 
+    @Autowired
+    private loggedInUserFind logger;
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         // Get logged-in user's email
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
+        Patient patient = logger.logger();
 
-        // Fetch user using Optional
-        User user = userService.findByEmail(email)
-            .orElse(null);
+        model.addAttribute("patient", patient);
 
-        if (user == null || user.getPatient() == null) {
-            return "redirect:/patient/"; // not found
-        }
 
-        model.addAttribute("patient", user.getPatient()); // fixed variable
+        System.out.println("---------------HELLO--------------------");
 
-        return "what"; // your Thymeleaf page
+        System.out.println("Patient Data: ");
+        System.out.println(patient.getAnxietyScore());
+        System.out.println("Patient Name is:   --------------------");
+        System.out.println(patient.getUser().getName());
+        System.out.println("Photo URL ---------------");
+        System.out.println(patient.getUser().getPhotoUrl());
+
+        ;
+        return "patient_dashboard";
     }
 }
