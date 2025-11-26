@@ -91,7 +91,7 @@
     <h2>Enter Verification Code</h2>
     <p class="email-info">A 6-digit resetcode has been sent to <b th:text="${email}"></b></p>
 
-    <form th:action="@{/reset-otp-verify(email=${email})}" th:object="${otpForm}" method="post">
+    <form th:action="@{/patient/reset-otp-verify(email=${email})}" th:object="${otpForm}" method="post">
         <div class="otp-inputs">
             <input type="text" maxlength="1" th:field="*{digit1}" required oninput="moveToNext(this, 'otp2')"/>
             <input type="text" maxlength="1" id="otp2" th:field="*{digit2}" required oninput="moveToNext(this, 'otp3')"/>

@@ -152,7 +152,7 @@
             Your ID is: <span th:text="${patient.id}">PAT-001</span>
         </div>
 
-        <form th:action="@{/selfie-upload}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/patient/selfie-upload}" method="post" enctype="multipart/form-data">
             <!-- Pass userId to controller so it can fetch the correct user -->
             <input type="hidden" name="userId" th:value="${patient.id}">
 

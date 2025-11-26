@@ -450,7 +450,7 @@
             <!-- SIGN UP -->
             <div class="col align-items-center flex-col sign-up">
                 <div class="form-wrapper align-items-center">
-                    <form th:action="@{/register}" method="post" class="form sign-up" th:object="${user}"
+                    <form th:action="@{/patient/register}" method="post" class="form sign-up" th:object="${user}"
                         id="signupForm">
                         <div class="input-group">
                             <i class='bx bxs-id-card'></i>
@@ -526,7 +526,7 @@
             <!-- SIGN IN -->
             <div class="col align-items-center flex-col sign-in">
                 <div class="form-wrapper align-items-center">
-                    <form th:action="@{/login}" method="post" class="form sign-in">
+                    <form th:action="@{/patient/login}" method="post" class="form sign-in">
                         <div class="input-group">
                             <i class='bx bxs-user'></i>
                             <input type="text" name="email" placeholder="Email" required>
@@ -540,7 +540,7 @@
                             th:value="${_csrf.token}" />
                         <button type="submit">Sign in</button>
 
-                        <p><b><a th:href="@{/forgot-password}">Forgot password?</a></b></p>
+                        <p><b><a th:href="@{/patient/forgot-password}">Forgot password?</a></b></p>
                         <p>
                             <span>Don't have an account?</span>
                             <b onclick="toggle()" class="pointer">Sign up here</b>
@@ -554,7 +554,7 @@
 
                 <!-- Verification Form -->
                 <div class="form-wrapper align-items-center" th:if="${param.registered}">
-                    <form th:action="@{/verify}" method="get" class="form">
+                    <form th:action="@{/patient/verify}" method="get" class="form">
                         <div class="input-group">
                             <i class='bx bx-check-circle'></i>
                             <input type="text" name="code" placeholder="Enter verification code" required>

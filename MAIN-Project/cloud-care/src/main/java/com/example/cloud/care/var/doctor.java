@@ -1,14 +1,15 @@
 package com.example.cloud.care.var;
-
-import java.util.Date;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Generated;
+import java.util.Date;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Data
 @Entity
 @Table(name = "doctor")
 public class doctor {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -17,9 +18,10 @@ public class doctor {
     private String name;
     private String profileImage;
     private String gender;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dob;
     private String bloodGroup;
-
+    
     // Contact
     private String email;
     private String phoneNumber;
@@ -29,7 +31,11 @@ public class doctor {
     private String zilla;
     private String street;
     private String postalCode;
-    private String emergencyContact;
+    private String emergencyContact; 
+    private String password;
+    @Transient
+    private String confirmPassword;
+    private String bmdcRegNo;
 
     // Professional
     private String degrees;
@@ -44,7 +50,6 @@ public class doctor {
     private String consultationFee;
     private String description;
     private String medicalCollege;
-
 
     // Availability & Online
     private String workingDays;
@@ -67,4 +72,12 @@ public class doctor {
     private String notes;
     private String rating;
 
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.PENDING;
+
+    public enum Status {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
 }

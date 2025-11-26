@@ -520,12 +520,12 @@
         </div>
         <ul class="nav-links">
             <li>
-                <a th:href="@{/dashboard}">
+                <a th:href="@{/patient/dashboard}">
                     <i class='bx bxs-dashboard'></i>
                     <span class="link_name">Doctor's Profile</span>
                 </a>
                 <ul class="sub-menu blank">
-                    <li><a class="link_name" th:href="@{/dashboard}">Category</a></li>
+                    <li><a class="link_name" th:href="@{/patient/dashboard}">Category</a></li>
                 </ul>
             </li>
 
@@ -657,7 +657,6 @@
                     <div class="profile-details">
                         <h1 class="profile-name" th:text="${#strings.defaultString(patient.user.name, 'Patient Name')}">
                             Patient Name</h1>
-                            <p class="profile-email" th:text="${#strings.defaultString(patient.user.email, 'Email not set')}">Email not set</p>
                         <p class="profile-bio"
                             th:text="'Patient ID: ' + ${#strings.defaultString(patient.id, 'N/A')} + ' | ' + ${#strings.defaultString(patient.bloodGroup, 'Blood Group')} + ' | ' + ${#strings.defaultString(patient.age, 'Age')} + ' years'">
                             Patient ID • Blood Group • Age years

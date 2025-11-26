@@ -1,85 +1,136 @@
 package com.example.cloud.care.config;
 
+import com.example.cloud.care.dao.doctor_dao;
 import com.example.cloud.care.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import com.example.cloud.care.service.DoctorUserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
+        private final CustomUserDetailsService userDetailsService;
 
-    public SecurityConfig(CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+        public SecurityConfig(CustomUserDetailsService userDetailsService) {
+                this.userDetailsService = userDetailsService;
+        }
 
-    // Password encoder bean
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        // Password encoder
+        @Bean
+        public BCryptPasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    // Authentication manager bean
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
-    }
+        // Authentication manager
+        @Bean
+        public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+                return authConfig.getAuthenticationManager();
+        }
 
-    // Security filter chain
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
+        // ============================
+        // 1️⃣ PATIENT SECURITY
+        // ============================
+        @Bean
+        @Order(1)
+        public SecurityFilterChain patientSecurity(HttpSecurity http) throws Exception {
 
-        http
-                .csrf(csrf -> csrf.disable()) // disable CSRF for now
-                .cors(cors -> cors.configurationSource(request -> {
-                    var configuration = new org.springframework.web.cors.CorsConfiguration();
-                    configuration.setAllowedOrigins(java.util.Arrays.asList("*"));
-                    configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
-                    configuration.setAllowCredentials(true);
-                    return configuration;
-                }))
-                .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers(
-                                "/", "/register", "/verify", "/otpverify",
-                                "/forgot-password", "/forgot-password-submit",
-                                "/reset-password", "/reset-otp", "/reset-otp-verify",
-                                "/css/**", "/js/**", "/images/**", "/error")
-                        .permitAll()
-                        // All other endpoints require login
-                        .anyRequest().authenticated())
-                .formLogin(form -> form
-                        .loginPage("/") // your login page
-                        .loginProcessingUrl("/login") // the login form submit URL
-                        .usernameParameter("email")
-                        .passwordParameter("password")
-                        .defaultSuccessUrl("/dashboard", true) // redirect after login
-                        .failureHandler((request, response, exception) -> {
-                            request.getSession().setAttribute("loginError", "Invalid username or password");
-                            response.sendRedirect("/?error=true");
-                        })
-                        .permitAll())
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/?logout=true")
-                        .deleteCookies("JSESSIONID")
-                        .clearAuthentication(true)
-                        .invalidateHttpSession(true)
-                        .permitAll())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(
-                                org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
-                        .invalidSessionUrl("/")
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false))
-                .userDetailsService(userDetailsService);
+                http
+                                .securityMatcher("/patient/**")
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/patient/register", "/patient/login",
+                                                                "/patient/otpverify",
+                                                                "/patient/reset-password", "/patient/forgot-password",
+                                                                "/patient/", "/patient/verify",
+                                                                "/patient/forgot-password-submit", "/patient/reset-otp",
+                                                                "/patient/reset-otp-verify",
+                                                                "/patient/css/**", "/patient/js/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .formLogin(form -> form
+                                                .loginPage("/patient/login")
+                                                .loginProcessingUrl("/patient/login")
+                                                .usernameParameter("email")
+                                                .passwordParameter("password")
+                                                .defaultSuccessUrl("/patient/dashboard", true)
+                                                .permitAll())
+                                .logout(logout -> logout
+                                                .logoutUrl("/patient/logout")
+                                                .logoutSuccessUrl("/patient/login?logout")
+                                                .permitAll())
+                                .userDetailsService(userDetailsService);
 
-        return http.build();
-    }
+                return http.build();
+        }
+
+        // ============================
+        // 2️⃣ DOCTOR SECURITY
+        // ============================
+        @Bean
+        @Order(2)
+        public SecurityFilterChain doctorSecurity(HttpSecurity http, doctor_dao doctorDao) throws Exception {
+
+                http
+                                .securityMatcher("/doctor/**")
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/doctor/login",
+                                                                "/doctor/signup",
+                                                                "/doctor/signup/request",
+                                                                "/doctor/check-email",
+                                                                "/doctor/css/**",
+                                                                "/doctor/js/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .formLogin(form -> form
+                                                .loginPage("/doctor/login")
+                                                .loginProcessingUrl("/doctor/login") // POST endpoint for login
+                                                .usernameParameter("email") // matches your form input name
+                                                .passwordParameter("password") // matches your form input name
+                                                .defaultSuccessUrl("/doctor/dashboard", true)
+                                                .failureUrl("/doctor/login?error=true")
+                                                .permitAll())
+                                .logout(logout -> logout
+                                                .logoutUrl("/doctor/logout")
+                                                .logoutSuccessUrl("/doctor/login?logout")
+                                                .permitAll())
+                                .userDetailsService(doctorUserDetailsService(doctorDao)); // Use
+                                                                                          // DoctorUserDetailsService
+
+                return http.build();
+        }
+
+        // DoctorUserDetailsService bean
+        @Bean
+        public UserDetailsService doctorUserDetailsService(doctor_dao doctorDao) {
+                return username -> doctorDao.findByEmail(username)
+                                .map(doc -> new DoctorUserDetails(doc))
+                                .orElseThrow(() -> new UsernameNotFoundException("Doctor not found"));
+        }
+
+        // ============================
+        // 3️⃣ DEFAULT SECURITY (ADMIN OR PUBLIC)
+        // ============================
+        @Bean
+        @Order(3)
+        public SecurityFilterChain defaultSecurity(HttpSecurity http) throws Exception {
+
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/", "/home", "/css/**", "/js/**","/admin/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated());
+
+                return http.build();
+        }
 }

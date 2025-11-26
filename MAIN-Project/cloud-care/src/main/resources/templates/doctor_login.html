@@ -1,0 +1,197 @@
+<style>
+    /* Page-scoped polished auth styles - keeps cohesion with project theme */
+    html,
+    body {
+        height: 100%;
+        background: linear-gradient(180deg, #f6fbff 0%, #f7f8fb 100%);
+    }
+
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 16px;
+    }
+
+    .form-wrapper {
+        width: 100%;
+        max-width: 520px;
+    }
+
+    .form {
+        border-radius: 18px;
+        padding: 28px 26px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 251, 255, 0.88));
+        box-shadow: 0 28px 80px rgba(13, 38, 80, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(16, 24, 64, 0.06);
+        transition: transform .22s cubic-bezier(.2, .8, .2, 1), box-shadow .22s;
+    }
+
+    .form:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 44px 110px rgba(13, 38, 80, 0.14);
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .logo img {
+        height: 64px;
+        width: auto;
+        border-radius: 12px;
+        object-fit: contain;
+    }
+
+    .logo h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: #06203a;
+        letter-spacing: 0.2px;
+    }
+
+    /* Error message styling (page-local) */
+    .error {
+        border-radius: 10px;
+        padding: 12px 14px;
+        color: #7a1a1a;
+        background: linear-gradient(180deg, #fff2f2, #ffecec);
+        border: 1px solid #ffd6d6;
+        margin-bottom: 14px;
+    }
+
+    /* Input group with icons */
+    .input-group {
+        position: relative;
+        margin: 14px 0;
+    }
+
+    .input-group i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 18px;
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 12px 14px 12px 48px;
+        border-radius: 12px;
+        border: 1px solid rgba(16, 24, 64, 0.06);
+        background: #fff;
+        font-size: 15px;
+        color: #06203a;
+        transition: box-shadow .16s, border-color .12s;
+    }
+
+    .input-group input::placeholder {
+        color: #9aa3b2;
+    }
+
+    .input-group input:focus {
+        outline: none;
+        border-color: #4EA685;
+        box-shadow: 0 10px 30px rgba(78, 166, 133, 0.10);
+    }
+
+    /* Primary button — gradient and micro animation */
+    .form button {
+        margin-top: 12px;
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        font-size: 15px;
+        cursor: pointer;
+        background: linear-gradient(90deg, #1d8cf8 0%, #4EA685 100%);
+        box-shadow: 0 14px 40px rgba(29, 140, 248, 0.14);
+        transition: transform .12s ease, box-shadow .12s ease;
+    }
+
+    .form button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 26px 80px rgba(29, 140, 248, 0.18);
+    }
+
+    .small-note {
+        font-size: 0.95rem;
+        color: #475569;
+        margin-top: 12px;
+        text-align: center;
+    }
+
+    .small-note a {
+        color: #1d8cf8;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width:480px) {
+        .form {
+            padding: 20px 16px;
+            border-radius: 14px;
+        }
+
+        .logo img {
+            height: 48px;
+        }
+
+        .logo h3 {
+            font-size: 1.05rem;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <div class="container auth-page">
+        <div class="form-wrapper">
+            <div class="form">
+                <div style="text-align:center; margin-bottom: 1rem;" class="logo">
+                    <img src="/image/logo.png" alt="CloudCare" onerror="this.src='/image/default.jpg'" />
+                    <h3 style="margin-top: 8px;">Doctor Login</h3>
+                </div>
+
+                <div th:if="${param.error}">
+                    <div class="error">Invalid email or password</div>
+                </div>
+
+                <div th:if="${pending}">
+                    <div class="error">Your account is under review. Please wait for approval email.</div>
+                </div>
+
+                <div th:if="${notFound}">
+                    <div class="error">Email not registered. <a th:href="@{/doctor/signup}">Signup here</a></div>
+                </div>
+
+                <form th:action="@{/doctor/login}" method="post">
+                    <div class="input-group">
+                        <i class='bx bx-envelope'></i>
+                        <input type="email" name="email" placeholder="Email address" required />
+                    </div>
+
+                    <div class="input-group">
+                        <i class='bx bx-lock-alt'></i>
+                        <input type="password" name="password" placeholder="Password" required />
+                    </div>
+
+                    <button type="submit">Login</button>
+                </form>
+
+                <p class="small-note">Not registered? <a th:href="@{/doctor/signup}">Request Signup</a></p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Controller
+@RequestMapping("/patient")
 public class AuthController {
     @Autowired
     private com.example.cloud.care.service.CustomUserDetailsService customUserDetailsService;
@@ -87,7 +88,7 @@ public class AuthController {
             patientService.save(patient); // save patient
 
             // Redirect to verification page with email param
-            return "redirect:/verify?email=" + user.getEmail();
+            return "redirect:/patient/verify?email=" + user.getEmail();
         } catch (Exception e) {
             // If the email already exists but user is not enabled, do NOT resend code if
             // registration already sent one
@@ -96,7 +97,7 @@ public class AuthController {
                     java.util.Optional<User> existing = userService.findByEmailOptional(user.getEmail().trim());
                     if (existing.isPresent() && !existing.get().isEnabled()) {
                         // Redirect to forgot password page for unverified user
-                        return "redirect:/forgot-password?email=" + user.getEmail();
+                        return "redirect:/patient/forgot-password?email=" + user.getEmail();
                     }
                 } catch (Exception ignored) {
                     // fall through to show original error
@@ -146,7 +147,7 @@ public class AuthController {
                 logger.warn("Failed to store security context in session: {}", ex.getMessage());
             }
 
-            return "redirect:/selfie-upload"; // no userId
+            return "redirect:/patient/selfie-upload"; // no userId
         } else {
             model.addAttribute("errorMessage", "Invalid or expired verification code!");
             model.addAttribute("email", email);
@@ -168,7 +169,7 @@ public class AuthController {
         SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
         // Invalidate the session and clear authentication
         securityContextLogoutHandler.logout(request, response, null);
-        return "redirect:/";
+        return "redirect:/patient/";
     }
 
     @GetMapping("/selfie-upload")
@@ -184,7 +185,7 @@ public class AuthController {
             model.addAttribute("patient", optionalUser.get());
             return "selfieupload";
         } else {
-            return "redirect:/"; // Not authenticated
+            return "redirect:/patient/"; // Not authenticated
         }
     }
 
@@ -239,7 +240,7 @@ public class AuthController {
         User user = optionalUser.get();
 
         if (!user.isEnabled()) {
-            return "redirect:/verify?email=" + user.getEmail();
+            return "redirect:/patient/verify?email=" + user.getEmail();
         }
 
         // Now find if this user is a Patient
@@ -247,7 +248,7 @@ public class AuthController {
         if (patient.isPresent()) {
             session.setAttribute("loggedPatientId", patient.get().getId());
             session.setAttribute("role", "PATIENT");
-            return "redirect:/dashboard";
+            return "redirect:/patient/dashboard";
         }
 
         // If not patient, maybe doctor or admin
@@ -322,7 +323,7 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
             // Redirect to dashboard or home page
-            return "redirect:/dashboard";
+            return "redirect:/patient/dashboard";
 
         } catch (Exception e) {
             logger.error("Error resetting password for {}: {}", email, e.getMessage());
@@ -367,7 +368,7 @@ public class AuthController {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
                     userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);
-            return "redirect:/dashboard";
+            return "redirect:/patient/dashboard";
         }
 
         if (base64Image != null && !base64Image.isEmpty()) {
@@ -385,7 +386,7 @@ public class AuthController {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                         null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                return "redirect:/dashboard";
+                return "redirect:/patient/dashboard";
             } catch (IOException e) {
                 model.addAttribute("errorMessage", "Photo upload failed: " + e.getMessage());
                 model.addAttribute("userId", userId);

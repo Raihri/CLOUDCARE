@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Pending Doctor Review</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f7f9fc;
+            padding: 20px;
+            color: #0b2142;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .doctor-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            gap: 16px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+
+        .status-pending {
+            background: #f39c12;
+        }
+
+        .status-approved {
+            background: #27ae60;
+        }
+
+        .status-rejected {
+            background: #e74c3c;
+        }
+
+        .profile-section {
+            flex: 0 0 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-section img {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .info-section {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px 24px;
+        }
+
+        .info-block {
+            background: #f8f9fb;
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
+
+        .info-block strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #06203a;
+        }
+
+        .actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+
+        .approve {
+            background: #1d8cf8;
+            color: #fff;
+        }
+
+        .reject {
+            background: #f44336;
+            color: #fff;
+        }
+
+        .reason-input {
+            padding: 4px 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 140px;
+        }
+
+        a.cert-link {
+            color: #1d8cf8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .doctor-card {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Pending Doctor Signups</h2>
+
+    <div th:each="doc : ${doctors}" class="doctor-card">
+        <!-- Status Badge -->
+        <div class="status-badge" th:classappend="' status-' + ${doc.status.toString().toLowerCase()}"
+            th:text="${doc.status}"></div>
+
+        <!-- Profile Section -->
+        <div class="profile-section">
+            <img th:src="${doc.profileImage}" alt="Profile Image" />
+            <span th:text="${doc.name}"></span>
+        </div>
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <div class="info-block">
+                <strong>Personal Info</strong>
+                Gender: <span th:text="${doc.gender}"></span><br />
+                DOB: <span th:text="${doc.dob}"></span><br />
+                Blood Group: <span th:text="${doc.bloodGroup}"></span><br />
+                Email: <span th:text="${doc.email}"></span>
+            </div>
+
+            <div class="info-block">
+                <strong>Contact & Address</strong>
+                Phone: <span th:text="${doc.phoneNumber}"></span><br />
+                Alt Phone: <span th:text="${doc.altPhone}"></span><br />
+                Emergency: <span th:text="${doc.emergencyContact}"></span><br />
+                Address: <span
+                    th:text="${doc.division} + ', ' + ${doc.zilla} + ', ' + ${doc.street} + ', ' + ${doc.postalCode}"></span>
+            </div>
+
+            <div class="info-block">
+                <strong>Professional Info</strong>
+                Degrees: <span th:text="${doc.degrees}"></span><br />
+                BMDC Reg: <span th:text="${doc.bmdcRegNo}"></span><br />
+                Specialization: <span th:text="${doc.specialization}"></span><br />
+                Specialities: <span th:text="${doc.specialities}"></span><br />
+                Education: <span th:text="${doc.education}"></span><br />
+                Experience: <span th:text="${doc.experienceYears}"></span> years<br />
+                Languages: <span th:text="${doc.languages}"></span><br />
+                Hospital: <span th:text="${doc.hospitalName}"></span><br />
+                Hospital Address: <span th:text="${doc.hospitalAddress}"></span><br />
+                Medical College: <span th:text="${doc.medicalCollege}"></span>
+            </div>
+
+            <div class="info-block">
+                <strong>Certificate</strong>
+                <a th:href="${doc.certifications}" class="cert-link" target="_blank">View Certificate</a>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <form th:action="@{/admin/approve-doctor}" method="post">
+                <input type="hidden" name="doctorId" th:value="${doc.id}" />
+                <button type="submit" class="btn approve">Approve</button>
+            </form>
+            <form th:action="@{/admin/reject-doctor}" method="post">
+                <input type="hidden" name="doctorId" th:value="${doc.id}" />
+                <input type="text" name="reason" placeholder="Reason" class="reason-input" required />
+                <button type="submit" class="btn reject">Reject</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
