@@ -23,14 +23,14 @@
             --radius: 12px;
         }
 
-        * {
+        section, .home-section {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        body {
+        section .home-section {
             background-color: #f5f7fb;
             color: var(--dark);
             line-height: 1.6;
@@ -710,7 +710,7 @@
 <section class="home-section">
     <div class="home-header">
         <i class='bx bx-menu' id='sidebarToggle'></i>
-        <h1 class="dashboard-title">Patient Dashboard</h1>
+        <h1>Patient Dashboard</h1>
         <!-- <div class="date-display" style="postiton : absolute;"id="currentDate"></div> -->
          <!-- Logout Button -->
 <form th:action="@{/patient/logout}" method="post" class="logout-form">
