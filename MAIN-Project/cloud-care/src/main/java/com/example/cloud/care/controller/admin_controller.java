@@ -1,7 +1,7 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.service.doctor_service;
-import com.example.cloud.care.var.doctor;
+import com.example.cloud.care.model.Doctor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

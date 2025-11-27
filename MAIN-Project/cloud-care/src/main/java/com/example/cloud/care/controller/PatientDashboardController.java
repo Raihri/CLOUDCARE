@@ -1,4 +1,5 @@
 package com.example.cloud.care.controller;
+import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.model.User;
 import com.example.cloud.care.repository.PatientRepository;
@@ -11,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/patient")
@@ -52,8 +54,24 @@ public class PatientDashboardController {
     @GetMapping("/doctor_list")
     public String docList(Model model)
     {
-        model.addAttribute("dcotpr",doctorService.getDoctors());
+        Patient patient = logger.logger();
+        model.addAttribute("doctors",doctorService.getDoctors());
+        model.addAttribute("patient",patient);
 
         return "doctor_list";
+    }
+
+    @GetMapping("/doctor/{id}")
+    public String getDoctorById(@PathVariable("id") int id, Model model) {
+        Doctor doc = doctorService.getDoctorByID(id);
+        if (doc == null) {
+            // Handle case when doctor is not found
+            return "redirect:/list";
+        }
+        System.out.println("Doctor found with ID: " + id);
+        System.out.println("Doctor name: " + doc.getName());
+        System.out.println("Doctor profile image: " + doc.getProfileImage());
+        model.addAttribute("doctor", doc);
+        return "doctor_profile_view";
     }
 }
