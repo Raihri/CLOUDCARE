@@ -1,6 +1,6 @@
 package com.example.cloud.care.service;
 
-import com.example.cloud.care.var.doctor;
+import com.example.cloud.care.model.Doctor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,13 +9,13 @@ import java.util.Collections;
 
 public class DoctorUserDetails implements UserDetails {
 
-    private final doctor doctor;
+    private final Doctor doctor;
 
-    public DoctorUserDetails(doctor doctor) {
+    public DoctorUserDetails(Doctor doctor) {
         this.doctor = doctor;
     }
 
-    public doctor getDoctor() {
+    public Doctor getDoctor() {
         return doctor;
     }
 
@@ -53,6 +53,6 @@ public class DoctorUserDetails implements UserDetails {
     public boolean isEnabled() {
         // compare with the enum using the fully-qualified type name to avoid
         // confusion with the instance variable name 'doctor'
-        return doctor.getStatus() == com.example.cloud.care.var.doctor.Status.APPROVED;
+        return doctor.getStatus() == Doctor.Status.APPROVED;
     }
 }
