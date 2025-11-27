@@ -138,7 +138,7 @@
 
         .photo-upload-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
             gap: 12px;
             margin-bottom: 16px;
@@ -292,7 +292,7 @@
 
 <section class="home-section">
     <div class="home-header">
-        <i class='bx bx-menu'></i>
+        <i class='bx bx-menu' id='sidebarToggle'></i>
         <h1>Edit Profile</h1>
     </div>
 
@@ -334,9 +334,9 @@
 
                 <button type="submit" class="section-submit-btn">Save Photo</button>
 
-                <div style="font-size:0.85rem; color:#6b7280; margin-top:6px;">
+                <!-- <div style="font-size:0.85rem; color:#6b7280; margin-top:6px;">
                     Allowed file types: JPG, PNG. Recommended size: &lt; 2MB.
-                </div>
+                </div> -->
             </div>
         </form>
 
@@ -784,18 +784,12 @@
         }
 
         // Sidebar functionality
-        let sidebar = document.querySelector(".sidebar");
-        let sidebarBtn = document.querySelector(".bx-menu");
+       const toggle = document.getElementById("sidebarToggle");
+    const sidebar = document.querySelector(".sidebar");
 
-        if (sidebar && sidebar.classList.contains("close")) {
-            sidebar.classList.remove("close");
-        }
-
-        if (sidebarBtn) {
-            sidebarBtn.addEventListener("click", () => {
-                sidebar.classList.toggle("close");
-            });
-        }
+    toggle.addEventListener("click", () => {
+        sidebar.classList.toggle("close");
+    });
 
         // Handle checkbox hidden fields
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {

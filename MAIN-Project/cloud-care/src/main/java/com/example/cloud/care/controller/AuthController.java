@@ -164,12 +164,13 @@ public class AuthController {
         return "otp"; // OTP verification page
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/patient/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
         // Invalidate the session and clear authentication
         securityContextLogoutHandler.logout(request, response, null);
-        return "redirect:/patient/";
+        System.out.println("User logged out successfully. -----------------------------");
+        return "redirect:/patient/"; // Redirect to home page after logout
     }
 
     @GetMapping("/selfie-upload")

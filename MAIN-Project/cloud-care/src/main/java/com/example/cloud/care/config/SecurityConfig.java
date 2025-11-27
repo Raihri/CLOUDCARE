@@ -64,7 +64,7 @@ public class SecurityConfig {
                                                 .permitAll())
                                 .logout(logout -> logout
                                                 .logoutUrl("/patient/logout")
-                                                .logoutSuccessUrl("/patient/login?logout")
+                                                .logoutSuccessUrl("/patient/?logout")
                                                 .permitAll())
                                 .userDetailsService(userDetailsService);
 
