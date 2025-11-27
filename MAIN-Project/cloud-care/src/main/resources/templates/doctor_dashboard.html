@@ -64,11 +64,11 @@
       <div class="profile-details">
         <a th:href="@{/doctors}" style="display:flex;align-items:center;text-decoration:none;color:inherit">
           <div class="profile-content">
-            <img th:if="${doctor.pictureUrl != null and doctor.pictureUrl != ''}" th:src="${doctor.pictureUrl}" alt="profileImg"/>
-            <img th:unless="${doctor.pictureUrl != null and doctor.pictureUrl != ''}" src="/images/image.png" alt="profileImg"/>
+            <img th:if="${doctor.profileImage != null and doctor.profileImage != ''}" th:src="${doctor.profileImage}" alt="profileImg"/>
+            
           </div>
           <div style="margin-left:8px">
-            <div class="profile_name" th:text="${doctor.fullName != null} ? ${doctor.fullName} : 'Dr Name'">Dr Name</div>
+            <div class="profile_name" th:text="${doctor.Name != null} ? ${doctor.Name} : 'Dr Name'">Dr Name</div>
             <div class="job" th:text="${doctor.specialization != null} ? ${doctor.specialization} : 'Specialization'">Specialization</div>
           </div>
         </a>
@@ -78,21 +78,18 @@
     <main class="home-section">
       <div class="header">
         <h1>Doctor Profile</h1>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button style="background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border:0;padding:10px 12px;border-radius:10px;font-weight:700">New</button>
-          <button style="background:#fff;border:1px solid #e6eef8;padding:8px 10px;border-radius:10px">Export</button>
-        </div>
+        
       </div>
 
       <section class="doctor-card">
         <div class="doctor-header">
-          <img th:if="${doctor.pictureUrl != null and doctor.pictureUrl != ''}" th:src="${doctor.pictureUrl}" alt="Doctor Profile"/>
-          <img th:unless="${doctor.pictureUrl != null and doctor.pictureUrl != ''}" src="/images/image.png" alt="Doctor Profile"/>
+          <img th:if="${doctor.profileImage != null and doctor.profileImage != ''}" th:src="${doctor.profileImage}" alt="Doctor Profile"/>
+
           <div class="doctor-info">
-            <h2 th:text="${doctor.fullName != null} ? ${doctor.fullName} : 'Doctor Name'">Doctor Name</h2>
+            <h2 th:text="${doctor.Name != null} ? ${doctor.Name} : 'Doctor Name'">Doctor Name</h2>
             <p th:text="${doctor.education != null} ? ${doctor.education} : 'Degrees / Credentials'">Degrees / Credentials</p>
             <p><strong>Hospital:</strong> <span th:text="${doctor.hospitalName != null} ? ${doctor.hospitalName} : 'Hospital'">Hospital</span></p>
-            <p><strong>Phone:</strong> <span th:text="${doctor.phone != null} ? ${doctor.phone} : '+8801XXXXX'">+8801XXXXX</span> &nbsp; | &nbsp; 
+            <p><strong>Phone:</strong> <span th:text="${doctor.phoneNumber != null} ? ${doctor.phoneNumber} : '+8801XXXXX'">+8801XXXXX</span> &nbsp; | &nbsp; 
                <strong>Email:</strong> <span th:text="${doctor.email != null} ? ${doctor.email} : 'email@example.com'">email@example.com</span></p>
             <div style="margin-top:8px;color:var(--muted)" th:text="${doctor.specialInterests != null} ? ${doctor.specialInterests} : 'Special interests'">Special interests</div>
           </div>
@@ -113,12 +110,7 @@
           </div>
         </div>
 
-        <div style="margin-top:20px">
-          <a th:href="@{|/doctors/${doctor.id}/edit|}" class="btn" style="background:linear-gradient(90deg,#06b6d4,#3b82f6);color:#fff;border-radius:12px;padding:10px 14px;text-decoration:none">Edit Profile</a>
-          <form th:action="@{|/doctors/${doctor.id}/delete|}" method="post" style="display:inline">
-            <button type="submit" class="logout" onclick="return confirm('Delete this doctor?')">Delete Doctor</button>
-          </form>
-        </div>
+        
       </section>
     </main>
   </div>
