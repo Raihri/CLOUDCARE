@@ -28,7 +28,7 @@ public class admin_controller {
         doctorService.approveDoctor(doctorId);
         return "redirect:/admin/pending-doctors";
     }
-    @PostMapping("/admin/doctor/reject")
+    @PostMapping("/doctor/reject")
     public String rejectDoctor(@RequestParam Long doctorId, @RequestParam String reason) {
     doctorService.rejectDoctor(doctorId, reason); // <-- email is sent here
     doctorService.deleteDoctor(doctorId); // <-- doctor is deleted here

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Doctor Management</title>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f7f9fc; color: #0b2142; padding: 20px; }
+        h2 { text-align: center; margin-bottom: 24px; }
+
+        /* Tabs */
+        .tab { display: flex; margin-bottom: 20px; cursor: pointer; }
+        .tab div { padding: 10px 20px; border-radius: 6px 6px 0 0; background: #e0e0e0; margin-right: 5px; }
+        .tab div.active { background: #1d8cf8; color: #fff; }
+
+        /* Doctor Table */
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #1d8cf8; color: #fff; }
+        button { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; }
+        .approve { background: #27ae60; color: #fff; }
+        .reject { background: #e74c3c; color: #fff; }
+        .view { background: #1d8cf8; color: #fff; }
+
+        /* Status badge */
+        .status { padding: 4px 8px; border-radius: 12px; color: #fff; font-weight: 600; font-size: 0.85rem; }
+        .PENDING { background: #f39c12; }
+        .APPROVED { background: #27ae60; }
+        .REJECTED { background: #e74c3c; }
+
+        /* Modal common */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; 
+                 background: rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:999; }
+        .modal-content { background: white; padding: 20px; border-radius: 8px; width: 400px; max-height: 80%; overflow-y:auto; }
+
+        /* Reject modal input */
+        #rejectModal input[type=text] { width:100%; padding:6px; margin:10px 0; border-radius:4px; border:1px solid #ccc; }
+        .modal-actions { text-align: right; }
+        .modal-actions button { margin-left: 8px; }
+
+        /* Profile popup */
+        .profile-section img { width: 120px; height: 120px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border:1px solid #ccc; }
+        .info-block { margin-bottom: 10px; }
+        .info-block strong { display: block; margin-bottom: 4px; color: #06203a; }
+        .cert-link { color:#1d8cf8; text-decoration:none; font-weight:500; }
+
+    </style>
+</head>
+<body>
+
+<h2>Doctor Management Dashboard</h2>
+
+<!-- Tabs -->
+<div class="tab">
+    <div th:classappend="${activeTab=='pending'} ? 'active'" onclick="switchTab('pending')">Pending</div>
+    <div th:classappend="${activeTab=='approved'} ? 'active'" onclick="switchTab('approved')">Approved</div>
+    <div th:classappend="${activeTab=='rejected'} ? 'active'" onclick="switchTab('rejected')">Rejected</div>
+</div>
+
+<!-- Doctor Table -->
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>BMDC ID</th>
+            <th>Status</th>
+            <th th:if="${activeTab=='pending'}">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="doc : ${doctors}">
+            <td th:text="${doc.name}"></td>
+            <td th:text="${doc.email}"></td>
+            <td th:text="${doc.bmdcRegNo}"></td>
+            <td><span th:text="${doc.status}" th:class="'status ' + ${doc.status}"></span></td>
+            <td th:if="${activeTab=='pending'}">
+                <button class="view" type="button"
+                        th:attr="data-id=${doc.id}"
+                        onclick="openProfileModal(this)">View</button>
+                <form th:action="@{/admin/approve-doctor}" method="post" style="display:inline;">
+                    <input type="hidden" th:name="doctorId" th:value="${doc.id}" />
+                    <button class="approve" type="submit">Approve</button>
+                </form>
+                <button class="reject" type="button"
+                        th:attr="data-id=${doc.id},data-name=${doc.name}"
+                        onclick="openRejectModal(this)">Reject</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <h3>Reject Doctor</h3>
+        <p id="modalDoctorName"></p>
+        <form th:action="@{/admin/doctor/reject}" method="post">
+            <input type="hidden" name="doctorId" id="modalDoctorId"/>
+            <input type="text" name="reason" placeholder="Enter reason" required/>
+            <div class="modal-actions">
+                <button type="button" onclick="closeRejectModal()">Cancel</button>
+                <button type="submit" class="reject">Reject</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <button style="float:right;" onclick="closeProfileModal()">✖</button>
+        <div class="profile-section">
+            <img id="profileImage" src="" alt="Doctor Image"/>
+            <h3 id="profileName"></h3>
+        </div>
+        <div class="info-block">
+            <strong>Personal Info</strong>
+            <p id="profileGender"></p>
+            <p id="profileDOB"></p>
+            <p id="profileBlood"></p>
+            <p id="profileEmail"></p>
+        </div>
+        <div class="info-block">
+            <strong>Contact & Address</strong>
+            <p id="profilePhone"></p>
+            <p id="profileAltPhone"></p>
+            <p id="profileEmergency"></p>
+            <p id="profileAddress"></p>
+        </div>
+        <div class="info-block">
+            <strong>Professional Info</strong>
+            <p id="profileDegrees"></p>
+            <p id="profileSpecialization"></p>
+            <p id="profileHospital"></p>
+            <p id="profileExperience"></p>
+            <p id="profileLanguages"></p>
+        </div>
+        <div class="info-block">
+            <strong>Certificate</strong>
+            <a id="profileCert" href="#" class="cert-link" target="_blank">View Certificate</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function openRejectModal(button) {
+    const modal = document.getElementById('rejectModal');
+    document.getElementById('modalDoctorId').value = button.getAttribute('data-id');
+    document.getElementById('modalDoctorName').textContent = button.getAttribute('data-name');
+    modal.style.display = 'flex';
+}
+
+function closeRejectModal() { document.getElementById('rejectModal').style.display = 'none'; }
+
+function switchTab(tab) { window.location.href = '/admin/pending-doctors?tab=' + tab; }
+
+// ------------------- Profile Modal -------------------
+function openProfileModal(button) {
+    const doctorId = button.getAttribute('data-id');
+
+    // Fetch doctor details via AJAX (Spring Controller can return JSON)
+    fetch('/admin/doctor/details/' + doctorId)
+        .then(response => response.json())
+        .then(doc => {
+            document.getElementById('profileImage').src = doc.profileImage;
+            document.getElementById('profileName').textContent = doc.name;
+
+            document.getElementById('profileGender').textContent = 'Gender: ' + doc.gender;
+            document.getElementById('profileDOB').textContent = 'DOB: ' + doc.dob;
+            document.getElementById('profileBlood').textContent = 'Blood Group: ' + doc.bloodGroup;
+            document.getElementById('profileEmail').textContent = 'Email: ' + doc.email;
+
+            document.getElementById('profilePhone').textContent = 'Phone: ' + doc.phoneNumber;
+            document.getElementById('profileAltPhone').textContent = 'Alt Phone: ' + doc.altPhone;
+            document.getElementById('profileEmergency').textContent = 'Emergency: ' + doc.emergencyContact;
+            document.getElementById('profileAddress').textContent = 'Address: ' + doc.division + ', ' + doc.zilla + ', ' + doc.street + ', ' + doc.postalCode;
+
+            document.getElementById('profileDegrees').textContent = 'Degrees: ' + doc.degrees;
+            document.getElementById('profileSpecialization').textContent = 'Specialization: ' + doc.specialization;
+            document.getElementById('profileHospital').textContent = 'Hospital: ' + doc.hospitalName + ', ' + doc.hospitalAddress;
+            document.getElementById('profileExperience').textContent = 'Experience: ' + doc.experienceYears + ' years';
+            document.getElementById('profileLanguages').textContent = 'Languages: ' + doc.languages;
+
+            document.getElementById('profileCert').href = doc.certifications;
+
+            document.getElementById('profileModal').style.display = 'flex';
+        });
+}
+
+function closeProfileModal() {
+    document.getElementById('profileModal').style.display = 'none';
+}
+</script>
+
+</body>
+</html>
