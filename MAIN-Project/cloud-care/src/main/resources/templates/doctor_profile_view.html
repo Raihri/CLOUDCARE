@@ -9,6 +9,197 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
     <link rel="stylesheet" th:href="@{/css/style2.css}" />
+    <style>
+        /* --------------------------------------------------
+   GLOBAL STYLING
+-------------------------------------------------- */
+body {
+    margin: 0;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #e9f2ff, #f7fbff);
+    color: #333;
+}
+
+a.back {
+    display: inline-flex;
+    align-items: center;
+    font-size: 16px;
+    color: #4A90E2;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+a.back:hover {
+    color: #2d6fcf;
+    transform: translateX(-4px);
+}
+
+a.back i {
+    margin-right: 8px;
+}
+
+/* --------------------------------------------------
+   LAYOUT CONTAINER
+-------------------------------------------------- */
+.profile-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 25px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 35px;
+}
+
+/* --------------------------------------------------
+   LEFT COLUMN
+-------------------------------------------------- */
+.profile-left {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    text-align: center;
+    transition: 0.3s ease;
+}
+
+.profile-left:hover {
+    transform: translateY(-4px);
+}
+
+.profile-left img {
+    border: 4px solid #4A90E2;
+    box-shadow: 0 0 18px rgba(74, 144, 226, 0.2);
+}
+
+.profile-left h2 {
+    margin-top: 18px;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* Specialty Badge */
+.badge {
+    display: inline-block;
+    margin: 12px 0;
+    padding: 6px 14px;
+    background: #4A90E2;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+/* Info items in left column */
+.profile-left p {
+    font-size: 15px;
+    margin: 10px 0;
+    color: #444;
+}
+
+.profile-left strong {
+    color: #1b3e72;
+}
+
+
+/* --------------------------------------------------
+   RIGHT COLUMN
+-------------------------------------------------- */
+.profile-right {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Section Card */
+.section {
+    background: white;
+    padding: 25px 28px;
+    border-radius: 16px;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid #4A90E2;
+    transition: 0.25s ease;
+}
+
+.section:hover {
+    transform: translateY(-4px);
+}
+
+.section h3 {
+    margin-bottom: 18px;
+    color: #2c5aa0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* --------------------------------------------------
+   GRID LAYOUT INSIDE SECTIONS
+-------------------------------------------------- */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 20px;
+}
+
+.info-grid div {
+    background: #f1f7ff;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid #d8e8ff;
+    transition: 0.2s;
+}
+
+.info-grid div:hover {
+    background: #e6f1ff;
+}
+
+.info-grid strong {
+    font-weight: 700;
+    display: block;
+    color: #224f8a;
+    margin-bottom: 6px;
+}
+
+.info-grid span {
+    font-size: 15px;
+    color: #444;
+}
+
+/* full width row */
+.full-width {
+    grid-column: 1 / -1;
+}
+
+/* --------------------------------------------------
+   RESPONSIVE
+-------------------------------------------------- */
+@media (max-width: 1000px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+
+    .profile-left {
+        max-width: 350px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-container {
+        margin-top: 10px;
+    }
+
+    .section {
+        padding: 18px;
+    }
+}
+
+    </style>
 </head>
 <body>
 

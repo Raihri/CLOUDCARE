@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>CloudCare | Doctors List</title>
 
-    <link rel="stylesheet" th:href="@{/css/style2.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,6 +77,80 @@
             margin-left:auto;
             color:#07320f;
         }
+
+        /* ============================
+           Doctors Table Styling
+           ============================ */
+
+        #doctorsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #ffffff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        #doctorsTable thead {
+            background: #5075f0;
+            color: white;
+        }
+
+        #doctorsTable thead th {
+            padding: 14px 12px;
+            font-size: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #1969e0;
+        }
+
+        #doctorsTable tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        #doctorsTable tbody tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        #doctorsTable tbody tr:hover {
+            background: #e8ffe8;
+        }
+
+        #doctorsTable tbody td {
+            padding: 12px 10px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #doctorsTable .doctor-photo {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #2e72cc;
+        }
+
+        /* Buttons */
+        #doctorsTable .btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        #doctorsTable .btn.view {
+            background: #3498db;
+        }
+
+        #doctorsTable .btn.view:hover {
+            background: #1d6fa5;
+        }
+
     </style>
 </head>
 
@@ -85,120 +159,59 @@
 <!-- SIDEBAR -->
 <div class="sidebar">
     <div class="logo-details">
-        <img src="/image/logo.png" alt="CloudCare Logo"/>
+        <img th:src="@{/image/logo.png}" alt="CloudCare Logo" style="height:45px; width:auto;">
         <span class="logo_name">CloudCare</span>
     </div>
 
     <ul class="nav-links">
 
         <li>
-            <a href="/dashboard">
-                <i class='bx bxs-dashboard'></i>
-                <span class="link_name">Doctor's Profile</span>
-            </a>
-        </li>
-
-        <li class="active">
-            <a href="/list">
-                <i class='bx bxs-dashboard'></i>
-                <span class="link_name">Doctor's List</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="/patient_data_entry">
-                <i class='bx bx-arrow-to-top'></i>
-                <span class="link_name">Patient Data Entry</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="/patient">
+            <a th:href="@{/patient/dashboard}">
                 <i class="bx bxs-user"></i>
                 <span class="link_name">Patient Profile</span>
             </a>
         </li>
 
         <li>
-            <a href="/donor">
-                <i class='bx bxs-droplet'></i>
+            <a th:href="@{/patient/dataEntry}">
+                <i class="bx bxs-edit"></i>
+                <span class="link_name">Edit Profile</span>
+            </a>
+        </li>
+
+        <li class="active">
+            <a th:href="@{/patient/doctor_list}">
+                <i class="bx bx-list-ul"></i>
+                <span class="link_name">Doctors List</span>
+            </a>
+        </li>
+
+        <li>
+            <a th:href="@{/patient/donor}">
+                <i class="bx bxs-droplet"></i>
                 <span class="link_name">Find Donor</span>
             </a>
         </li>
 
+        <!-- Profile in sidebar -->
         <li>
-            <a href="/baby">
-                <i class='bx bxs-baby-carriage'></i>
-                <span class="link_name">Baby Planner</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="/epidemic">
-                <i class='bx bx-compass'></i>
-                <span class="link_name">Epidemic Analyzer</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="/depression">
-                <i class='bx bx-history'></i>
-                <span class="link_name">Depression Test</span>
-            </a>
-        </li>
-
-        <li>
-            <a href="/healthScore">
-                <i class='bx bx-cog'></i>
-                <span class="link_name">Health Score</span>
-            </a>
-        </li>
-
-        <!-- DOCTOR SIDEBAR PROFILE -->
-<!--        <li th:if="${doctor != null}">-->
-<!--            <div class="profile-details">-->
-<!--                <a th:href="@{/dashboard}" style="display:flex;align-items:center;text-decoration:none;">-->
-<!--                    <div class="profile-content">-->
-
-<!--                        &lt;!&ndash; Cloudinary DIRECT URL &ndash;&gt;-->
-<!--                        <img th:if="${doctor.profileImage != null}"-->
-<!--                             th:src="${doctor.profileImage}"-->
-<!--                             class="doctor-photo"-->
-<!--                             alt="profileImg">-->
-
-<!--                        <img th:if="${doctor.profileImage == null}"-->
-<!--                             src="/images/default-profile.png"-->
-<!--                             class="doctor-photo"-->
-<!--                             alt="default">-->
-
-<!--                        <div class="name-job">-->
-<!--                            <div class="profile_name" th:text="${doctor.name}">Doctor</div>-->
-<!--                            <div class="job" th:text="${doctor.specialization}">Specialization</div>-->
-<!--                        </div>-->
-
-<!--                    </div>-->
-<!--                </a>-->
-<!--            </div>-->
-<!--        </li>-->
-
-
-        <li>
-            <!-- Patient Content Here -->
             <div class="profile-details" th:if="${patient != null}">
-                <a th:href="@{/patient}"
-                   style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                <a th:href="@{/patient/dashboard}" style="display:flex;align-items:center;text-decoration:none;">
                     <div class="profile-content">
-                        <!-- show patient image -->
-                        <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+
+                        <img th:if="${patient.user != null && patient.user.photoUrl != null}"
                              th:src="${patient.user.photoUrl}"
-                             alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
-                        <img th:if="${patient.user == null or patient.user.photoUrl == null}"
+                             alt="profileImg"
+                             style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+
+                        <img th:if="${patient.user == null || patient.user.photoUrl == null}"
                              src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
-                             alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+                             alt="defaultProfile"
+                             style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
 
                         <div class="name-job">
-                            <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
-                            <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
+                            <div class="profile_name" th:text="${patient.user != null ? patient.user.name : 'Patient'}"></div>
+                            <div class="job" th:text="'Patient ID: ' + (patient.id != null ? patient.id : 'N/A')"></div>
                         </div>
                     </div>
                 </a>
@@ -212,7 +225,7 @@
 <section class="home-section">
 
     <div class="home-header">
-        <i class='bx bx-menu'></i>
+        <i class='bx bx-menu' id="sidebarToggle"></i>
         <h1>Doctors List</h1>
     </div>
 
@@ -239,11 +252,10 @@
             <td th:text="${i.index + 1}"></td>
 
             <td>
-                <!-- Cloudinary DIRECT URL -->
                 <img th:if="${doc.profileImage != null}"
                      th:src="${doc.profileImage}"
                      class="doctor-photo"
-                     onerror="this.onerror=null; this.src='/images/default-profile.png';">
+                     onerror="this.src='/images/default-profile.png'">
 
                 <img th:if="${doc.profileImage == null}"
                      src="/images/default-profile.png"
@@ -269,10 +281,14 @@
 <div id="toast-container"></div>
 
 <script>
+
     // Sidebar Toggle
-    const sidebarBtn = document.querySelector(".bx-menu");
+    const toggle = document.getElementById("sidebarToggle");
     const sidebar = document.querySelector(".sidebar");
-    sidebarBtn.addEventListener("click", () => sidebar.classList.toggle("close"));
+
+    toggle.addEventListener("click", () => {
+        sidebar.classList.toggle("close");
+    });
 
     // Search Filter
     function searchTable() {
@@ -284,30 +300,6 @@
             row.style.display = text.includes(input) ? "" : "none";
         });
     }
-
-    // Toast System
-    const successMsg = "[[${successMessage}]]".trim();
-    const errorMsg = "[[${errorMessage}]]".trim();
-
-    function showToast(message, type="success") {
-        const container = document.getElementById("toast-container");
-
-        const toast = document.createElement("div");
-        toast.classList.add("toast");
-
-        toast.innerHTML = `
-            <span class="toast-icon">${type === 'success' ? '✔' : '⚠'}</span>
-            <span>${message}</span>
-            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-        `;
-
-        container.appendChild(toast);
-
-        setTimeout(() => toast.remove(), 4000);
-    }
-
-    if (successMsg && successMsg !== "null") showToast(successMsg, "success");
-    if (errorMsg && errorMsg !== "null") showToast(errorMsg, "error");
 
 </script>
 
