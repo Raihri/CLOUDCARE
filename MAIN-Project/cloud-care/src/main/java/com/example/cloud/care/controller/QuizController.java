@@ -22,7 +22,7 @@ public class QuizController {
     private static final int[] SCORES = {0, 1, 2, 3};
     private static final Pattern QUESTION_KEY = Pattern.compile("^q(\\d+)$");
 
-    @GetMapping({"/", "/quiz_index1"})
+    @GetMapping({"/quiz_index1"})
     public String index1() {
         return "index1";
     }
