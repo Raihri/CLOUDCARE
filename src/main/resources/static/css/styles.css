@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --bg: #ffffff;
+  --text: #102743;
+  --muted: #5b6b80;
+  --primary-600: #1976d2;
+  --primary-700: #0d47a1;
+  --accent: #1565c0;
+  --success: #2e7d32;
+  --danger: #c62828;
+  --card-border: #e8f6ff;
+  --radius: 14px;
+  --max-width: 920px;
+  --paper-margin: 36px;
+  --print-border: #000;
+  --action-gap: 12px;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; margin:0; padding:0; }
+
+html { font-size: 16px; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; scroll-behavior:smooth; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 28px 18px;
+}
+
+/* Container */
+.container{
+  max-width: var(--max-width);
+  margin: 36px auto;
+  background: #fff;
+  border-radius: calc(var(--radius));
+  box-shadow: 0 14px 40px rgba(18, 38, 86, 0.08);
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  padding: 28px;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.container:focus-within { box-shadow: 0 18px 48px rgba(18,38,86,0.12); transform: translateY(-3px); }
+
+/* Headings */
+.header {
+  text-align:center;
+  margin-bottom: 8px;
+}
+h1{
+  color: var(--primary-700);
+  font-size: clamp(1.5rem, 2.2vw, 2.4rem);
+  letter-spacing:-0.4px;
+  font-weight:700;
+}
+.sub {
+  margin-top:8px;
+  color:var(--muted);
+  font-weight:500;
+}
+
+/* Form basics */
+form { margin-top: 18px; }
+label { display:block; margin: 14px 0 8px; color:var(--primary-700); font-weight:600; font-size:0.98rem; }
+input[type="text"], input[type="email"], textarea, select {
+  width:100%;
+  padding:12px 14px;
+  border-radius: 12px;
+  border:1px solid #dbeafc;
+  background:#fbfeff;
+  font-size:0.98rem;
+  outline:none;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+input:focus, textarea:focus, select:focus { border-color:var(--primary-600); box-shadow: 0 6px 18px rgba(25,118,210,0.08); }
+
+/* Buttons */
+.btn {
+  display:inline-block;
+  background: linear-gradient(135deg, var(--primary-600), var(--accent));
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: none;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow: 0 6px 18px rgba(25,118,210,0.16);
+  transition: transform .12s ease, box-shadow .12s ease;
+  text-decoration:none;
+  text-align:center;
+  width: 100%;
+  box-sizing: border-box;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(25,118,210,0.2); }
+.btn:active::after { transform: scale(1); }
+.btn.secondary {
+  background: transparent;
+  color: var(--primary-700);
+  border: 1px solid #e6f1ff;
+  box-shadow:none;
+}
+
+/* Question card */
+.question {
+  background: #fbfeff;
+  border-left: 6px solid var(--primary-600);
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin: 18px 0;
+  transition: transform .12s ease, background .12s ease;
+}
+.question:hover { transform:translateX(6px); background:#f2f8ff; }
+.question strong { font-size:1.03rem; color:var(--primary-700); }
+
+/* Options */
+.options { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+.options label {
+  display:flex; align-items:center; gap:10px;
+  padding:10px; border-radius:10px; cursor:pointer;
+  background:transparent; transition: background .12s ease, border .12s;
+}
+.options input[type="radio"] { transform:scale(1.12); accent-color:var(--primary-600); }
+.options label:hover { background: rgba(25,118,210,0.04); }
+
+/* Result styles */
+.score { text-align:center; font-size:2rem; font-weight:700; color:var(--danger); margin:16px 0; }
+.status { text-align:center; padding:14px 16px; border-radius:12px; font-weight:700; margin:14px 0; text-transform:capitalize; }
+
+/* Status color classes */
+.excellent{ background:#e8f5e9; color:var(--success); border:1px solid #c8e6c9; }
+.good{ background:#fff8e1; color:#ff9800; border:1px solid #ffe0b2; }
+.moderate{ background:#fff3e0; color:#ef6c00; border:1px solid #ffd59a; }
+.concerning{ background:#ffebee; color:var(--danger); border:1px solid #ffc0b3; }
+.critical{ background:#ffebee; color:#b71c1c; border:1px solid #ef9a9a; }
+
+/* Suggestion card */
+.suggestion{ background:#f6fbff; border-left:6px solid var(--primary-600); padding:18px; border-radius:12px; margin:18px 0; color:var(--primary-700); }
+
+/* Helpline & actions */
+.helpline { margin-top:20px; padding:14px; border-radius:12px; background:#f8fbff; border:1px dashed #cfe9ff; text-align:center; color:var(--primary-700); }
+.actions { display:flex; gap:12px; justify-content:center; margin:24px 0; flex-wrap:wrap; }
+.actions .btn { min-width:160px; }
+
+/* Footer small print */
+.disclaimer { font-size:0.88rem; color:var(--muted); margin-top:14px; text-align:center; }
+
+/* Responsive */
+@media (max-width:720px){
+  .container { padding:18px; margin:18px 12px; }
+  .actions { flex-direction:column; }
+  .btn { width:100%; max-width:320px; }
+}
+
+/* Focus visible for keyboard users */
+:focus-visible { outline: 3px solid rgba(25,118,210,0.18); outline-offset:3px; }
+
+/* Print (optimized for PDF and print) */
+@media print {
+  :root { --card-border: var(--print-border); }
+  body { padding:0; color:#000; background:#fff; }
+  .container { box-shadow:none; margin:0; border-radius:0; padding:var(--paper-margin); border:1px solid #000; max-width:100%; }
+  .btn, .actions, .helpline { display:none !important; }
+  .question { page-break-inside: avoid; border-left:4px solid #000; }
+  .suggestion { background:transparent !important; border-left:6px solid #000 !important; }
+  .status, .score { color:#000 !important; font-weight:700; }
+}
+
+/* The parent container */
+.report-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--action-gap);
+    width: 100%;
+    margin: 22px 0;
+    align-items: stretch; /* ensure children stretch vertically like tiles */
+}
+
+/* Common child wrapper — ensures forms behave like items */
+.report-actions .action-item {
+    flex: 1 1 calc(25% - var(--action-gap));
+    min-width: 160px;
+    display: flex;
+    margin: 0;
+}
+
+/* Make the inner button/link take the full area */
+.report-actions .action-btn {
+    flex: 1 1 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 14px;
+    font-size: 0.98rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* If you prefer anchor links, they will match styling */
+.report-actions a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Hover / focus */
+.report-actions .action-btn { background: linear-gradient(135deg, var(--primary-600), var(--accent)); color: #fff; box-shadow: 0 8px 20px rgba(25,118,210,0.14); }
+.report-actions .action-btn.secondary { background: transparent; color: var(--primary-700); border: 1px solid #e6f1ff; box-shadow:none; }
+.report-actions .action-btn:hover { transform: translateY(-3px); }
+
+/* Small screens: 2 columns */
+@media (max-width: 700px) {
+    .report-actions .action-item {
+        flex: 1 1 calc(50% - var(--action-gap));
+    }
+}
+
+/* Extra small: full-width stacked */
+@media (max-width: 420px) {
+    .report-actions .action-item {
+        flex: 1 1 100%;
+    }
+}
