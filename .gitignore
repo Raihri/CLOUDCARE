@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+
+# VSCode / IntelliJ
+.vscode/
+.idea/
+
+# Runtime# create/update .gitignore
+cat > .gitignore <<'EOF'
+# macOS
+.DS_Store
+
+# IDEs / editors
+.vscode/
+.idea/
+
+# Maven / Java
+target/
+*.class
+*.log
+
+# Build artifacts
+*.jar
+
+# Misc
+results
+EOF
+
