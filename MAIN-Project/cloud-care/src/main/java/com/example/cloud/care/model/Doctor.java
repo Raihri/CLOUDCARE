@@ -2,6 +2,7 @@ package com.example.cloud.care.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -59,7 +60,12 @@ public class Doctor {
     private String onlineAppointmentLink;
     private String leaveDates;
     private Boolean telemedicineAvailable;
+    
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+private List<DoctorAvailability> availability;
 
+@OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+private List<Appointment> appointments;
     // Online & Social
     private String website;
     private String linkedin;
