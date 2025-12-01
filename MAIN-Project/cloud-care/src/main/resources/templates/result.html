@@ -1,41 +1,75 @@
-<!DOCTYPE html>
+<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Result</title>
-  <link rel="stylesheet" th:href="@{/css/style3.css}"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Result — Mental Health</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}"/>
 </head>
 <body>
-<div class="container">
-  <h1>Mental Health Assessment</h1>
-  <p><strong>Name:</strong> <span th:text="${result.name}"></span></p>
-  <div class="score">Your Score: <span th:text="${result.score}"></span> / 40</div>
+  <main class="container" role="main" aria-labelledby="result-title">
+    <header class="header">
+      <h1 id="result-title">Mental Health Assessment Report</h1>
+      <div class="sub">Confidential • For personal reflection</div>
+    </header>
 
-  <div th:class="'status ' + ${#strings.replace(#strings.replace(result.status,' ','-').toLowerCase(),'needs','moderate')}"
-       th:text="${result.status}"></div>
+    <section aria-labelledby="summary">
+      <p><strong>Name:</strong> <span th:text="${result.name}">Anonymous</span></p>
+      <p><strong>Date:</strong> <span th:text="${#dates.format(#dates.createNow(), 'dd MMMM yyyy, hh:mm a')}"></span></p>
 
-  <div class="suggestion">
-    <strong>Recommendation:</strong><br/>
-    <span th:text="${result.suggestion}"></span>
-  </div>
+      <div class="score">Total Score: <span th:text="${result.score}">0</span></div>
+      <div th:class="'status ' + ${statusClass}" th:text="${result.status}">Status</div>
 
-  <div class="actions">
-    <form th:action="@{/download-pdf}" method="get" style="display:inline;">
-      <input type="hidden" name="name" th:value="${result.name}"/>
-      <input type="hidden" name="score" th:value="${result.score}"/>
-      <input type="hidden" name="status" th:value="${result.status}"/>
-      <input type="hidden" name="suggestion" th:value="${result.suggestion}"/>
-      <button type="submit">Download PDF</button>
-    </form>
-    <button onclick="window.print()">Print</button>
-    <button onclick="navigator.clipboard.writeText(location.href)">Share Link</button>
-    <button onclick="alert('Helpline: 1800-XXX-XXXX\n24/7 support available.')">Helpline</button>
-  </div>
+      <p class="disclaimer" th:text="${interpretation}">A short interpretation goes here.</p>
+      <div class="suggestion" th:utext="${result.suggestion}">Recommendation details</div>
 
-  <div class="helpline">
-    <strong>24/7 Helpline:</strong> 1800-XXX-XXXX<br>
-    You're not alone. Help is available.
-  </div>
-</div>
+      <div class="critical-alert" th:if="${result.hasSuicidalRisk()}"
+           style="background:#fff0f0; border-left:6px solid #c62828; padding:14px; margin:18px 0; border-radius:12px;">
+        <strong>Immediate Support Recommended</strong>
+        <p>If you are having thoughts of harming yourself, please call local emergency services or your crisis helpline now.</p>
+      </div>
+
+      <div class="report-actions" role="group" aria-label="Result actions">
+        <form th:action="@{/download-pdf}" method="get" class="action-item" style="margin:0;">
+          <input type="hidden" name="name" th:value="${result.name}"/>
+          <input type="hidden" name="score" th:value="${result.score}"/>
+          <input type="hidden" name="status" th:value="${result.status}"/>
+          <input type="hidden" name="suggestion" th:value="${result.suggestion}"/>
+          <button class="btn action-btn" type="submit" aria-label="Download PDF Report">Download PDF Report</button>
+        </form>
+
+        <button class="btn action-btn secondary" onclick="window.print()" aria-label="Print Report">Print Report</button>
+        <button class="btn action-btn" onclick="copyLink()" aria-label="Copy Share Link">Copy Share Link</button>
+        <button class="btn action-btn secondary" onclick="showHelpline()" aria-label="Crisis Helpline">Crisis Helpline</button>
+      </div>
+
+      <div class="helpline" role="region" aria-label="Helpline">
+        <strong>24/7 Mental Health Helpline</strong>
+        <div id="helpline-number">1800-XXX-XXXX</div>
+        <div style="margin-top:6px; color:var(--muted); font-size:0.95rem;">You're not alone — help is available anytime.</div>
+      </div>
+    </section>
+
+    <footer style="margin-top:18px;">
+      <p class="disclaimer">This tool is a screening aid only. For clinical assessment, consult a licensed mental health professional.</p>
+    </footer>
+  </main>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+  function copyLink(){
+    const link = /*[[${shareLink}]]*/ '/result';
+    const full = window.location.origin + link;
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(full).then(()=> alert('Share link copied:\\n' + full));
+    } else {
+      prompt('Copy link:', full);
+    }
+  }
+  function showHelpline(){
+    alert('Immediate support:\\n\\nHelpline: 1800-XXX-XXXX\\n24/7 confidential support');
+  }
+/*]]>*/
+</script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-package com.example.quiz.model;
+package com.example.cloud.care.model;
 
 public class QuizResult {
     private String name;
