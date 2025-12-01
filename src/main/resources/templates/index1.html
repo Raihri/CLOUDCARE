@@ -1,0 +1,34 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mental Health Self-Assessment</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <meta name="description" content="Quick, confidential mental health self-assessment. Not a diagnosis."/>
+</head>
+<body>
+  <main class="container" role="main" aria-labelledby="page-title">
+    <header class="header">
+      <h1 id="page-title">Mental Health Self-Assessment</h1>
+      <div class="sub">A short, confidential screening to reflect on how you've been feeling recently.</div>
+    </header>
+
+    <section aria-labelledby="start-head" style="margin-top:18px;">
+      <h2 id="start-head" style="font-size:1.05rem; color:var(--primary-700); margin-bottom:8px;">Get started</h2>
+      <p style="color:var(--muted); margin-bottom:14px;">Enter a name (optional) and click start. Results are for personal use only.</p>
+
+      <form th:action="@{/quiz}" method="get" aria-label="Start quiz form">
+        <label for="name">Your name (optional)</label>
+        <input id="name" name="name" type="text" placeholder="e.g. Ayesha" aria-describedby="name-help"/>
+        <div style="height:6px"></div>
+        <button type="submit" class="btn" aria-label="Start quiz">Start Quiz</button>
+      </form>
+    </section>
+
+    <footer style="margin-top:20px;">
+      <p class="disclaimer">This is a screening tool and not a clinical diagnosis. If you're in crisis, contact local emergency services or a helpline immediately.</p>
+    </footer>
+  </main>
+</body>
+</html>
