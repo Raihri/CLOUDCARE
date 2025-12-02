@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Availability</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(160deg, #e0f0ff, #f9fbff);
+            color: #333;
+        }
+
+        .wrap {
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1b3e72;
+            font-size: 32px;
+            margin-bottom: 25px;
+        }
+
+        .container {
+            display: flex;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .add-slot, .availability-list {
+            flex: 1.2; /* wider columns */
+            background: linear-gradient(145deg, #ffffff, #f4faff);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.05);
+        }
+
+        .add-slot label {
+            font-weight: 600;
+            color: #1b3e72;
+            display: block;
+            margin-top: 12px;
+        }
+
+        .add-slot input[type="time"], .add-slot select {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 4px;
+            border-radius: 6px;
+            border: 1px solid #d0e4ff;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            display: inline-block;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            border-radius: 26px;
+            transition: 0.4s;
+        }
+
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+        .toggle-switch input:checked + .slider {
+            background-color: #4A90E2;
+        }
+
+        .toggle-switch input:checked + .slider::before {
+            transform: translateX(24px);
+        }
+
+        .booking-btn {
+            background: #4A90E2;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .booking-btn:hover {
+            background: #3570c1;
+        }
+
+        .availability-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .slot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(145deg, #ffffff, #d9edff);
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .slot-info span {
+            margin-right: 12px;
+            font-weight: 500;
+        }
+
+        @media(max-width: 900px){
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="main-content">
+        <h1>Manage Availability</h1>
+       <form th:action="@{/doctor/saveAvailability}" th:object="${doctor}" method="post">
+    <input type="hidden" th:field="*{id}"/> <!-- Doctor ID -->
+    <div class="container">
+        <!-- LEFT COLUMN: Add Slot -->
+        <div class="add-slot">
+            <h2>Add New Slot</h2>
+            <label for="day">Day:</label>
+            <select id="day">
+                <option value="">Select Day</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+            </select>
+
+            <label for="startTime">Start Time:</label>
+            <input type="time" id="startTime">
+
+            <label for="endTime">End Time:</label>
+            <input type="time" id="endTime">
+
+            <label>Telemedicine:</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="telemedicine">
+                <span class="slider"></span>
+            </label>
+
+            <button type="button" class="booking-btn" onclick="addSlot()">Add Slot</button>
+        </div>
+
+        <!-- RIGHT COLUMN: Slot List -->
+        <div class="availability-list" id="availability-list">
+            <h2>Existing Slots</h2>
+            <div th:each="slot, iterStat : *{availability}" class="slot">
+                <div class="slot-info">
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].day}" th:value="${slot.day}" />
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].startTime}" th:value="${slot.startTime}" />
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].endTime}" th:value="${slot.endTime}" />
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].telemedicineAvailable}" th:value="${slot.telemedicineAvailable}" />
+                    
+                    <span th:text="${slot.day}"></span>
+                    <span th:text="${slot.startTime}"></span>
+                    <span th:text="${slot.endTime}"></span>
+                    <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>
+                </div>
+                <button type="button" class="booking-btn" onclick="removeSlot(this)">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="booking-btn" style="margin-top:20px;">Save All Slots</button>
+</form>
+    </div>
+</div>
+
+<script>
+
+let slotCount = document.querySelectorAll('#availability-list .slot').length;
+
+function addSlot() {
+    const day = document.getElementById('day').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    const telemedicine = document.getElementById('telemedicine').checked;
+
+    if(!day || !startTime || !endTime){
+        alert("Please fill all fields");
+        return;
+    }
+
+    const container = document.getElementById('availability-list');
+
+    const slotDiv = document.createElement('div');
+    slotDiv.className = 'slot';
+    slotDiv.innerHTML = `
+        <div class="slot-info">
+            <input type="hidden" name="availability[${slotCount}].day" value="${day}">
+            <input type="hidden" name="availability[${slotCount}].startTime" value="${startTime}">
+            <input type="hidden" name="availability[${slotCount}].endTime" value="${endTime}">
+            <input type="hidden" name="availability[${slotCount}].telemedicineAvailable" value="${telemedicine}">
+            
+            <span>${day}</span>
+            <span>${startTime}</span>
+            <span>${endTime}</span>
+            <span>${telemedicine ? 'Telemedicine' : 'Physical Counselling'}</span>
+        </div>
+        <button type="button" class="booking-btn" onclick="removeSlot(this)">Remove</button>
+    `;
+    container.appendChild(slotDiv);
+
+    slotCount++;
+
+    // Reset form
+    document.getElementById('day').value = '';
+    document.getElementById('startTime').value = '';
+    document.getElementById('endTime').value = '';
+    document.getElementById('telemedicine').checked = false;
+}
+
+function removeSlot(btn){
+    btn.parentElement.remove();
+}
+</script>
+</body>
+</html>

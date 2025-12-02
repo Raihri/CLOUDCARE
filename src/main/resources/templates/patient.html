@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CloudCare | Patient Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link
+      href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      /* Patient Dashboard Custom Styles (container rules declared below to include animation) */
+
+      .patient-profile-header {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        border-bottom: 1px solid #e0e6f7;
+        padding-bottom: 24px;
+      }
+
+      /* Patient photo: fixed size, covers container and animates subtly */
+      .patient-profile-img {
+        width: 120px;
+        height: 120px;
+        border-radius: 12px; /* rounded rectangle for a modern look; change to 50% for circle */
+        object-fit: cover;
+        display: block;
+        border: 2px solid rgba(78, 127, 255, 0.18);
+        background: linear-gradient(180deg, #eef4ff, #eaf0ff);
+        box-shadow: 0 6px 20px -8px rgba(34, 51, 107, 0.35);
+        transition: transform 240ms cubic-bezier(0.2, 0.9, 0.3, 1),
+          box-shadow 240ms;
+        will-change: transform;
+        overflow: hidden;
+      }
+
+      /* Slight scale on hover for image */
+      .patient-profile-img:hover {
+        transform: scale(1.03);
+        box-shadow: 0 10px 30px -12px rgba(34, 51, 107, 0.45);
+      }
+
+      /* Smooth entrance animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes imageFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .patient-profile-container {
+        max-width: 1100px;
+        margin: 40px auto 0 auto;
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 4px 32px 0 rgba(40, 60, 120, 0.1);
+        padding: 36px 32px 28px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        animation: fadeInUp 0.5s ease both;
+      }
+
+      .patient-profile-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .patient-profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #22336b;
+      }
+
+      .patient-profile-basic {
+        color: #4e7fff;
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+
+      .patient-section-title {
+        font-size: 1.3rem;
+        color: #4e7fff;
+        font-weight: 700;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+        border-left: 4px solid #4e7fff;
+        padding-left: 10px;
+        margin-top: 24px;
+      }
+
+      .patient-section {
+        background: #f7faff;
+        border-radius: 12px;
+        padding: 18px 24px 12px 24px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px 0 rgba(78, 127, 255, 0.04);
+      }
+
+      .patient-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px 32px;
+      }
+
+      .patient-info-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 8px;
+      }
+
+      .patient-label {
+        font-size: 0.98rem;
+        color: #7a8bbd;
+        font-weight: 500;
+      }
+
+      .patient-value {
+        font-size: 1.08rem;
+        color: #22336b;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+
+      .patient-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px 0 rgba(78, 127, 255, 0.04);
+      }
+
+      .patient-table th,
+      .patient-table td {
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e6f7;
+      }
+
+      .patient-table th {
+        background: #eaf0ff;
+        color: #4e7fff;
+        font-weight: 600;
+      }
+
+      .patient-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .patient-lifestyle-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px 32px;
+      }
+
+      .patient-lifestyle-list li {
+        background: #f0f5ff;
+        border-radius: 8px;
+        padding: 10px 16px;
+        color: #22336b;
+        font-size: 1.04rem;
+        font-weight: 500;
+      }
+
+      .patient-mental-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px 32px;
+      }
+
+      @media (max-width: 700px) {
+        .patient-profile-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 18px;
+        }
+
+        .patient-profile-container {
+          padding: 12px 4vw;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <div class="logo-details">
+        <img th:src="@{/image/logo.png}" alt="CloudCare Logo" />
+        <span class="logo_name">CloudCare</span>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a th:href="@{/dashboard}">
+            <i class="bx bxs-dashboard"></i>
+            <span class="link_name">Doctor's Profile</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li>
+              <a class="link_name" th:href="@{/dashboard}">Doctor's Profile</a>
+            </li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="list">
+            <i class="bx bxs-dashboard"></i>
+            <span class="link_name">Doctor's List</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="list">Category</a></li>
+          </ul>
+        </li>
+        <li>
+          <a th:href="@{/patient_data_entry}">
+            <i class="bx bx-arrow-to-top"></i>
+            <span class="link_name">Patient Data Entry</span>
+          </a>
+          <ul class="sub-menu form blank">
+            <li>
+              <a class="link_name" th:href="@{/patient_data_entry}"
+                >Patient Data Entry</a
+              >
+            </li>
+          </ul>
+        </li>
+        <li class="active">
+          <a th:href="@{/patient/profile}">
+            <i class="bx bxs-user"></i>
+            <span class="link_name">Patient Profile</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li>
+              <a class="link_name" href="patient">Patient Profile</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="donor">
+            <i class="bx bxs-droplet"></i>
+            <span class="link_name">Find Donor</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="donor">Find Donor</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="baby">
+            <i class="bx bxs-baby-carriage"></i>
+            <span class="link_name">Baby Planner</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="baby">Baby Planner</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="epidemic">
+            <i class="bx bx-compass"></i>
+            <span class="link_name">Epidemic Analyzer</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li>
+              <a class="link_name" href="epidemic">Epidemic Analyzer</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bx bx-history"></i>
+            <span class="link_name">Depression Test</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li>
+              <a class="link_name" href="depression">Depression Test</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bx bx-cog"></i>
+            <span class="link_name">Health Score</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li>
+              <a class="link_name" href="healthScore">Health Score</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <div class="profile-details">
+            <a
+              href="dashboard"
+              style="
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                width: 100%;
+              "
+            >
+              <div class="profile-content">
+                <div
+                  th:if="${doctor != null}"
+                  class="doctor-profile"
+                  style="display: flex; align-items: center; gap: 10px"
+                >
+                  <img
+                    th:src="${doctor.profileImage != null ? doctor.profileImage : '/image/profile.jpg'}"
+                    alt="profileImg"
+                    style="
+                      width: 40px;
+                      height: 40px;
+                      border-radius: 50%;
+                      object-fit: cover;
+                    "
+                  />
+                  <div class="name-job">
+                    <div
+                      class="profile_name"
+                      th:text="${doctor.name != null ? doctor.name : 'Doctor'}"
+                    >
+                      Doctor
+                    </div>
+                    <div
+                      class="job"
+                      th:text="${doctor.job != null ? doctor.job : ''}"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <section class="home-section">
+      <div class="home-header">
+        <i class="bx bx-menu"></i>
+        <h1>Patient Profile</h1>
+        <br /><br />
+        <div>
+          <form
+            th:action="@{/patient/getPatientProfileData}"
+            method="get"
+            style="margin-top: 10px"
+          >
+            <label for="patientId" style="font-weight: 600; color: #22336b"
+              >Enter Patient ID:</label
+            >
+            <input
+              type="text"
+              id="patientId"
+              name="patientId"
+              placeholder="Patient ID"
+              required
+              style="
+                padding: 6px 10px;
+                border-radius: 6px;
+                border: 1px solid #ccc;
+                margin-left: 8px;
+              "
+            />
+            <button
+              type="submit"
+              style="
+                padding: 6px 14px;
+                border: none;
+                background-color: #4e7fff;
+                color: white;
+                border-radius: 6px;
+                cursor: pointer;
+              "
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <li th:if="${patient != null}">
+        <div class="patient-profile-container">
+          <!-- Patient Profile Header -->
+          <div class="patient-profile-header">
+            <img
+              id="photo-preview"
+              class="patient-profile-img"
+              loading="lazy"
+              th:src="${patient != null && patient.profileImage != null} ? @{/doctor-pics/__${patient.profileImage}__} : @{/image/profile.jpg}"
+              alt="Patient Photo"
+            />
+            <div class="patient-profile-info">
+              <div
+                class="patient-profile-name"
+                th:text="${patient.name != null ? patient.name : 'Unknown Patient'}"
+              >
+                Patient Name
+              </div>
+              <div class="patient-profile-basic">
+                Blood Group:
+                <b
+                  th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'N/A'}"
+                  >Blood Group</b
+                >
+                | Age:
+                <span th:text="${patient.age != null ? patient.age : 'N/A'}"
+                  >Age</span
+                >
+                |
+                <span
+                  th:text="${patient.gender != null ? patient.gender : 'N/A'}"
+                  >Gender</span
+                >
+              </div>
+              <div class="patient-profile-basic">
+                Contact:
+                <span
+                  th:text="${patient.emergencyContact != null ? patient.emergencyContact : 'N/A'}"
+                  >Contact</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- 1. Blood & Biochemistry -->
+          <div class="patient-section">
+            <div class="patient-section-title">Blood & Biochemistry</div>
+            <div class="patient-info-grid">
+              <div class="patient-info-row">
+                <span class="patient-label">Blood</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.bloodTest != null ? patient.bloodTest : 'N/A'}"
+                  >Blood Test</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">RBC</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.rbc != null ? patient.rbc + ' million/μL' : 'N/A'}"
+                  >RBC</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Platelet</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.platelet != null ? patient.platelet + '/μL' : 'N/A'}"
+                  >Platelet</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Triglyceride</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.triglyceride != null ? patient.triglyceride + ' mg/dL' : 'N/A'}"
+                  >Triglyceride</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Blood Group</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'N/A'}"
+                  >Blood Group</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Hb</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.hb != null ? patient.hb + ' g/dL' : 'N/A'}"
+                  >Hb</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Creatinine</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.creatinine != null ? patient.creatinine + ' mg/dL' : 'N/A'}"
+                  >Creatinine</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">WBC</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.wbc != null ? patient.wbc + '/μL' : 'N/A'}"
+                  >WBC</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Sugar Level</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.sugarLevel != null ? patient.sugarLevel + ' mg/dL' : 'N/A'}"
+                  >Sugar Level</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Rh</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.rhFactor != null ? patient.rhFactor : 'N/A'}"
+                  >Rh Factor</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Hemoglobin (Hb)</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.hemoglobin != null ? patient.hemoglobin + ' g/dL' : 'N/A'}"
+                  >Hemoglobin</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Registration & Profile (Initial) -->
+          <div class="patient-section">
+            <div class="patient-section-title">
+              Registration & Profile (Initial)
+            </div>
+            <div class="patient-info-grid">
+              <div class="patient-info-row">
+                <span class="patient-label">Name</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.name != null ? patient.name : 'N/A'}"
+                  >Name</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Father & Mom</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.parents != null ? patient.parents : 'N/A'}"
+                  >Parents</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Blood Group</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'N/A'}"
+                  >Blood Group</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Age</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.age != null ? patient.age : 'N/A'}"
+                  >Age</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Gender</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.gender != null ? patient.gender : 'N/A'}"
+                  >Gender</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Division</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.division != null ? patient.division : 'N/A'}"
+                  >Division</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Zilla</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.zilla != null ? patient.zilla : 'N/A'}"
+                  >Zilla</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Weight, Height</span>
+                <span
+                  class="patient-value"
+                  th:text="${(patient.weight != null or patient.height != null) ? ( (patient.weight != null ? patient.weight + ' kg' : '') + (patient.weight != null and patient.height != null ? ', ' : '') + (patient.height != null ? patient.height + ' cm' : '') ) : 'N/A'}"
+                  >Weight, Height</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Contact No (Emergency)</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.emergencyContact != null ? patient.emergencyContact : 'N/A'}"
+                  >Emergency Contact</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Common Criterion -->
+          <div class="patient-section">
+            <div class="patient-section-title">Common Criterion</div>
+            <div class="patient-info-grid">
+              <div class="patient-info-row">
+                <span class="patient-label">Blood Pressure</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.bloodPressure != null ? patient.bloodPressure : 'N/A'}"
+                  >BP</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">BMI</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.bmi != null ? patient.bmi : 'N/A'}"
+                  >BMI</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">BMR</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.bmr != null ? patient.bmr + ' kcal/day' : 'N/A'}"
+                  >BMR</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Cholesterol</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.cholesterol != null ? patient.cholesterol + ' mg/dL' : 'N/A'}"
+                  >Cholesterol</span
+                >
+              </div>
+              <div class="patient-info-row">
+                <span class="patient-label">Blood Sugar</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.bloodSugar != null ? patient.bloodSugar + ' mg/dL' : 'N/A'}"
+                  >Blood Sugar</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Lifestyle Info -->
+          <div class="patient-section">
+            <div class="patient-section-title">Lifestyle Info</div>
+            <ul class="patient-lifestyle-list">
+              <li>
+                Sleep Hours per day:
+                <b
+                  th:text="${patient.sleepHours != null ? patient.sleepHours : 'N/A'}"
+                  >Sleep Hours</b
+                >
+              </li>
+              <li>
+                Water Intake:
+                <b
+                  th:text="${patient.waterIntake != null ? patient.waterIntake + ' L' : 'N/A'}"
+                  >Water Intake</b
+                >
+              </li>
+              <li>
+                Diet Notes:
+                <b
+                  th:text="${patient.dietNotes != null ? patient.dietNotes : 'N/A'}"
+                  >Diet Notes</b
+                >
+              </li>
+              <li>
+                Smoking / Drinking Habits:
+                <b th:text="${patient.habits != null ? patient.habits : 'N/A'}"
+                  >Habits</b
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Prev Accident History -->
+          <!--        <div class="patient-section">-->
+          <!--          <div class="patient-section-title">Previous Accident History</div>-->
+          <!--          <table class="patient-table">-->
+          <!--            <thead>-->
+          <!--              <tr>-->
+          <!--                <th>Date</th>-->
+          <!--                <th>Accident Type</th>-->
+          <!--                <th>Current State</th>-->
+          <!--                <th>Any Restrictions</th>-->
+          <!--              </tr>-->
+          <!--            </thead>-->
+          <!--            <tbody>-->
+          <!--              <tr th:each="accident : ${patient.accidentHistory}">-->
+          <!--                <td th:text="${#dates.format(accident.date, 'yyyy-MM-dd')}">-->
+          <!--                  Date-->
+          <!--                </td>-->
+          <!--                <td th:text="${accident.accidentType}">Type</td>-->
+          <!--                <td th:text="${accident.currentState}">State</td>-->
+          <!--                <td th:text="${accident.restrictions}">Restrictions</td>-->
+          <!--              </tr>-->
+          <!--            </tbody>-->
+          <!--          </table>-->
+          <!--        </div>-->
+
+          <!--        &lt;!&ndash; Vaccination History &ndash;&gt;-->
+          <!--        <div class="patient-section">-->
+          <!--          <div class="patient-section-title">Vaccination History</div>-->
+          <!--          <table class="patient-table">-->
+          <!--            <thead>-->
+          <!--              <tr>-->
+          <!--                <th>Date</th>-->
+          <!--                <th>Vaccine Type</th>-->
+          <!--              </tr>-->
+          <!--            </thead>-->
+          <!--            <tbody>-->
+          <!--              <tr th:each="vaccine : ${patient.vaccinationHistory}">-->
+          <!--                <td th:text="${#dates.format(vaccine.date, 'yyyy-MM-dd')}">-->
+          <!--                  Date-->
+          <!--                </td>-->
+          <!--                <td th:text="${vaccine.vaccineType}">Type</td>-->
+          <!--              </tr>-->
+          <!--            </tbody>-->
+          <!--          </table>-->
+          <!--        </div>-->
+
+          <!-- Prev Disease History -->
+          <!--        <div class="patient-section">-->
+          <!--          <div class="patient-section-title">Previous Disease History</div>-->
+          <!--          <table class="patient-table">-->
+          <!--            <thead>-->
+          <!--              <tr>-->
+          <!--                <th>Date</th>-->
+          <!--                <th>Disease Type</th>-->
+          <!--                <th>Current State</th>-->
+          <!--              </tr>-->
+          <!--            </thead>-->
+          <!--            <tbody>-->
+          <!--              <tr th:each="disease : ${patient.diseaseHistory}">-->
+          <!--                <td th:text="${#dates.format(disease.date, 'yyyy-MM-dd')}">-->
+          <!--                  Date-->
+          <!--                </td>-->
+          <!--                <td th:text="${disease.diseaseType}">Type</td>-->
+          <!--                <td th:text="${disease.currentState}">State</td>-->
+          <!--              </tr>-->
+          <!--            </tbody>-->
+          <!--          </table>-->
+          <!--        </div>-->
+
+          <!-- Mental Health Corner -->
+          <div class="patient-section">
+            <div class="patient-section-title">Mental Health Corner</div>
+            <div class="patient-mental-grid">
+              <div>
+                <span class="patient-label">Serotonin</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.serotonin != null ? patient.serotonin + ' ng/mL' : 'N/A'}"
+                  >Serotonin</span
+                >
+              </div>
+              <div>
+                <span class="patient-label">Dopamine</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.dopamine != null ? patient.dopamine + ' pg/mL' : 'N/A'}"
+                  >Dopamine</span
+                >
+              </div>
+              <div>
+                <span class="patient-label">Norepinephrine</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.norepinephrine != null ? patient.norepinephrine + ' pg/mL' : 'N/A'}"
+                  >Norepinephrine</span
+                >
+              </div>
+              <div>
+                <span class="patient-label">Cortisol</span>
+                <span
+                  class="patient-value"
+                  th:text="${patient.cortisol != null ? patient.cortisol + ' μg/dL' : 'N/A'}"
+                  >Cortisol</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li th:if="${patient == null}"></li>
+
+      <script src="script.js"></script>
+      <script>
+        const sidebarBtn = document.querySelector(".bx-menu");
+        const sidebar = document.querySelector(".sidebar");
+
+        if (sidebarBtn) {
+          sidebarBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+          });
+        }
+      </script>
+    </section>
+  </body>
+</html>
