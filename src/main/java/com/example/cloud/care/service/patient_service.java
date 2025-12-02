@@ -2,7 +2,6 @@ package com.example.cloud.care.service;
 
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.repository.PatientRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +31,6 @@ public class patient_service {
         }
     }
 
-
-
     public void deletePatient(long id) {
         try {
             patientRepository.deleteById(id);
@@ -46,17 +43,26 @@ public class patient_service {
     public Optional<Patient> findById(Long id) {
         return Optional.ofNullable(patientRepository.findById(id).orElse(null));
     }
-    // public Patient getPatientData(int patientId) {
-    // return patient_dao.findById(patientId).orElse(null);
-    // }
 
     public Optional<Patient> findByEmail(String email) {
         return patientRepository.findByUserEmail(email);
     }
 
+    // FIX THIS METHOD - Remove the Optional parameter
+    public Patient save(Patient patient) {
+        try {
+            return patientRepository.save(patient);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-
-    public void save(Patient patient) {
-        patientRepository.save(patient);
+    // OR if you want to keep Optional support, add this method:
+    public Patient saveOptional(Optional<Patient> patientOptional) {
+        if (patientOptional.isPresent()) {
+            return patientRepository.save(patientOptional.get());
+        }
+        return null;
     }
 }

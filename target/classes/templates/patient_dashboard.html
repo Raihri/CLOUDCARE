@@ -914,8 +914,10 @@
                                             <div class="info-value">
                                                 <th:block th:if="${patient != null and patient.pastSurgeries != null and !patient.pastSurgeries.isEmpty()}" th:each="s : ${patient.pastSurgeries}">
                                                     <span th:text="${s}"></span><br>
+                                                    <ul></ul>
                                                 </th:block>
-                                                <th:block th:if="${patient.pastSurgeries == null or patient.pastSurgeries.isEmpty()}">None recorded</th:block>
+                                                
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -967,13 +969,45 @@
 
                         <!-- Other tabs would go here with similar structure -->
                         <div id="reports" class="tab-pane">
-                            <!-- Lab Reports Content -->
+                            
+                            <!-- <ul>
+                                <th:block th:if="${patient != null and patient.labReports != null and !patient.labReports.isEmpty()}">
+                                    <li th:each="report : ${patient.labReports}" style="list-style: circle; " >
+                                    <span th:text="${report}">Report Details</span>
+                                </li>
+                                                    
+                                </th:block>
+                                <th:block th:if="${patient.labReports == null or patient.labReports.isEmpty()}">
+                                    <li>No lab reports available.</li>
+                                </th:block>
+                            </ul> -->
                         </div>
                         <div id="appointments" class="tab-pane">
-                            <!-- Appointments Content -->
+                            <!-- <ul>
+                                <th:block th:if="${patient != null and patient.appointments != null and !patient.appointments.isEmpty()}">
+                                    <li th:each="appointment : ${patient.appointments}" style="list-style: circle; " >
+                                    <span th:text="${appointment}">Appointment Details</span>
+                                </li>
+                                                    
+                                </th:block>
+                                <th:block th:if="${patient.appointments == null or patient.appointments.isEmpty()}">
+                                    <li>No appointments scheduled.</li>
+                                </th:block>
+                            </ul> -->
                         </div>
                         <div id="medications" class="tab-pane">
                             <!-- Medications Content -->
+                            <ul>
+                                <th:block th:if="${patient != null and patient.medications != null and !patient.medications.isEmpty()}">
+                                    <li th:each="medication : ${patient.medications}" style="list-style: circle; " >
+                                    <span th:text="${medication}">Medication Name</span>
+                                </li>
+                                                    
+                                </th:block>
+                                <th:block th:if="${patient.medications == null or patient.medications.isEmpty()}">
+                                    <li>No medications recorded.</li>
+                                </th:block>
+                            </ul>
                         </div>
                     </div>
                 </div>
