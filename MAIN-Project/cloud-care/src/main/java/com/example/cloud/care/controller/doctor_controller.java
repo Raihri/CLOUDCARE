@@ -76,21 +76,21 @@ public class doctor_controller {
         DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
         Doctor loggedInDoctor = userDetails.getDoctor();
         model.addAttribute("doctor", loggedInDoctor);
-        return "shit2"; // Thymeleaf template showing doctor info
+        return "doctor_dashboard"; // Thymeleaf template showing doctor info
     }
     
 
 
     // Edit doctor info form
     @GetMapping("/update")
-    public String editDoctorForm(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
-        Doctor doctor = userDetails.getDoctor();
-        if (doctor == null) return "redirect:/login";
-        model.addAttribute("doctor", doctor);
-        return "doctor-data-entry"; // Thymeleaf template for edit form
-    }
+public String editCurrentDoctor(Model model) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+    Doctor doctor = userDetails.getDoctor();
+    if (doctor == null) return "redirect:/login";
+    model.addAttribute("doctor", doctor);
+    return "doctor_data_entry"; // Thymeleaf template
+}
 
     
 
@@ -142,15 +142,16 @@ public class doctor_controller {
             Map uploadResult = cloudinary.uploader().upload(
                     profileImage.getBytes(),
                     ObjectUtils.asMap("folder", "doctor_profiles"));
-            doctor.setProfileImage((String) uploadResult.get("secure_url"));
+                    doctor.setProfileImage(uploadResult.get("secure_url") + "?v=" + System.currentTimeMillis());
         }
 
         if (certificateFile != null && !certificateFile.isEmpty()) {
             Map certUpload = cloudinary.uploader().upload(
                     certificateFile.getBytes(),
                     ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "raw"));
-            doctor.setCertifications((String) certUpload.get("secure_url"));
+            doctor.setCertifications((String) certUpload.get("secure_url")+ "?v=" + System.currentTimeMillis());
         }
+        
 
         doctorRepository.save(doctor);
 
@@ -165,18 +166,19 @@ public class doctor_controller {
     // 🔄 SESSION REFRESH METHOD
     // ==========================
     private void refreshDoctorSession(Doctor updatedDoctor) {
-        DoctorUserDetails newDetails = new DoctorUserDetails(updatedDoctor);
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    DoctorUserDetails newDetails = new DoctorUserDetails(updatedDoctor);
 
-        UsernamePasswordAuthenticationToken newAuth =
-                new UsernamePasswordAuthenticationToken(
-                        newDetails,
-                        newDetails.getPassword(),
-                        newDetails.getAuthorities()
-                );
+    UsernamePasswordAuthenticationToken newAuth =
+            new UsernamePasswordAuthenticationToken(
+                    newDetails,
+                    auth.getCredentials(),
+                    newDetails.getAuthorities()
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(newAuth);
-    }
-
+    newAuth.setDetails(auth.getDetails());
+    SecurityContextHolder.getContext().setAuthentication(newAuth);
+}
     // AJAX: check if email exists
     @GetMapping("/check-email")
     @ResponseBody

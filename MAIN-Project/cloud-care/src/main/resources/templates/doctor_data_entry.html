@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+     <meta charset="UTF-8">
+    <title>Update Doctor Info</title>
 <style>
 /* ================= GLOBAL ================= */
 body {
@@ -271,16 +274,6 @@ textarea {
 }
 </style>
 
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Update Doctor Info</title>
-    <link rel="stylesheet" th:href="@{/css/doctorsstyle.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* Your existing CSS goes here (from your previous edit) */
-    </style>
 </head>
 <body>
 <div class="wrap">
@@ -289,12 +282,17 @@ textarea {
             <h1>Update Your Information</h1>
         </div>
 
+        <!-- FORM START -->
         <form th:action="@{|/doctor/update/${doctor.id}|}" th:object="${doctor}" method="post" enctype="multipart/form-data">
             <div class="profile-container">
 
-                <!-- LEFT COLUMN: Basic Info -->
+                <!-- LEFT COLUMN -->
                 <div class="profile-left">
-                    <img th:src="${doctor.profileImage != null} ? @{${doctor.profileImage}} : '@{/images/default-profile.png}'" alt="Doctor Photo">
+
+                    <!-- Profile Image Display -->
+                    <img th:src="${doctor.profileImage != null} ? ${doctor.profileImage} : @{/images/default-profile.png}"
+                         alt="Doctor Photo" style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;">
+
                     <p><strong>Name:</strong> <span th:text="${doctor.name}"></span></p>
                     <p><strong>BMDC No:</strong> <span th:text="${doctor.bmdcRegNo}"></span></p>
 
@@ -314,19 +312,19 @@ textarea {
 
                     <label>Blood Group:</label>
                     <input type="text" th:field="*{bloodGroup}">
-                    <!-- LEFT COLUMN: Basic Info -->
-<
-    <button type="button" class="booking-btn" style="width: 100%; margin-top: 20px;"
-            onclick="window.location.href='/dashboard'">
-        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-    </button>
+
+                    <!-- BACK BUTTON -->
+                    <button type="button" class="booking-btn" style="width: 100%; margin-top: 20px;"
+                            onclick="window.location.href='/dashboard'">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+                    </button>
 
                 </div>
 
-                <!-- RIGHT COLUMN: Contact, Professional, Additional Info -->
+                <!-- RIGHT COLUMN -->
                 <div class="profile-right">
 
-                    <!-- Contact Information -->
+                    <!-- CONTACT INFORMATION -->
                     <div class="section">
                         <h3>Contact Information</h3>
                         <label>Email:</label>
@@ -349,7 +347,7 @@ textarea {
                         <input type="text" th:field="*{emergencyContact}">
                     </div>
 
-                    <!-- Professional Information -->
+                    <!-- PROFESSIONAL INFORMATION -->
                     <div class="section">
                         <h3>Professional Information</h3>
                         <label>Degrees:</label>
@@ -362,8 +360,18 @@ textarea {
                         <input type="text" th:field="*{education}">
                         <label>Experience (Years):</label>
                         <input type="number" th:field="*{experienceYears}">
-                        <label>Certifications:</label>
+
+                        <!-- CERTIFICATE UPLOAD -->
+                        <label>Certificate (PDF):</label>
                         <input type="file" name="certificateFile" accept=".pdf">
+
+                        <!-- IF CERTIFICATE EXISTS SHOW LINK -->
+                        <div th:if="${doctor.certifications != null}">
+                            <a th:href="${doctor.certifications}" target="_blank" style="color:blue; text-decoration:underline;">
+                                View Current Certificate
+                            </a>
+                        </div>
+
                         <label>Languages:</label>
                         <input type="text" th:field="*{languages}">
                         <label>Hospital Name:</label>
@@ -377,14 +385,14 @@ textarea {
                         <label>Medical College:</label>
                         <input type="text" th:field="*{medicalCollege}">
                         <label>Working Days:</label>
-                        <input type="text" th:field="*{workingDays}" placeholder="Mon-Fri">
+                        <input type="text" th:field="*{workingDays}">
                         <label>Working Hours:</label>
-                        <input type="text" th:field="*{workingHours}" placeholder="09:00-17:00">
+                        <input type="text" th:field="*{workingHours}">
                         <label>Leave Dates:</label>
-                        <input type="text" th:field="*{leaveDates}" placeholder="YYYY-MM-DD, YYYY-MM-DD">
+                        <input type="text" th:field="*{leaveDates}">
                     </div>
 
-                    <!-- Additional Information -->
+                    <!-- ADDITIONAL INFORMATION -->
                     <div class="section">
                         <h3>Additional Information</h3>
                         <label>Website:</label>
@@ -401,12 +409,23 @@ textarea {
                         <input type="text" th:field="*{specialInterests}">
                         <label>Awards:</label>
                         <input type="text" th:field="*{awards}">
-                        <label>Publications / Research:</label>
+                        <label>Publications:</label>
                         <textarea th:field="*{publications}"></textarea>
                         <label>Notes:</label>
                         <textarea th:field="*{notes}"></textarea>
                     </div>
 
-                    
+                </div>
+            </div>
+
+            <!-- UPDATE BUTTON -->
+            <button type="submit" class="booking-btn" style="width: 100%; margin-top: 25px;">
+                <i class="fa-solid fa-pen-to-square"></i> Update Information
+            </button>
+
+        </form>
+        <!-- FORM END -->
+    </main>
+</div>
 </body>
 </html>

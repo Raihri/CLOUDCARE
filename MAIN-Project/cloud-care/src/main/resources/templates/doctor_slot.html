@@ -141,61 +141,67 @@
 <div class="wrap">
     <div class="main-content">
         <h1>Manage Availability</h1>
-        <form th:action="@{/doctor/saveAvailability}" th:object="${doctor}" method="post">
-            <div class="container">
-                <!-- LEFT COLUMN: Add Slot -->
-                <div class="add-slot">
-                    <h2>Add New Slot</h2>
-                    <label for="day">Day:</label>
-                    <select id="day" name="newSlot.day">
-                        <option value="">Select Day</option>
-                        <option>Saturday</option>
-                        <option>Sunday</option>
-                        <option>Monday</option>
-                        <option>Tuesday</option>
-                        <option>Wednesday</option>
-                        <option>Thursday</option>
-                        <option>Friday</option>
-                    </select>
+       <form th:action="@{/doctor/saveAvailability}" th:object="${doctor}" method="post">
+    <input type="hidden" th:field="*{id}"/> <!-- Doctor ID -->
+    <div class="container">
+        <!-- LEFT COLUMN: Add Slot -->
+        <div class="add-slot">
+            <h2>Add New Slot</h2>
+            <label for="day">Day:</label>
+            <select id="day">
+                <option value="">Select Day</option>
+                <option>Saturday</option>
+                <option>Sunday</option>
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+            </select>
 
-                    <label for="startTime">Start Time:</label>
-                    <input type="time" id="startTime" name="newSlot.startTime">
+            <label for="startTime">Start Time:</label>
+            <input type="time" id="startTime">
 
-                    <label for="endTime">End Time:</label>
-                    <input type="time" id="endTime" name="newSlot.endTime">
+            <label for="endTime">End Time:</label>
+            <input type="time" id="endTime">
 
-                    <label>Telemedicine:</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="telemedicine" name="newSlot.telemedicine">
-                        <span class="slider"></span>
-                    </label>
+            <label>Telemedicine:</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="telemedicine">
+                <span class="slider"></span>
+            </label>
 
-                    <button type="button" class="booking-btn" onclick="addSlot()">Add Slot</button>
-                    <a href="/doctor/dashboard" class="booking-btn" style="text-decoration:none; display:block; margin-top:10px;">Back to Dashboard</a>
+            <button type="button" class="booking-btn" onclick="addSlot()">Add Slot</button>
+        </div>
+
+        <!-- RIGHT COLUMN: Slot List -->
+        <div class="availability-list" id="availability-list">
+            <h2>Existing Slots</h2>
+            <div th:each="slot, iterStat : *{availability}" class="slot">
+                <div class="slot-info">
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].day}" th:value="${slot.day}" />
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].startTime}" th:value="${slot.startTime}" />
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].endTime}" th:value="${slot.endTime}" />
+                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].telemedicineAvailable}" th:value="${slot.telemedicineAvailable}" />
+                    
+                    <span th:text="${slot.day}"></span>
+                    <span th:text="${slot.startTime}"></span>
+                    <span th:text="${slot.endTime}"></span>
+                    <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>
                 </div>
-
-                <!-- RIGHT COLUMN: Slot List -->
-                <div class="availability-list" id="availability-list">
-                    <h2>Existing Slots</h2>
-                    <div th:each="slot, iterStat : ${doctor.availability}" class="slot">
-                        <div class="slot-info">
-                            <span th:text="${slot.day}"></span>
-                            <span th:text="${slot.startTime}"></span>
-                            <span th:text="${slot.endTime}"></span>
-                            <span th:text="${slot.telemedicine} ? 'Telemedicine' : 'Physical Counselling'"></span>
-                        </div>
-                        <button type="button" class="booking-btn" onclick="removeSlot(this)">Remove</button>
-                    </div>
-                </div>
+                <button type="button" class="booking-btn" onclick="removeSlot(this)">Remove</button>
             </div>
-            <input type="hidden" th:field="*{availability}" id="availability-hidden">
-            <button type="submit" class="booking-btn" style="margin-top:20px;">Save All Slots</button>
-        </form>
+        </div>
+    </div>
+
+    <button type="submit" class="booking-btn" style="margin-top:20px;">Save All Slots</button>
+</form>
     </div>
 </div>
 
 <script>
-let availability = [];
+
+let slotCount = document.querySelectorAll('#availability-list .slot').length;
 
 function addSlot() {
     const day = document.getElementById('day').value;
@@ -214,6 +220,11 @@ function addSlot() {
     slotDiv.className = 'slot';
     slotDiv.innerHTML = `
         <div class="slot-info">
+            <input type="hidden" name="availability[${slotCount}].day" value="${day}">
+            <input type="hidden" name="availability[${slotCount}].startTime" value="${startTime}">
+            <input type="hidden" name="availability[${slotCount}].endTime" value="${endTime}">
+            <input type="hidden" name="availability[${slotCount}].telemedicineAvailable" value="${telemedicine}">
+            
             <span>${day}</span>
             <span>${startTime}</span>
             <span>${endTime}</span>
@@ -223,9 +234,7 @@ function addSlot() {
     `;
     container.appendChild(slotDiv);
 
-    // Add to availability array for submission
-    availability.push({day, startTime, endTime, telemedicine});
-    document.getElementById('availability-hidden').value = JSON.stringify(availability);
+    slotCount++;
 
     // Reset form
     document.getElementById('day').value = '';
@@ -235,19 +244,7 @@ function addSlot() {
 }
 
 function removeSlot(btn){
-    const slotDiv = btn.parentElement;
-    const slotInfo = slotDiv.querySelectorAll('.slot-info span');
-    const day = slotInfo[0].textContent;
-    const startTime = slotInfo[1].textContent;
-    const endTime = slotInfo[2].textContent;
-    const telemedicine = slotInfo[3].textContent === 'Telemedicine';
-
-    // Remove from availability array
-    availability = availability.filter(s => !(s.day === day && s.startTime === startTime && s.endTime === endTime && s.telemedicine === telemedicine));
-
-    document.getElementById('availability-hidden').value = JSON.stringify(availability);
-
-    slotDiv.remove();
+    btn.parentElement.remove();
 }
 </script>
 </body>

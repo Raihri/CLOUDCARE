@@ -24,7 +24,7 @@ public class DoctorAppointmentController {
 
     // Show all appointments for this doctor
     @GetMapping("/{doctorId}/appointments")
-    public String viewAppointments(@PathVariable int doctorId, Model model) {
+    public String viewAppointments(@PathVariable long doctorId, Model model) {
         List<Appointment> appointments = appointmentRepository.findByDoctorId(doctorId);
         model.addAttribute("appointments", appointments);
         model.addAttribute("doctorId", doctorId);
@@ -33,7 +33,7 @@ public class DoctorAppointmentController {
 
     // Confirm appointment
     @PostMapping("/{doctorId}/appointments/{appointmentId}/confirm")
-    public String confirmAppointment(@PathVariable int doctorId, @PathVariable int appointmentId) {
+    public String confirmAppointment(@PathVariable long doctorId, @PathVariable int appointmentId) {
         Appointment appt = appointmentRepository.findById(appointmentId).orElse(null);
         if (appt != null) {
             appt.setStatus(Appointment.Status.CONFIRMED);
@@ -44,7 +44,7 @@ public class DoctorAppointmentController {
 
     // Cancel appointment
     @PostMapping("/{doctorId}/appointments/{appointmentId}/cancel")
-    public String cancelAppointment(@PathVariable int doctorId, @PathVariable int appointmentId) {
+    public String cancelAppointment(@PathVariable long doctorId, @PathVariable int appointmentId) {
         Appointment appt = appointmentRepository.findById(appointmentId).orElse(null);
         if (appt != null) {
             appt.setStatus(Appointment.Status.CANCELLED);
