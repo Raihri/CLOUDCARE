@@ -29,15 +29,43 @@ public class doctor_service {
     }
 
     public List<Doctor> getDoctors() {
-        System.out.println("Doctor List----------------------");
+        // System.out.println("Doctor List----------------------");
 
         List<Doctor> list = doctor_dao.findAll(); // only 1 DB call
 
-        System.out.println(list);
-        System.out.println("Doctor End----------------------");
+        // System.out.println(list);
+        // System.out.println("Doctor End----------------------");
 
         return list;
     }
+
+    public List<Doctor> getDoctorsRejected() {
+        // System.out.println("Doctor List----------------------");
+
+        List<Doctor> list = doctor_dao.findAll().stream()
+                .filter(doc -> doc.getStatus() == Doctor.Status.REJECTED)
+                .toList(); // only 1 DB call
+
+        System.out.println(list);
+        // System.out.println("Doctor End----------------------");
+
+        return list;
+    }
+
+    public List<Doctor> getDoctorsPending() {
+        // System.out.println("Doctor List----------------------");
+
+        List<Doctor> list = doctor_dao.findAll().stream()
+                .filter(doc -> doc.getStatus() == Doctor.Status.PENDING)
+                .toList(); // only 1 DB call
+
+        // System.out.println(list);
+        // System.out.println("Doctor End----------------------");
+
+        return list;
+    }
+
+
 
     public Doctor getDoctorByID(long id) {
         return doctor_dao.findById(id).orElse(null);

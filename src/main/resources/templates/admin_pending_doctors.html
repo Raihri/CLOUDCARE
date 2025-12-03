@@ -607,19 +607,26 @@
         
         <!-- Statistics Cards -->
         <div class="stats-container">
-            <div class="stat-card pending pulse" id="pending-stat">
-                <h3 th:text="${pendingCount != null ? pendingCount : #lists.size(doctors)}">0</h3>
-                <p><i class="fas fa-clock"></i> Pending Review</p>
-            </div>
-            <div class="stat-card approved" id="approved-stat">
-                <h3 th:text="${approvedCount != null ? approvedCount : 0}">0</h3>
-                <p><i class="fas fa-check-circle"></i> Approved</p>
-            </div>
-            <div class="stat-card rejected" id="rejected-stat">
-                <h3 th:text="${rejectedCount != null ? rejectedCount : 0}">0</h3>
-                <p><i class="fas fa-times-circle"></i> Rejected</p>
-            </div>
-        </div>
+
+    <!-- Pending -->
+    <div class="stat-card pending pulse" id="pending-stat">
+        <h3 th:text="${#lists.size(doctors_pending)}">0</h3>
+        <p><i class="fas fa-clock"></i> Pending Review</p>
+    </div>
+
+    <!-- Approved -->
+    <div class="stat-card approved" id="approved-stat">
+        <h3 th:text="${#lists.size(doctors) - #lists.size(doctors_pending) - #lists.size(doctors_rejected)}">0</h3>
+        <p><i class="fas fa-check-circle"></i> Approved</p>
+    </div>
+
+    <!-- Rejected -->
+    <div class="stat-card rejected" id="rejected-stat">
+        <h3 th:text="${#lists.size(doctors_rejected)}">0</h3>
+        <p><i class="fas fa-times-circle"></i> Rejected</p>
+    </div>
+
+</div>
         
         <!-- Filter Buttons -->
         <div class="filters">

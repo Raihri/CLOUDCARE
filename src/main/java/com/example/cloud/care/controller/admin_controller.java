@@ -31,7 +31,11 @@ private EmailServiceD emailService;
     @GetMapping("/doctor/status")
     public String showAllDoctors(Model model) {
         List<Doctor> doctors = doctorService.getDoctors(); // include all statuses
+        List<Doctor> doctors_pending = doctorService.getDoctorsPending();
+        List<Doctor> doctors_rejected = doctorService.getDoctorsRejected();
         model.addAttribute("doctors", doctors);
+        model.addAttribute("doctors_pending", doctors_pending);
+        model.addAttribute("doctors_rejected", doctors_rejected);
         return "admin_pending_doctors"; // reuse the same Thymeleaf template
     }
 
