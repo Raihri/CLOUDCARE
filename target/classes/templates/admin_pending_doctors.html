@@ -1,485 +1,1046 @@
-
-
-
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8" />
-  <title>Pending Doctor Review — Admin</title>
+    <meta charset="utf-8" />
+    <title>Doctor Review Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-dark: #0b2142;
+            --primary-light: #e8f0fe;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --pending-bg: #fff8e1;
+            --approved-bg: #e8f5e9;
+            --rejected-bg: #ffebee;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-    :root {
-      --bg:#f4f7fb;
-      --card:#ffffff;
-      --muted:#6b7a90;
-      --accent:#1d8cf8;
-      --success:#27ae60;
-      --danger:#e74c3c;
-      --warning:#f39c12;
-      --glass: rgba(11,33,66,0.04);
-      --radius:12px;
-      --shadow: 0 8px 28px rgba(10,20,40,0.06);
-      --sm-shadow: 0 4px 16px rgba(10,20,40,0.04);
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    }
+        body {
+            font-family: 'Inter', 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f7f9fc 0%, #eef2f7 100%);
+            padding: 30px;
+            color: var(--primary-dark);
+            min-height: 100vh;
+        }
 
-    html, body { height:100%; margin:0; padding:28px; background: linear-gradient(180deg,var(--bg), #eef4fb 60%); color:#0b2142; }
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
 
-    h1 { margin:0 0 18px 0; font-size:1.25rem; font-weight:700; color:#07203a; }
+        .dashboard-header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #1a73e8, #0b2142);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
 
-    .container { max-width:1100px; margin:0 auto; }
+        .dashboard-header p {
+            font-size: 1.1rem;
+            color: #5f6368;
+            max-width: 600px;
+            margin: 0 auto 25px;
+            line-height: 1.6;
+        }
 
-    /* Header actions */
-    .header-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between; /* left-actions left, admin buttons right */
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
 
-    .left-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 30px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            min-width: 180px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-    .header-actions .search {
-      flex: 1 1 auto;
-      min-width: 180px;
-      max-width: 500px;
-    }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-shadow-hover);
+        }
 
-    .header-actions .search input {
-      border:0; outline:0; font-size:0.95rem; width:100%; min-width:220px;
-    }
+        .stat-card.pending {
+            border-top: 5px solid var(--warning);
+        }
 
-    .filter {
-      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
-    }
+        .stat-card.approved {
+            border-top: 5px solid var(--success);
+        }
 
-    .small-btn {
-      padding:8px 12px; border-radius:10px; background:var(--glass); border:0;
-      cursor:pointer; font-weight:600; color:var(--muted);
-    }
-    .small-btn:hover { transform:translateY(-1px); }
+        .stat-card.rejected {
+            border-top: 5px solid var(--danger);
+        }
 
-    [data-filter].active { background:var(--accent); color:white; box-shadow: var(--sm-shadow); }
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
 
-    .admin-btns {
-      display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
-    }
+        .stat-card.pending h3 {
+            color: var(--warning);
+        }
 
-    .btn-change-password {
-      background: linear-gradient(90deg, #1d8cf8, #126ecf);
-      color: white; padding:8px 12px; border-radius:10px; border:0; font-weight:600;
-      cursor:pointer; box-shadow: var(--sm-shadow);
-    }
-    .btn-logout {
-      background: linear-gradient(90deg, #e74c3c, #ff6b6b);
-      color:white; padding:8px 12px; border-radius:10px; border:0; font-weight:600;
-      cursor:pointer; box-shadow: var(--sm-shadow);
-    }
-    .btn-change-password:hover,
-    .btn-logout:hover { transform:translateY(-1px); opacity:0.9; }
+        .stat-card.approved h3 {
+            color: var(--success);
+        }
 
-    /* Doctor cards */
-    #cardsWrap { margin-top:24px; }
+        .stat-card.rejected h3 {
+            color: var(--danger);
+        }
 
-    .doctor-card {
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:14px;
-      margin-bottom:16px;
-      display:grid;
-      grid-template-columns: 120px 1fr 220px;
-      gap:12px;
-      position:relative;
-      transition: transform .12s ease, box-shadow .12s ease;
-    }
-    .doctor-card:hover { transform:translateY(-4px); box-shadow:0 18px 44px rgba(10,20,40,0.09); }
+        .stat-card p {
+            color: #5f6368;
+            font-weight: 500;
+            font-size: 1rem;
+        }
 
-    .profile {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      text-align:center;
-      gap:8px;
-    }
-    .profile img { width:96px; height:96px; border-radius:10px; object-fit:cover; border:1px solid #e6eef9; box-shadow:var(--sm-shadow); }
-    .name { font-weight:700; color:#06203a; }
-    .spec { font-size:0.9rem; color:var(--muted); }
+        .doctor-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            padding: 28px;
+            position: relative;
+            transition: var(--transition);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
 
-    .info {
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap:8px 16px;
-    }
-    .info-block {
-      background: linear-gradient(180deg,#fbfdff,#f8fbff);
-      padding:8px 12px;
-      border-radius:8px;
-      border:1px solid rgba(13,34,64,0.04);
-      font-size:0.92rem;
-    }
-    .info-block strong { display:block; margin-bottom:6px; color:#06203a; font-weight:700; }
+        .doctor-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            transition: var(--transition);
+        }
 
-    .actions {
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      align-items:flex-end;
-    }
-    .btn { border:0; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow:var(--sm-shadow); }
-    .btn-approve { background:linear-gradient(90deg,var(--accent),#126ecf); color:white; }
-    .btn-reject { background:linear-gradient(90deg,#ff6b6b,var(--danger)); color:white; }
-    .btn-outline { background:transparent; border:1px solid rgba(10,20,40,0.06); color:var(--muted); }
+        .doctor-card.pending::before {
+            background: var(--warning);
+        }
 
-    .status-badge {
-      position:absolute; top:12px; right:12px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.82rem; color:white;
-      box-shadow:0 6px 18px rgba(10,20,40,0.08);
-    }
-    .status-pending { background:var(--warning); }
-    .status-approved { background:var(--success); }
-    .status-rejected { background:var(--danger); }
+        .doctor-card.approved::before {
+            background: var(--success);
+        }
 
-    .card-footer { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:6px; }
-    .toggle-details { background:transparent; border:0; color:var(--muted); font-weight:700; cursor:pointer; }
+        .doctor-card.rejected::before {
+            background: var(--danger);
+        }
 
-    /* Modals */
-    .modal-backdrop { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1200; background:rgba(6,14,28,0.45); }
-    .modal { width:min(920px,96%); max-height:92vh; background:var(--card); border-radius:12px; padding:12px; overflow:auto; box-shadow:0 30px 80px rgba(8,16,40,0.5); }
-    .modal .head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; }
-    .modal .close { border:0; background:transparent; font-weight:700; cursor:pointer; }
+        .doctor-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--card-shadow-hover);
+        }
 
-    .cert-viewer { width:100%; height:72vh; background:#f6f9ff; display:flex; align-items:center; justify-content:center; border-radius:8px; overflow:hidden; }
-    .cert-viewer img { max-width:100%; max-height:100%; object-fit:contain; }
-    .cert-viewer iframe { width:100%; height:100%; border:0; }
+        .doctor-card:hover::before {
+            width: 10px;
+        }
 
-    .toast-wrap { position:fixed; right:20px; bottom:20px; display:flex; flex-direction:column; gap:8px; z-index:1400; }
-    .toast { padding:10px 14px; border-radius:10px; color:white; box-shadow: var(--sm-shadow); font-weight:700; min-width:200px; }
-    .toast.success { background:var(--success); }
-    .toast.error { background:var(--danger); }
-    .toast.info { background:var(--accent); }
+        .status-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
 
-    .form-row { display:flex; gap:8px; flex-direction:column; }
-    .form-row textarea { min-height:100px; padding:10px; border-radius:8px; border:1px solid rgba(10,20,40,0.06); resize:vertical; font-size:0.95rem; }
-    .muted { color:var(--muted); font-size:0.9rem; }
+        .status-badge i {
+            font-size: 0.8rem;
+        }
 
-    /* Responsive */
-    @media (max-width:920px) {
-      .header-actions { flex-direction:column; align-items:stretch; }
-      .left-actions { flex-direction:column; align-items:stretch; }
-      .header-actions .search { width:100%; }
-      .filter { justify-content:flex-start; }
-      .doctor-card { grid-template-columns:96px 1fr; }
-      .actions { align-items:flex-start; grid-row:1; grid-column:2/3; }
-    }
-    @media (max-width:520px) {
-      .info { grid-template-columns:1fr; }
-      .doctor-card { grid-template-columns:1fr; gap:10px; }
-      .actions { align-items:flex-end; }
-    }
-  </style>
+        .status-pending {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .status-approved {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .status-rejected {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .card-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-section {
+            flex: 0 0 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-image-container {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 16px;
+            border: 4px solid #f0f5ff;
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.2);
+            transition: var(--transition);
+        }
+
+        .doctor-card:hover .profile-image-container {
+            transform: scale(1.05);
+            border-color: var(--primary-blue);
+        }
+
+        .profile-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+        }
+
+        .profile-specialty {
+            color: var(--primary-blue);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .info-section {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .info-block {
+            background: #f8fafd;
+            padding: 20px;
+            border-radius: 14px;
+            transition: var(--transition);
+            border: 1px solid #e8f0fe;
+        }
+
+        .info-block:hover {
+            background: white;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .info-block h4 {
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-block h4 i {
+            color: var(--primary-blue);
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-label {
+            flex: 0 0 140px;
+            font-weight: 500;
+            color: #5f6368;
+        }
+
+        .info-value {
+            flex: 1;
+            color: var(--primary-dark);
+            font-weight: 500;
+        }
+
+        .actions {
+            margin-top: 28px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .approve {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .reject {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #1a73e8, #0b57d0);
+            color: white;
+        }
+
+        .reason-input {
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            width: 240px;
+            font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .reason-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+        }
+
+        .cert-link {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: #f0f7ff;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .cert-link:hover {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 28px;
+            border-radius: 50px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+            box-shadow: 0 6px 15px rgba(26, 115, 232, 0.3);
+        }
+
+        .filter-btn:hover:not(.active) {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .no-results h3 {
+            font-size: 1.8rem;
+            color: #5f6368;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.5);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(243, 156, 18, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(243, 156, 18, 0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: fadeInRight 0.5s ease-out;
+            max-width: 400px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+
+        .close-notification {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 1100px) {
+            .info-section {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .card-content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .profile-section {
+                flex: 0 0 auto;
+            }
+            
+            .info-section {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .stats-container {
+                gap: 15px;
+            }
+            
+            .stat-card {
+                min-width: 150px;
+                padding: 20px;
+            }
+            
+            .reason-input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .actions form {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stat-card {
+                min-width: 100%;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div class="container">
-    <div class="header-actions">
-      <div class="left-actions">
-        <div class="search" role="search">
-          <input id="searchInput" placeholder="Search by name, specialization, BMDC..." />
-        </div>
-
-        <div class="filter">
-          <button class="small-btn" data-filter="all">All</button>
-          <button class="small-btn" data-filter="pending">Pending</button>
-          <button class="small-btn" data-filter="approved">Approved</button>
-          <button class="small-btn" data-filter="rejected">Rejected</button>
-        </div>
-      </div>
-
-      <div class="admin-btns">
-        <a href="/admin/change-password" class="small-btn btn-change-password">Change Password</a>
-        <a href="/admin/logout" class="small-btn btn-logout" title="Sign out from admin panel">Logout</a>
-      </div>
-    </div>
-
-    <div id="cardsWrap">
-      <div th:each="doc : ${doctors}" class="doctor-card"
-           th:attr="data-id=${doc.id}, data-status=${doc.status.toString().toLowerCase()}, data-name=${doc.name}, data-specialization=${doc.specialization}">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1><i class="fas fa-user-md"></i> Doctor Review Dashboard</h1>
+        <p>Review and manage doctor registrations. Approve or reject applications with detailed feedback.</p>
         
-        <div class="status-badge" th:classappend="' status-' + ${doc.status.toString().toLowerCase()}" th:text="${doc.status}"></div>
-
-        <div class="profile">
-          <img th:src="${doc.profileImage}" th:alt="${'Profile of ' + doc.name}" onerror="this.src='/static/images/default-avatar.png'"/>
-          <div class="name" th:text="${doc.name}">Dr. Name</div>
-          <div class="spec" th:text="${doc.specialization}">Specialization</div>
-        </div>
-
-        <div class="info">
-          <div class="info-block">
-            <strong>Personal</strong>
-            Gender: <span th:text="${doc.gender}">F</span><br />
-            DOB: <span th:text="${doc.dob}">1990-01-01</span><br />
-            Blood Group: <span th:text="${doc.bloodGroup}">O+</span><br />
-            Email: <span th:text="${doc.email}">x@y.com</span>
-          </div>
-
-          <div class="info-block">
-            <strong>Contact & Address</strong>
-            Phone: <span th:text="${doc.phoneNumber}">018...</span><br />
-            Alt Phone: <span th:text="${doc.altPhone}">N/A</span><br />
-            Emergency: <span th:text="${doc.emergencyContact}">N/A</span><br />
-            Address: <span th:text="${doc.division + ', ' + doc.zilla + ', ' + doc.street + ', ' + doc.postalCode}">Dhaka...</span>
-          </div>
-
-          <div class="info-block" style="grid-column:1 / -1">
-            <strong>Professional</strong>
-            Degrees: <span th:text="${doc.degrees}">MBBS</span> • BMDC: <span th:text="${doc.bmdcRegNo}">12345</span><br />
-            Experience: <span th:text="${doc.experienceYears}">2</span> years • Languages: <span th:text="${doc.languages}">Bangla, English</span><br />
-            Hospital: <span th:text="${doc.hospitalName}">Hospital X</span> • Medical College: <span th:text="${doc.medicalCollege}">Med Coll</span>
-          </div>
-
-          <div class="info-block">
-            <strong>Certificate</strong>
-            <a th:href="@{${doc.certifications}}" th:attr="data-cert=@{${doc.certifications}}" class="cert-link" target="_blank">Open in new tab</a>
-            <button class="small-btn" type="button" th:attr="data-cert=@{${doc.certifications}}" onclick="openCertPreview(this)">Preview</button>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn btn-approve" type="button" th:attr="data-id=${doc.id}" onclick="confirmApprove(this)">Approve</button>
-          <button class="btn btn-reject" type="button" th:attr="data-id=${doc.id}, data-name=${doc.name}" onclick="openRejectModal(this)">Reject</button>
-          <a th:href="@{'/admin/doctor/' + ${doc.id} + '/profile'}" class="btn btn-outline">Full Profile</a>
-          <div class="card-footer">
-            <div class="muted">BMDC: <span th:text="${doc.bmdcRegNo}">12345</span></div>
-            <div>
-              <button class="toggle-details" type="button" aria-expanded="false" onclick="toggleDetails(this)">Show details ▼</button>
+        <!-- Statistics Cards -->
+        <div class="stats-container">
+            <div class="stat-card pending pulse" id="pending-stat">
+                <h3 th:text="${pendingCount != null ? pendingCount : #lists.size(doctors)}">0</h3>
+                <p><i class="fas fa-clock"></i> Pending Review</p>
             </div>
-          </div>
+            <div class="stat-card approved" id="approved-stat">
+                <h3 th:text="${approvedCount != null ? approvedCount : 0}">0</h3>
+                <p><i class="fas fa-check-circle"></i> Approved</p>
+            </div>
+            <div class="stat-card rejected" id="rejected-stat">
+                <h3 th:text="${rejectedCount != null ? rejectedCount : 0}">0</h3>
+                <p><i class="fas fa-times-circle"></i> Rejected</p>
+            </div>
         </div>
-
-        <div class="card-details" style="display:none; grid-column:1 / -1; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(10,20,40,0.04)">
-          <div style="display:flex; gap:12px; flex-wrap:wrap;">
-            <div style="min-width:200px">
-              <strong>Specialities</strong>
-              <div th:text="${doc.specialities}" class="muted">Cardiology</div>
-            </div>
-            <div style="min-width:200px">
-              <strong>Education</strong>
-              <div th:text="${doc.education}" class="muted">MBBS, FCPS</div>
-            </div>
-            <div style="min-width:200px">
-              <strong>Hospital Address</strong>
-              <div th:text="${doc.hospitalAddress}" class="muted">Address</div>
-            </div>
-          </div>
+        
+        <!-- Filter Buttons -->
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-layer-group"></i> All Doctors
+            </button>
+            <button class="filter-btn" data-filter="pending">
+                <i class="fas fa-clock"></i> Pending
+            </button>
+            <button class="filter-btn" data-filter="approved">
+                <i class="fas fa-check-circle"></i> Approved
+            </button>
+            <button class="filter-btn" data-filter="rejected">
+                <i class="fas fa-times-circle"></i> Rejected
+            </button>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Certificate Modal -->
-  <div id="certModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="head">
-        <div>
-          <div style="font-weight:800">Certificate Preview</div>
-          <div id="certSubtitle" class="muted"></div>
+    <!-- Doctor Cards Container -->
+    <div id="doctor-cards-container">
+        <div th:if="${#lists.isEmpty(doctors)}" class="no-results" id="no-results">
+            <i class="fas fa-user-md"></i>
+            <h3>No doctors to review</h3>
+            <p>All pending doctor registrations have been processed.</p>
         </div>
-        <div>
-          <button class="close" type="button" onclick="closeCertPreview()">✕ Close</button>
+        
+        <!-- Doctor Cards with Thymeleaf -->
+        <div th:each="doc,iterStat : ${doctors}" 
+             class="doctor-card" 
+             th:classappend="${doc.status.toString().toLowerCase()}"
+             th:attr="data-status=${doc.status.toString().toLowerCase()}, data-index=${iterStat.index}"
+             style="animation-delay: calc(0.1s * attr(data-index))">
+            
+            <!-- Status Badge with Icon -->
+            <div class="status-badge" 
+                 th:classappend="' status-' + ${doc.status.toString().toLowerCase()}">
+                <i th:class="${doc.status == 'PENDING' ? 'fas fa-clock' : 
+                              doc.status == 'APPROVED' ? 'fas fa-check-circle' : 
+                              'fas fa-times-circle'}"></i>
+                <span th:text="${doc.status}"></span>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="card-content">
+                <div class="profile-section">
+                    <div class="profile-image-container">
+                        <img th:src="${doc.profileImage}" alt="Profile Image" 
+                             onerror="this.src='https://via.placeholder.com/140x140/1a73e8/ffffff?text=DR'"/>
+                    </div>
+                    <div class="profile-name" th:text="${doc.name}"></div>
+                    <div class="profile-specialty" th:text="${doc.specialization}"></div>
+                    <div class="profile-experience" th:text="${doc.experienceYears} + ' years experience'"></div>
+                    
+                    <!-- View Details Button -->
+                    <button class="btn view-btn view-detail-btn" th:attr="data-id=${doc.id}">
+                        <i class="fas fa-eye"></i> View Details
+                    </button>
+                </div>
+
+                <!-- Info Section -->
+                <div class="info-section">
+                    <div class="info-block">
+                        <h4><i class="fas fa-user-circle"></i> Personal Info</h4>
+                        <div class="info-row">
+                            <div class="info-label">Gender</div>
+                            <div class="info-value" th:text="${doc.gender}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Date of Birth</div>
+                            <div class="info-value" th:text="${doc.dob}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Blood Group</div>
+                            <div class="info-value" th:text="${doc.bloodGroup}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Email</div>
+                            <div class="info-value" th:text="${doc.email}"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-block">
+                        <h4><i class="fas fa-address-book"></i> Contact & Address</h4>
+                        <div class="info-row">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value" th:text="${doc.phoneNumber}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Alt Phone</div>
+                            <div class="info-value" th:text="${doc.altPhone}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Emergency</div>
+                            <div class="info-value" th:text="${doc.emergencyContact}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Address</div>
+                            <div class="info-value" 
+                                 th:text="${doc.division} + ', ' + ${doc.zilla} + ', ' + ${doc.street} + ', ' + ${doc.postalCode}"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-block">
+                        <h4><i class="fas fa-briefcase-medical"></i> Professional Info</h4>
+                        <div class="info-row">
+                            <div class="info-label">Degrees</div>
+                            <div class="info-value" th:text="${doc.degrees}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">BMDC Reg</div>
+                            <div class="info-value" th:text="${doc.bmdcRegNo}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Specialization</div>
+                            <div class="info-value" th:text="${doc.specialization}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Experience</div>
+                            <div class="info-value" th:text="${doc.experienceYears} + ' years'"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Languages</div>
+                            <div class="info-value" th:text="${doc.languages}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Hospital</div>
+                            <div class="info-value" th:text="${doc.hospitalName}"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-block">
+                        <h4><i class="fas fa-certificate"></i> Certificate & Education</h4>
+                        <div class="info-row">
+                            <div class="info-label">Certificate</div>
+                            <div class="info-value">
+                                <a th:href="${doc.certifications}" class="cert-link" target="_blank">
+                                    <i class="fas fa-external-link-alt"></i> View Certificate
+                                </a>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Medical College</div>
+                            <div class="info-value" th:text="${doc.medicalCollege}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Education</div>
+                            <div class="info-value" th:text="${doc.education}"></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Specialities</div>
+                            <div class="info-value" th:text="${doc.specialities}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+                <form th:action="@{/admin/approve-doctor}" method="post" class="approve-form">
+                    <input type="hidden" name="doctorId" th:value="${doc.id}" />
+                    <button type="submit" class="btn approve">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                </form>
+                <form th:action="@{/admin/doctor/reject}" method="post" class="reject-form">
+                    <input type="hidden" name="doctorId" th:value="${doc.id}" />
+                    <input type="text" name="reason" placeholder="Rejection reason" class="reason-input" required />
+                    <button type="submit" class="btn reject">
+                        <i class="fas fa-times"></i> Reject
+                    </button>
+                </form>
+            </div>
         </div>
-      </div>
-      <div class="cert-viewer" id="certViewer"></div>
     </div>
-  </div>
 
-  <!-- Reject Modal -->
-  <div id="rejectModal" class="modal-backdrop">
-    <div class="modal">
-      <div class="head">
-        <div>
-          <div style="font-weight:800">Reject Doctor</div>
-          <div class="muted">Provide a reason for rejection (required)</div>
-        </div>
-        <div>
-          <button class="close" type="button" onclick="closeRejectModal()">✕</button>
-        </div>
-      </div>
-
-      <form id="rejectForm" class="form-row" onsubmit="submitReject(event)">
-        <input type="hidden" name="doctorId" id="rejectDoctorId" value="">
-        <label class="muted">Doctor: <span id="rejectDoctorName" style="font-weight:700"></span></label>
-        <textarea name="reason" id="rejectReason" placeholder="Explain why you are rejecting this doctor..." required></textarea>
-
-        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
-          <button type="button" class="btn btn-outline" onclick="closeRejectModal()">Cancel</button>
-          <button type="submit" class="btn btn-reject">Confirm Reject</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class="toast-wrap" id="toastWrap"></div>
-
-  <script>
-    const certModal = document.getElementById('certModal');
-    const certViewer = document.getElementById('certViewer');
-    const certSubtitle = document.getElementById('certSubtitle');
-
-    function openCertPreview(btn){
-      const url = btn.getAttribute('data-cert');
-      if(!url) return showToast('error','No certificate URL provided');
-      showCert(url);
-    }
-    function showCert(url){
-      certViewer.innerHTML='';
-      certSubtitle.textContent=url;
-      const lower=url.split('?')[0].toLowerCase();
-      if(lower.endsWith('.pdf')){
-        const iframe=document.createElement('iframe'); iframe.src=url; certViewer.appendChild(iframe);
-      } else {
-        const img=document.createElement('img'); img.src=url; img.alt='Certificate'; img.onerror=()=>{certViewer.innerHTML='<div class="muted">Preview not available</div>'}; certViewer.appendChild(img);
-      }
-      certModal.style.display='flex'; certModal.setAttribute('aria-hidden','false');
-    }
-    function closeCertPreview(){ certModal.style.display='none'; certModal.setAttribute('aria-hidden','true'); certViewer.innerHTML=''; }
-
-    async function confirmApprove(btn){
-      const id=btn.dataset.id;
-      if(!id) return showToast('error','Missing doctor id');
-      if(!confirm('Approve this doctor?')) return;
-      const fd=new FormData(); fd.append('doctorId',id);
-      try{
-        const resp=await fetch('/admin/approve-doctor',{method:'POST',body:fd,credentials:'same-origin'});
-        const text=await resp.text();
-        try{
-          const json=JSON.parse(text);
-          if(json.success){ showToast('success',json.message||'Doctor approved'); updateCardStatus(id,'approved'); } 
-          else { showToast('error',json.message||'Approve failed'); }
-        } catch(e){ window.location.reload(); }
-      } catch(err){ showToast('error','Network error'); }
-    }
-
-    function openRejectModal(btn){
-      const id=btn.dataset.id, name=btn.dataset.name;
-      if(!id) return showToast('error','Missing doctor id');
-      document.getElementById('rejectDoctorId').value=id;
-      document.getElementById('rejectDoctorName').text
-            document.getElementById('rejectDoctorName').textContent = name || '';
-      document.getElementById('rejectReason').value = '';
-      document.getElementById('rejectModal').style.display = 'flex';
-    }
-
-    function closeRejectModal(){
-      document.getElementById('rejectModal').style.display = 'none';
-    }
-
-    async function submitReject(e){
-      e.preventDefault();
-      const id = document.getElementById('rejectDoctorId').value;
-      const reason = document.getElementById('rejectReason').value.trim();
-      if(!reason){ return showToast('error','Reason is required'); }
-      const fd = new FormData();
-      fd.append('doctorId', id);
-      fd.append('reason', reason);
-      try{
-        const resp = await fetch('/admin/reject-doctor', { method:'POST', body:fd, credentials:'same-origin' });
-        const text = await resp.text();
-        try{
-          const json = JSON.parse(text);
-          if(json.success){ showToast('success', json.message||'Doctor rejected'); updateCardStatus(id,'rejected'); closeRejectModal(); } 
-          else { showToast('error', json.message||'Reject failed'); }
-        } catch(e){ window.location.reload(); }
-      } catch(err){ showToast('error','Network error'); }
-    }
-
-    function updateCardStatus(id, status){
-  const card = document.querySelector(`.doctor-card[data-id='${id}']`);
-  if(card){
-    const badge = card.querySelector('.status-badge');
-    badge.className = 'status-badge status-' + status.toLowerCase();
-    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-    card.setAttribute('data-status', status.toLowerCase()); // lowercase
-
-    // Reapply current filter
-    const activeFilterBtn = document.querySelector('[data-filter].active');
-    if(activeFilterBtn){
-      applyFilter(); // call directly instead of button click
-    }
-  }
-}
-
-    function showToast(type, message){
-      const wrap = document.getElementById('toastWrap');
-      const div = document.createElement('div');
-      div.className = 'toast ' + type; div.textContent = message;
-      wrap.appendChild(div);
-      setTimeout(()=>{ div.remove(); }, 3500);
-    }
-
-    function toggleDetails(btn){
-      const details = btn.closest('.doctor-card').querySelector('.card-details');
-      if(!details) return;
-      const isOpen = details.style.display !== 'none';
-      details.style.display = isOpen ? 'none' : 'block';
-      btn.textContent = isOpen ? 'Show details ▼' : 'Hide details ▲';
-      btn.setAttribute('aria-expanded', !isOpen);
-    }
-
-    
-    
-    (function attachSearchFilter() {
-    const search = document.getElementById('searchInput');
-    const filterBtns = document.querySelectorAll('[data-filter]');
-    const cardsWrap = document.getElementById('cardsWrap');
-
-    function applyFilter() {
-        const q = search.value.trim().toLowerCase();
-        const active = document.querySelector('[data-filter].active')?.getAttribute('data-filter') || 'all';
-        document.querySelectorAll('.doctor-card').forEach(card => {
-            const name = card.getAttribute('data-name')?.toLowerCase() || '';
-            const spec = card.getAttribute('data-specialization')?.toLowerCase() || '';
-            const status = card.getAttribute('data-status') || 'pending';
-            const matchesQuery = (name + ' ' + spec).includes(q);
-            const matchesFilter = (active === 'all') ? true : (status === active);
-            card.style.display = (matchesQuery && matchesFilter) ? '' : 'none';
+    <script>
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update stats with counting animation
+            animateStats();
+            
+            // Setup filter buttons
+            setupFilterButtons();
+            
+            // Setup view detail buttons
+            setupViewDetailButtons();
+            
+            // Setup form submissions with confirmation
+            setupFormConfirmations();
+            
+            // Animate doctor cards sequentially
+            animateDoctorCards();
         });
-    }
 
-    // search input
-    search.addEventListener('input', applyFilter);
+        // Animate stats counting up
+        function animateStats() {
+            const pendingStat = document.getElementById('pending-stat');
+            const approvedStat = document.getElementById('approved-stat');
+            const rejectedStat = document.getElementById('rejected-stat');
+            
+            if (pendingStat) animateValue(pendingStat.querySelector('h3'), 0, parseInt(pendingStat.querySelector('h3').textContent) || 0, 1500);
+            if (approvedStat) animateValue(approvedStat.querySelector('h3'), 0, parseInt(approvedStat.querySelector('h3').textContent) || 0, 1500);
+            if (rejectedStat) animateValue(rejectedStat.querySelector('h3'), 0, parseInt(rejectedStat.querySelector('h3').textContent) || 0, 1500);
+        }
 
-    // filter buttons
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', e => {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            applyFilter();
+        // Animate a number counting up
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Setup filter buttons
+        function setupFilterButtons() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const doctorCards = document.querySelectorAll('.doctor-card');
+            const noResults = document.getElementById('no-results');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Get filter value
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Show/hide cards based on filter
+                    let visibleCount = 0;
+                    
+                    doctorCards.forEach(card => {
+                        const status = card.getAttribute('data-status');
+                        
+                        if (filter === 'all' || status === filter) {
+                            card.style.display = 'block';
+                            visibleCount++;
+                            
+                            // Add fade in animation
+                            card.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                    
+                    // Show/hide no results message
+                    if (noResults) {
+                        if (visibleCount === 0 && doctorCards.length > 0) {
+                            noResults.style.display = 'block';
+                            noResults.innerHTML = `
+                                <i class="fas fa-filter"></i>
+                                <h3>No doctors found</h3>
+                                <p>Try adjusting your filters to see more results.</p>
+                            `;
+                        } else {
+                            noResults.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        }
+
+        // Setup view detail buttons
+        function setupViewDetailButtons() {
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.view-detail-btn')) {
+                    const doctorCard = e.target.closest('.doctor-card');
+                    const doctorName = doctorCard.querySelector('.profile-name').textContent;
+                    const doctorSpecialty = doctorCard.querySelector('.profile-specialty').textContent;
+                    const doctorStatus = doctorCard.querySelector('.status-badge span').textContent;
+                    
+                    // Create modal-like alert with doctor details
+                    const details = `
+                        <strong>${doctorName}</strong><br>
+                        <em>${doctorSpecialty}</em><br><br>
+                        Status: <span style="color: ${doctorStatus === 'PENDING' ? '#f39c12' : doctorStatus === 'APPROVED' ? '#27ae60' : '#e74c3c'}">${doctorStatus}</span><br><br>
+                        This would open a detailed modal view with all information in a real application.
+                    `;
+                    
+                    showNotification(details, 'info', 5000);
+                }
+            });
+        }
+
+        // Setup form confirmations
+        function setupFormConfirmations() {
+            // Approve form confirmation
+            document.addEventListener('submit', function(e) {
+                if (e.target.closest('.approve-form')) {
+                    const doctorName = e.target.closest('.doctor-card').querySelector('.profile-name').textContent;
+                    
+                    if (!confirm(`Are you sure you want to approve Dr. ${doctorName}?`)) {
+                        e.preventDefault();
+                    } else {
+                        // Show loading state
+                        const approveBtn = e.target.querySelector('.btn.approve');
+                        const originalText = approveBtn.innerHTML;
+                        approveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                        approveBtn.disabled = true;
+                        
+                        // Revert after 2 seconds if form doesn't submit
+                        setTimeout(() => {
+                            approveBtn.innerHTML = originalText;
+                            approveBtn.disabled = false;
+                        }, 2000);
+                    }
+                }
+                
+                // Reject form confirmation
+                if (e.target.closest('.reject-form')) {
+                    const doctorName = e.target.closest('.doctor-card').querySelector('.profile-name').textContent;
+                    const reasonInput = e.target.querySelector('.reason-input');
+                    const reason = reasonInput.value.trim();
+                    
+                    if (!reason) {
+                        e.preventDefault();
+                        reasonInput.focus();
+                        showNotification('Please provide a reason for rejection', 'warning', 3000);
+                        return;
+                    }
+                    
+                    if (!confirm(`Are you sure you want to reject Dr. ${doctorName}?\n\nReason: ${reason}`)) {
+                        e.preventDefault();
+                    } else {
+                        // Show loading state
+                        const rejectBtn = e.target.querySelector('.btn.reject');
+                        const originalText = rejectBtn.innerHTML;
+                        rejectBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                        rejectBtn.disabled = true;
+                        
+                        // Revert after 2 seconds if form doesn't submit
+                        setTimeout(() => {
+                            rejectBtn.innerHTML = originalText;
+                            rejectBtn.disabled = false;
+                        }, 2000);
+                    }
+                }
+            });
+        }
+
+        // Animate doctor cards sequentially
+        function animateDoctorCards() {
+            const cards = document.querySelectorAll('.doctor-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info', duration = 4000) {
+            // Remove existing notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => {
+                notification.style.animation = 'fadeOutRight 0.5s ease-out forwards';
+                setTimeout(() => notification.remove(), 500);
+            });
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // Set icon based on type
+            let icon = 'fa-info-circle';
+            if (type === 'success') icon = 'fa-check-circle';
+            if (type === 'warning') icon = 'fa-exclamation-triangle';
+            if (type === 'error') icon = 'fa-times-circle';
+            if (type === 'info') icon = 'fa-info-circle';
+            
+            notification.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+                <button class="close-notification"><i class="fas fa-times"></i></button>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Add close functionality
+            notification.querySelector('.close-notification').addEventListener('click', function() {
+                notification.style.animation = 'fadeOutRight 0.5s ease-out forwards';
+                setTimeout(() => notification.remove(), 500);
+            });
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'fadeOutRight 0.5s ease-out forwards';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 500);
+                }
+            }, duration);
+        }
+
+        // Add hover effect to profile images
+        document.addEventListener('mouseover', function(e) {
+            if (e.target.closest('.profile-image-container')) {
+                const container = e.target.closest('.profile-image-container');
+                container.style.transform = 'scale(1.05) rotate(2deg)';
+            }
         });
-    });
 
-    // set default active
-    document.querySelector('[data-filter="pending"]').classList.add('active');
-    applyFilter();
-})();
-const searchInput = document.getElementById('searchInput');
-const searchBox = searchInput.parentElement;
-
-searchInput.addEventListener('focus', () => {
-  searchBox.style.maxWidth = '600px'; // expand
-});
-
-searchInput.addEventListener('blur', () => {
-  searchBox.style.maxWidth = '500px'; // shrink back
-});
-
-  </script>
+        document.addEventListener('mouseout', function(e) {
+            if (e.target.closest('.profile-image-container')) {
+                const container = e.target.closest('.profile-image-container');
+                container.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    container.style.transform = '';
+                }, 200);
+            }
+        });
+    </script>
 </body>
 </html>
