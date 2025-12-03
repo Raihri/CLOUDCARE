@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${doctor.name} + ' — Update Profile'">Doctor Profile</title>
-
+    <title th:text="|${doctor.name} — Update Profile|">Doctor Profile</title>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -101,7 +100,7 @@
 
                     <h2 th:text="${doctor.name}">Doctor Name</h2>
                     <p><strong>BMDC Registration No:</strong>
-                        <span th:text="${doctor.BMDCreg}"></span>
+                        <span th:text="${doctor.bmdcRegNo}"></span>
                     </p>
 
                     <!-- Profile Image -->
