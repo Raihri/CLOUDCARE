@@ -1,310 +1,131 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-     <meta charset="UTF-8">
-    <title>Update Doctor Info</title>
-<style>
-/* ================= GLOBAL ================= */
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(160deg, #e0f0ff, #f9fbff);
-    color: #333;
-}
+    <meta charset="UTF-8">
+    <title th:text="${doctor.name} + ' — Update Profile'">Doctor Profile</title>
 
-.wrap {
-    display: flex;
-    justify-content: center;
-    padding: 40px 20px;
-}
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-/* ================= HEADER ================= */
-.header h1 {
-    text-align: center;
-    color: #1b3e72;
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 25px;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-}
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f7f9fc;
+        }
 
-/* ================= FORM LAYOUT ================= */
-form {
-    display: flex;
-    flex-direction: row;
-    gap: 30px; /* Slightly smaller gap */
-    width: 100%;
-    max-width: 1100px;
-}
+        .wrap {
+            padding: 30px;
+        }
 
-/* ================= PROFILE CONTAINER ================= */
-.profile-container {
-    display: flex;
-    gap: 30px;
-    flex-wrap: nowrap;
-    width: 100%;
-}
+        .profile-container {
+            display: flex;
+            gap: 30px;
+        }
 
-/* ================= LEFT COLUMN (Sticky) ================= */
-.profile-left {
-    flex: 1.3; /* Increased width */
-    min-width: 320px;
-    background: linear-gradient(145deg, #ffffff, #f0f7ff);
-    border-radius: 18px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-    padding: 25px 15px; /* Reduced padding */
-    text-align: center;
-    position: sticky;
-    top: 40px;
-    height: fit-content;
-    transition: all 0.3s ease;
-}
+        .profile-left {
+            width: 35%;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
 
-.profile-left:hover {
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-}
+        .profile-right {
+            width: 65%;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
 
-.profile-left img {
-    width: 170px; /* slightly smaller */
-    height: 170px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid #4A90E2;
-    box-shadow: 0 0 25px rgba(74,144,226,0.3);
-    margin-bottom: 12px; /* reduced margin */
-    transition: all 0.3s ease;
-}
+        .profile-img {
+            width: 170px;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid #ddd;
+            margin-bottom: 10px;
+        }
 
-.profile-left img:hover {
-    transform: scale(1.05);
-}
+        .section {
+            margin-bottom: 25px;
+        }
 
-.profile-left p {
-    font-size: 15px; /* slightly smaller */
-    margin: 8px 0;
-    color: #444;
-}
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
 
-.profile-left label {
-    display: block;
-    margin-top: 12px;
-    font-weight: 600;
-    color: #1b3e72;
-}
+        textarea {
+            height: 70px;
+        }
 
-/* ================= RIGHT COLUMN ================= */
-.profile-right {
-    flex: 1.7; /* Slightly narrower to balance */
-    min-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* Slightly smaller gap */
-    max-height: 80vh;
-    overflow-y: auto;
-    padding-right: 5px;
-}
+        h3 {
+            margin-bottom: 10px;
+            color: #1a327f;
+        }
 
-/* ================= SECTIONS ================= */
-.section {
-    padding: 20px 22px; /* smaller padding */
-    border-radius: 16px;
-    background: linear-gradient(145deg, #ffffff, #f4faff);
-    box-shadow: 0 6px 25px rgba(0,0,0,0.05);
-    border-left: 4px solid #4A90E2;
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* smaller gap */
-    transition: all 0.3s ease;
-}
+        .booking-btn {
+            background-color: #1a327f;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
 
-.section:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-.section h3 {
-    color: #1b3e72;
-    margin-bottom: 15px; /* smaller margin */
-    font-size: 20px;
-    font-weight: 600;
-}
-
-/* ================= INPUTS ================= */
-label {
-    font-weight: 600;
-    color: #1b3e72;
-}
-
-input[type="text"], input[type="email"], input[type="number"], input[type="time"], textarea, select {
-    width: 100%;
-    padding: 10px 12px; /* smaller padding */
-    margin-top: 4px;    /* smaller margin */
-    border-radius: 6px; /* smaller radius */
-    border: 1px solid #d0e4ff;
-    font-size: 14px;    /* smaller font */
-    transition: 0.3s;
-    background: #f9fbff;
-    color: #333;
-}
-
-input:focus, textarea:focus, select:focus {
-    border-color: #3570c1;
-    outline: none;
-    box-shadow: 0 0 8px rgba(53,112,193,0.2);
-}
-
-textarea {
-    min-height: 80px; /* slightly smaller */
-    resize: vertical;
-}
-
-/* ================= BUTTONS ================= */
-.booking-btn, button[type="button"] {
-    background: #4A90E2;
-    color: #fff;
-    border: none;
-    padding: 12px 25px; /* slightly smaller */
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    margin-top: 8px;
-}
-
-.booking-btn:hover, button[type="button"]:hover {
-    background: #3570c1;
-    box-shadow: 0 5px 15px rgba(53,112,193,0.3);
-}
-
-/* ================= AVAILABILITY SECTION ================= */
-.profile-right .section.availability {
-    padding: 20px;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #f0f7ff, #e6f0ff);
-    box-shadow: 0 6px 25px rgba(0,0,0,0.05);
-}
-
-.profile-right .section.availability .slot {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    padding: 12px 15px;
-    border-radius: 12px;
-    background: linear-gradient(145deg, #ffffff, #d9edff);
-    box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-    margin-bottom: 10px;
-    transition: all 0.3s ease;
-}
-
-.profile-right .section.availability .slot:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
-}
-
-.profile-right .section.availability .slot label {
-    flex: 1 1 90px;
-    margin: 0;
-    font-weight: 600;
-}
-
-/* ================= TOGGLE CHECKBOX ================= */
-.toggle-switch {
-    position: relative;
-    width: 50px;
-    height: 26px;
-    display: inline-block;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
-    border-radius: 26px;
-    transition: 0.4s;
-}
-
-.slider::before {
-    position: absolute;
-    content: "";
-    height: 20px; width: 20px;
-    left: 3px; bottom: 3px;
-    background-color: white;
-    border-radius: 50%;
-    transition: 0.4s;
-}
-
-.toggle-switch input:checked + .slider {
-    background-color: #4A90E2;
-}
-
-.toggle-switch input:checked + .slider::before {
-    transform: translateX(24px);
-}
-
-/* ================= RESPONSIVE ================= */
-@media(max-width:1100px){
-    .profile-container{
-        flex-direction: column;
-        gap: 20px;
-    }
-    .profile-right, .profile-left {
-        min-width: 100%;
-        max-height: unset;
-        overflow: visible;
-    }
-}
-
-@media(max-width:600px){
-    .profile-left img{
-        width:150px;
-        height:150px;
-    }
-    input, textarea, select {
-        font-size: 13px;
-    }
-}
-</style>
-
+        .booking-btn:hover {
+            opacity: .9;
+        }
+    </style>
 </head>
+
 <body>
 <div class="wrap">
     <main>
-        <div class="header">
-            <h1>Update Your Information</h1>
-        </div>
+        <h1>Update Your Information</h1>
 
-        <!-- FORM START -->
-        <form th:action="@{|/doctor/update/${doctor.id}|}" th:object="${doctor}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/doctor/update}" th:object="${doctor}"
+              method="post" enctype="multipart/form-data">
+
             <div class="profile-container">
 
                 <!-- LEFT COLUMN -->
                 <div class="profile-left">
 
-                    <!-- Profile Image Display -->
-                    <img th:src="${doctor.profileImage != null} ? ${doctor.profileImage} : @{/images/default-profile.png}"
-                         alt="Doctor Photo" style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;">
+                    <h2 th:text="${doctor.name}">Doctor Name</h2>
+                    <p><strong>BMDC Registration No:</strong>
+                        <span th:text="${doctor.BMDCreg}"></span>
+                    </p>
 
-                    <p><strong>Name:</strong> <span th:text="${doctor.name}"></span></p>
-                    <p><strong>BMDC No:</strong> <span th:text="${doctor.bmdcRegNo}"></span></p>
+                    <!-- Profile Image -->
+                    <img id="profilePreview"
+                         th:src="${doctor.profileImage != null ? doctor.profileImage : '/images/default-profile.png'}"
+                         alt="Doctor Photo"
+                         class="profile-img">
 
-                    <label>Profile Image:</label>
-                    <input type="file" name="profileImage" accept="image/*">
+                    <label>Update Profile Image:</label>
+                    <input type="file" name="profileImage" accept="image/*"
+                           onchange="previewProfileImage(event)">
+
+                    <div th:if="${doctor.profileImage != null}">
+                        <p><strong>Current Image:</strong></p>
+                        <img th:src="${doctor.profileImage}"
+                             style="width:120px; border-radius:6px;">
+                    </div>
 
                     <label>Gender:</label>
                     <select th:field="*{gender}">
                         <option value="">Select</option>
-                        <option value="Male" th:selected="*{gender}=='Male'">Male</option>
-                        <option value="Female" th:selected="*{gender}=='Female'">Female</option>
-                        <option value="Other" th:selected="*{gender}=='Other'">Other</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
                     </select>
 
                     <label>Date of Birth:</label>
@@ -313,119 +134,168 @@ textarea {
                     <label>Blood Group:</label>
                     <input type="text" th:field="*{bloodGroup}">
 
-                    <!-- BACK BUTTON -->
-                    <button type="button" class="booking-btn" style="width: 100%; margin-top: 20px;"
-                            onclick="window.location.href='/dashboard'">
-                        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-                    </button>
-
+                    <button type="button"
+        class="booking-btn"
+        style="width: 100%; margin-top: 20px;"
+        th:onclick="|window.location.href='@{/doctor/dashboard}'|">
+    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+</button>
                 </div>
 
                 <!-- RIGHT COLUMN -->
                 <div class="profile-right">
 
-                    <!-- CONTACT INFORMATION -->
+                    <!-- Contact Information -->
                     <div class="section">
                         <h3>Contact Information</h3>
                         <label>Email:</label>
                         <input type="email" th:field="*{email}" required>
+
                         <label>Phone:</label>
                         <input type="text" th:field="*{phoneNumber}">
+
                         <label>Alt Phone:</label>
                         <input type="text" th:field="*{altPhone}">
+
                         <label>Address:</label>
                         <input type="text" th:field="*{address}">
+
                         <label>Division:</label>
                         <input type="text" th:field="*{division}">
+
                         <label>Zilla:</label>
                         <input type="text" th:field="*{zilla}">
+
                         <label>Street:</label>
                         <input type="text" th:field="*{street}">
+
                         <label>Postal Code:</label>
                         <input type="text" th:field="*{postalCode}">
+
                         <label>Emergency Contact:</label>
                         <input type="text" th:field="*{emergencyContact}">
                     </div>
 
-                    <!-- PROFESSIONAL INFORMATION -->
+                    <!-- Professional Information -->
                     <div class="section">
                         <h3>Professional Information</h3>
+
                         <label>Degrees:</label>
                         <input type="text" th:field="*{degrees}">
+
                         <label>Specialization:</label>
                         <input type="text" th:field="*{specialization}">
+
                         <label>Specialities:</label>
                         <input type="text" th:field="*{specialities}">
+
                         <label>Education:</label>
                         <input type="text" th:field="*{education}">
+
                         <label>Experience (Years):</label>
                         <input type="number" th:field="*{experienceYears}">
 
-                        <!-- CERTIFICATE UPLOAD -->
                         <label>Certificate (PDF):</label>
                         <input type="file" name="certificateFile" accept=".pdf">
 
-                        <!-- IF CERTIFICATE EXISTS SHOW LINK -->
                         <div th:if="${doctor.certifications != null}">
-                            <a th:href="${doctor.certifications}" target="_blank" style="color:blue; text-decoration:underline;">
-                                View Current Certificate
-                            </a>
+                            <a th:href="${doctor.certifications}"
+                               target="_blank">View Current Certificate</a>
                         </div>
 
                         <label>Languages:</label>
                         <input type="text" th:field="*{languages}">
+
                         <label>Hospital Name:</label>
                         <input type="text" th:field="*{hospitalName}">
+
                         <label>Hospital Address:</label>
                         <input type="text" th:field="*{hospitalAddress}">
+
                         <label>Consultation Fee:</label>
                         <input type="text" th:field="*{consultationFee}">
+
                         <label>Description:</label>
                         <textarea th:field="*{description}"></textarea>
+
                         <label>Medical College:</label>
                         <input type="text" th:field="*{medicalCollege}">
+
                         <label>Working Days:</label>
                         <input type="text" th:field="*{workingDays}">
+
                         <label>Working Hours:</label>
                         <input type="text" th:field="*{workingHours}">
+
                         <label>Leave Dates:</label>
                         <input type="text" th:field="*{leaveDates}">
                     </div>
 
-                    <!-- ADDITIONAL INFORMATION -->
+                    <!-- Additional Information -->
                     <div class="section">
                         <h3>Additional Information</h3>
+
                         <label>Website:</label>
                         <input type="text" th:field="*{website}">
+
                         <label>LinkedIn:</label>
                         <input type="text" th:field="*{linkedin}">
+
                         <label>Facebook:</label>
                         <input type="text" th:field="*{facebook}">
+
                         <label>Instagram:</label>
                         <input type="text" th:field="*{instagram}">
+
                         <label>Twitter:</label>
                         <input type="text" th:field="*{twitter}">
+
                         <label>Special Interests:</label>
                         <input type="text" th:field="*{specialInterests}">
+
                         <label>Awards:</label>
                         <input type="text" th:field="*{awards}">
+
                         <label>Publications:</label>
                         <textarea th:field="*{publications}"></textarea>
+
                         <label>Notes:</label>
                         <textarea th:field="*{notes}"></textarea>
                     </div>
 
+                    <button type="submit" class="booking-btn" style="width:100%;">
+                        <i class="fa-solid fa-pen-to-square"></i> Update Information
+                    </button>
                 </div>
             </div>
+            <div id="toast" style="display:none; position:fixed; bottom:20px; right:20px; padding:15px; background:#28a745; color:white; border-radius:8px;">
+    Information Updated Successfully ✔
+</div>
 
-            <!-- UPDATE BUTTON -->
-            <button type="submit" class="booking-btn" style="width: 100%; margin-top: 25px;">
-                <i class="fa-solid fa-pen-to-square"></i> Update Information
-            </button>
+
+    
 
         </form>
-        <!-- FORM END -->
     </main>
 </div>
+
+<script>
+function previewProfileImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById("profilePreview");
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => preview.src = e.target.result;
+        reader.readAsDataURL(file);
+    }
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('updated') === 'true') {
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => toast.style.display = "none", 4000);
+    }
+}
+</script>
+
 </body>
 </html>

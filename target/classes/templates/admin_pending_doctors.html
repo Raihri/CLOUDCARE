@@ -1,6 +1,10 @@
-<!DOCTYPE html>
+
+
+
+    <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+<<<<<<< HEAD
     <meta charset="utf-8" />
     <title>Doctor Review Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1042,5 +1046,484 @@
             }
         });
     </script>
+=======
+  <meta charset="utf-8" />
+  <title>Pending Doctor Review — Admin</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --muted:#6b7a90;
+      --accent:#1d8cf8;
+      --success:#27ae60;
+      --danger:#e74c3c;
+      --warning:#f39c12;
+      --glass: rgba(11,33,66,0.04);
+      --radius:12px;
+      --shadow: 0 8px 28px rgba(10,20,40,0.06);
+      --sm-shadow: 0 4px 16px rgba(10,20,40,0.04);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    html, body { height:100%; margin:0; padding:28px; background: linear-gradient(180deg,var(--bg), #eef4fb 60%); color:#0b2142; }
+
+    h1 { margin:0 0 18px 0; font-size:1.25rem; font-weight:700; color:#07203a; }
+
+    .container { max-width:1100px; margin:0 auto; }
+
+    /* Header actions */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* left-actions left, admin buttons right */
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .left-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .header-actions .search {
+      flex: 1 1 auto;
+      min-width: 180px;
+      max-width: 500px;
+    }
+
+    .header-actions .search input {
+      border:0; outline:0; font-size:0.95rem; width:100%; min-width:220px;
+    }
+
+    .filter {
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+
+    .small-btn {
+      padding:8px 12px; border-radius:10px; background:var(--glass); border:0;
+      cursor:pointer; font-weight:600; color:var(--muted);
+    }
+    .small-btn:hover { transform:translateY(-1px); }
+
+    [data-filter].active { background:var(--accent); color:white; box-shadow: var(--sm-shadow); }
+
+    .admin-btns {
+      display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+    }
+
+    .btn-change-password {
+      background: linear-gradient(90deg, #1d8cf8, #126ecf);
+      color: white; padding:8px 12px; border-radius:10px; border:0; font-weight:600;
+      cursor:pointer; box-shadow: var(--sm-shadow);
+    }
+    .btn-logout {
+      background: linear-gradient(90deg, #e74c3c, #ff6b6b);
+      color:white; padding:8px 12px; border-radius:10px; border:0; font-weight:600;
+      cursor:pointer; box-shadow: var(--sm-shadow);
+    }
+    .btn-change-password:hover,
+    .btn-logout:hover { transform:translateY(-1px); opacity:0.9; }
+
+    /* Doctor cards */
+    #cardsWrap { margin-top:24px; }
+
+    .doctor-card {
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:14px;
+      margin-bottom:16px;
+      display:grid;
+      grid-template-columns: 120px 1fr 220px;
+      gap:12px;
+      position:relative;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .doctor-card:hover { transform:translateY(-4px); box-shadow:0 18px 44px rgba(10,20,40,0.09); }
+
+    .profile {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap:8px;
+    }
+    .profile img { width:96px; height:96px; border-radius:10px; object-fit:cover; border:1px solid #e6eef9; box-shadow:var(--sm-shadow); }
+    .name { font-weight:700; color:#06203a; }
+    .spec { font-size:0.9rem; color:var(--muted); }
+
+    .info {
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:8px 16px;
+    }
+    .info-block {
+      background: linear-gradient(180deg,#fbfdff,#f8fbff);
+      padding:8px 12px;
+      border-radius:8px;
+      border:1px solid rgba(13,34,64,0.04);
+      font-size:0.92rem;
+    }
+    .info-block strong { display:block; margin-bottom:6px; color:#06203a; font-weight:700; }
+
+    .actions {
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-end;
+    }
+    .btn { border:0; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:700; box-shadow:var(--sm-shadow); }
+    .btn-approve { background:linear-gradient(90deg,var(--accent),#126ecf); color:white; }
+    .btn-reject { background:linear-gradient(90deg,#ff6b6b,var(--danger)); color:white; }
+    .btn-outline { background:transparent; border:1px solid rgba(10,20,40,0.06); color:var(--muted); }
+
+    .status-badge {
+      position:absolute; top:12px; right:12px; padding:6px 10px; border-radius:999px; font-weight:700; font-size:0.82rem; color:white;
+      box-shadow:0 6px 18px rgba(10,20,40,0.08);
+    }
+    .status-pending { background:var(--warning); }
+    .status-approved { background:var(--success); }
+    .status-rejected { background:var(--danger); }
+
+    .card-footer { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:6px; }
+    .toggle-details { background:transparent; border:0; color:var(--muted); font-weight:700; cursor:pointer; }
+
+    /* Modals */
+    .modal-backdrop { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:1200; background:rgba(6,14,28,0.45); }
+    .modal { width:min(920px,96%); max-height:92vh; background:var(--card); border-radius:12px; padding:12px; overflow:auto; box-shadow:0 30px 80px rgba(8,16,40,0.5); }
+    .modal .head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; }
+    .modal .close { border:0; background:transparent; font-weight:700; cursor:pointer; }
+
+    .cert-viewer { width:100%; height:72vh; background:#f6f9ff; display:flex; align-items:center; justify-content:center; border-radius:8px; overflow:hidden; }
+    .cert-viewer img { max-width:100%; max-height:100%; object-fit:contain; }
+    .cert-viewer iframe { width:100%; height:100%; border:0; }
+
+    .toast-wrap { position:fixed; right:20px; bottom:20px; display:flex; flex-direction:column; gap:8px; z-index:1400; }
+    .toast { padding:10px 14px; border-radius:10px; color:white; box-shadow: var(--sm-shadow); font-weight:700; min-width:200px; }
+    .toast.success { background:var(--success); }
+    .toast.error { background:var(--danger); }
+    .toast.info { background:var(--accent); }
+
+    .form-row { display:flex; gap:8px; flex-direction:column; }
+    .form-row textarea { min-height:100px; padding:10px; border-radius:8px; border:1px solid rgba(10,20,40,0.06); resize:vertical; font-size:0.95rem; }
+    .muted { color:var(--muted); font-size:0.9rem; }
+
+    /* Responsive */
+    @media (max-width:920px) {
+      .header-actions { flex-direction:column; align-items:stretch; }
+      .left-actions { flex-direction:column; align-items:stretch; }
+      .header-actions .search { width:100%; }
+      .filter { justify-content:flex-start; }
+      .doctor-card { grid-template-columns:96px 1fr; }
+      .actions { align-items:flex-start; grid-row:1; grid-column:2/3; }
+    }
+    @media (max-width:520px) {
+      .info { grid-template-columns:1fr; }
+      .doctor-card { grid-template-columns:1fr; gap:10px; }
+      .actions { align-items:flex-end; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header-actions">
+      <div class="left-actions">
+        <div class="search" role="search">
+          <input id="searchInput" placeholder="Search by name, specialization, BMDC..." />
+        </div>
+
+        <div class="filter">
+          <button class="small-btn" data-filter="all">All</button>
+          <button class="small-btn" data-filter="pending">Pending</button>
+          <button class="small-btn" data-filter="approved">Approved</button>
+          <button class="small-btn" data-filter="rejected">Rejected</button>
+        </div>
+      </div>
+
+      <div class="admin-btns">
+        <a href="/admin/change-password" class="small-btn btn-change-password">Change Password</a>
+        <a href="/admin/logout" class="small-btn btn-logout" title="Sign out from admin panel">Logout</a>
+      </div>
+    </div>
+
+    <div id="cardsWrap">
+      <div th:each="doc : ${doctors}" class="doctor-card"
+           th:attr="data-id=${doc.id}, data-status=${doc.status.toString().toLowerCase()}, data-name=${doc.name}, data-specialization=${doc.specialization}">
+        
+        <div class="status-badge" th:classappend="' status-' + ${doc.status.toString().toLowerCase()}" th:text="${doc.status}"></div>
+
+        <div class="profile">
+          <img th:src="${doc.profileImage}" th:alt="${'Profile of ' + doc.name}" onerror="this.src='/static/images/default-avatar.png'"/>
+          <div class="name" th:text="${doc.name}">Dr. Name</div>
+          <div class="spec" th:text="${doc.specialization}">Specialization</div>
+        </div>
+
+        <div class="info">
+          <div class="info-block">
+            <strong>Personal</strong>
+            Gender: <span th:text="${doc.gender}">F</span><br />
+            DOB: <span th:text="${doc.dob}">1990-01-01</span><br />
+            Blood Group: <span th:text="${doc.bloodGroup}">O+</span><br />
+            Email: <span th:text="${doc.email}">x@y.com</span>
+          </div>
+
+          <div class="info-block">
+            <strong>Contact & Address</strong>
+            Phone: <span th:text="${doc.phoneNumber}">018...</span><br />
+            Alt Phone: <span th:text="${doc.altPhone}">N/A</span><br />
+            Emergency: <span th:text="${doc.emergencyContact}">N/A</span><br />
+            Address: <span th:text="${doc.division + ', ' + doc.zilla + ', ' + doc.street + ', ' + doc.postalCode}">Dhaka...</span>
+          </div>
+
+          <div class="info-block" style="grid-column:1 / -1">
+            <strong>Professional</strong>
+            Degrees: <span th:text="${doc.degrees}">MBBS</span> • BMDC: <span th:text="${doc.bmdcRegNo}">12345</span><br />
+            Experience: <span th:text="${doc.experienceYears}">2</span> years • Languages: <span th:text="${doc.languages}">Bangla, English</span><br />
+            Hospital: <span th:text="${doc.hospitalName}">Hospital X</span> • Medical College: <span th:text="${doc.medicalCollege}">Med Coll</span>
+          </div>
+
+          <div class="info-block">
+            <strong>Certificate</strong>
+            <a th:href="@{${doc.certifications}}" th:attr="data-cert=@{${doc.certifications}}" class="cert-link" target="_blank">Open in new tab</a>
+            <button class="small-btn" type="button" th:attr="data-cert=@{${doc.certifications}}" onclick="openCertPreview(this)">Preview</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-approve" type="button" th:attr="data-id=${doc.id}" onclick="confirmApprove(this)">Approve</button>
+          <button class="btn btn-reject" type="button" th:attr="data-id=${doc.id}, data-name=${doc.name}" onclick="openRejectModal(this)">Reject</button>
+          <a th:href="@{'/admin/doctor/' + ${doc.id} + '/profile'}" class="btn btn-outline">Full Profile</a>
+          <div class="card-footer">
+            <div class="muted">BMDC: <span th:text="${doc.bmdcRegNo}">12345</span></div>
+            <div>
+              <button class="toggle-details" type="button" aria-expanded="false" onclick="toggleDetails(this)">Show details ▼</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-details" style="display:none; grid-column:1 / -1; margin-top:8px; padding-top:8px; border-top:1px dashed rgba(10,20,40,0.04)">
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div style="min-width:200px">
+              <strong>Specialities</strong>
+              <div th:text="${doc.specialities}" class="muted">Cardiology</div>
+            </div>
+            <div style="min-width:200px">
+              <strong>Education</strong>
+              <div th:text="${doc.education}" class="muted">MBBS, FCPS</div>
+            </div>
+            <div style="min-width:200px">
+              <strong>Hospital Address</strong>
+              <div th:text="${doc.hospitalAddress}" class="muted">Address</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Certificate Modal -->
+  <div id="certModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="head">
+        <div>
+          <div style="font-weight:800">Certificate Preview</div>
+          <div id="certSubtitle" class="muted"></div>
+        </div>
+        <div>
+          <button class="close" type="button" onclick="closeCertPreview()">✕ Close</button>
+        </div>
+      </div>
+      <div class="cert-viewer" id="certViewer"></div>
+    </div>
+  </div>
+
+  <!-- Reject Modal -->
+  <div id="rejectModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="head">
+        <div>
+          <div style="font-weight:800">Reject Doctor</div>
+          <div class="muted">Provide a reason for rejection (required)</div>
+        </div>
+        <div>
+          <button class="close" type="button" onclick="closeRejectModal()">✕</button>
+        </div>
+      </div>
+
+      <form id="rejectForm" class="form-row" onsubmit="submitReject(event)">
+        <input type="hidden" name="doctorId" id="rejectDoctorId" value="">
+        <label class="muted">Doctor: <span id="rejectDoctorName" style="font-weight:700"></span></label>
+        <textarea name="reason" id="rejectReason" placeholder="Explain why you are rejecting this doctor..." required></textarea>
+
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
+          <button type="button" class="btn btn-outline" onclick="closeRejectModal()">Cancel</button>
+          <button type="submit" class="btn btn-reject">Confirm Reject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script>
+    const certModal = document.getElementById('certModal');
+    const certViewer = document.getElementById('certViewer');
+    const certSubtitle = document.getElementById('certSubtitle');
+
+    function openCertPreview(btn){
+      const url = btn.getAttribute('data-cert');
+      if(!url) return showToast('error','No certificate URL provided');
+      showCert(url);
+    }
+    function showCert(url){
+      certViewer.innerHTML='';
+      certSubtitle.textContent=url;
+      const lower=url.split('?')[0].toLowerCase();
+      if(lower.endsWith('.pdf')){
+        const iframe=document.createElement('iframe'); iframe.src=url; certViewer.appendChild(iframe);
+      } else {
+        const img=document.createElement('img'); img.src=url; img.alt='Certificate'; img.onerror=()=>{certViewer.innerHTML='<div class="muted">Preview not available</div>'}; certViewer.appendChild(img);
+      }
+      certModal.style.display='flex'; certModal.setAttribute('aria-hidden','false');
+    }
+    function closeCertPreview(){ certModal.style.display='none'; certModal.setAttribute('aria-hidden','true'); certViewer.innerHTML=''; }
+
+    async function confirmApprove(btn){
+      const id=btn.dataset.id;
+      if(!id) return showToast('error','Missing doctor id');
+      if(!confirm('Approve this doctor?')) return;
+      const fd=new FormData(); fd.append('doctorId',id);
+      try{
+        const resp=await fetch('/admin/approve-doctor',{method:'POST',body:fd,credentials:'same-origin'});
+        const text=await resp.text();
+        try{
+          const json=JSON.parse(text);
+          if(json.success){ showToast('success',json.message||'Doctor approved'); updateCardStatus(id,'approved'); } 
+          else { showToast('error',json.message||'Approve failed'); }
+        } catch(e){ window.location.reload(); }
+      } catch(err){ showToast('error','Network error'); }
+    }
+
+    function openRejectModal(btn){
+      const id=btn.dataset.id, name=btn.dataset.name;
+      if(!id) return showToast('error','Missing doctor id');
+      document.getElementById('rejectDoctorId').value=id;
+      document.getElementById('rejectDoctorName').text
+            document.getElementById('rejectDoctorName').textContent = name || '';
+      document.getElementById('rejectReason').value = '';
+      document.getElementById('rejectModal').style.display = 'flex';
+    }
+
+    function closeRejectModal(){
+      document.getElementById('rejectModal').style.display = 'none';
+    }
+
+    async function submitReject(e){
+      e.preventDefault();
+      const id = document.getElementById('rejectDoctorId').value;
+      const reason = document.getElementById('rejectReason').value.trim();
+      if(!reason){ return showToast('error','Reason is required'); }
+      const fd = new FormData();
+      fd.append('doctorId', id);
+      fd.append('reason', reason);
+      try{
+        const resp = await fetch('/admin/reject-doctor', { method:'POST', body:fd, credentials:'same-origin' });
+        const text = await resp.text();
+        try{
+          const json = JSON.parse(text);
+          if(json.success){ showToast('success', json.message||'Doctor rejected'); updateCardStatus(id,'rejected'); closeRejectModal(); } 
+          else { showToast('error', json.message||'Reject failed'); }
+        } catch(e){ window.location.reload(); }
+      } catch(err){ showToast('error','Network error'); }
+    }
+
+    function updateCardStatus(id, status){
+  const card = document.querySelector(`.doctor-card[data-id='${id}']`);
+  if(card){
+    const badge = card.querySelector('.status-badge');
+    badge.className = 'status-badge status-' + status.toLowerCase();
+    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+    card.setAttribute('data-status', status.toLowerCase()); // lowercase
+
+    // Reapply current filter
+    const activeFilterBtn = document.querySelector('[data-filter].active');
+    if(activeFilterBtn){
+      applyFilter(); // call directly instead of button click
+    }
+  }
+}
+
+    function showToast(type, message){
+      const wrap = document.getElementById('toastWrap');
+      const div = document.createElement('div');
+      div.className = 'toast ' + type; div.textContent = message;
+      wrap.appendChild(div);
+      setTimeout(()=>{ div.remove(); }, 3500);
+    }
+
+    function toggleDetails(btn){
+      const details = btn.closest('.doctor-card').querySelector('.card-details');
+      if(!details) return;
+      const isOpen = details.style.display !== 'none';
+      details.style.display = isOpen ? 'none' : 'block';
+      btn.textContent = isOpen ? 'Show details ▼' : 'Hide details ▲';
+      btn.setAttribute('aria-expanded', !isOpen);
+    }
+
+    
+    
+    (function attachSearchFilter() {
+    const search = document.getElementById('searchInput');
+    const filterBtns = document.querySelectorAll('[data-filter]');
+    const cardsWrap = document.getElementById('cardsWrap');
+
+    function applyFilter() {
+        const q = search.value.trim().toLowerCase();
+        const active = document.querySelector('[data-filter].active')?.getAttribute('data-filter') || 'all';
+        document.querySelectorAll('.doctor-card').forEach(card => {
+            const name = card.getAttribute('data-name')?.toLowerCase() || '';
+            const spec = card.getAttribute('data-specialization')?.toLowerCase() || '';
+            const status = card.getAttribute('data-status') || 'pending';
+            const matchesQuery = (name + ' ' + spec).includes(q);
+            const matchesFilter = (active === 'all') ? true : (status === active);
+            card.style.display = (matchesQuery && matchesFilter) ? '' : 'none';
+        });
+    }
+
+    // search input
+    search.addEventListener('input', applyFilter);
+
+    // filter buttons
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', e => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            applyFilter();
+        });
+    });
+
+    // set default active
+    document.querySelector('[data-filter="pending"]').classList.add('active');
+    applyFilter();
+})();
+const searchInput = document.getElementById('searchInput');
+const searchBox = searchInput.parentElement;
+
+searchInput.addEventListener('focus', () => {
+  searchBox.style.maxWidth = '600px'; // expand
+});
+
+searchInput.addEventListener('blur', () => {
+  searchBox.style.maxWidth = '500px'; // shrink back
+});
+
+  </script>
+>>>>>>> aa2151a201734ea354424f256d64e46c4b280948
 </body>
 </html>
