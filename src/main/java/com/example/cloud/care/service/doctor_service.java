@@ -144,4 +144,12 @@ public void approveDoctor(Long doctorId) {
     public boolean bmdcExists(String bmdcRegNo) {
         return doctor_dao.existsByBmdcRegNo(bmdcRegNo);
     }
+    public Doctor findByResetToken(String token) {
+    return doctor_dao.findByResetToken(token).orElse(null);
+}
+
+    public Doctor findByEmail(String email) {
+        
+       return doctor_dao.findByEmail(email).orElse(null);
+    }
 }

@@ -80,6 +80,11 @@ private List<Appointment> appointments;
     private String notes;
     private String rating;
 
+    //reset pass
+    private String resetToken;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date resetTokenExpiry;
+
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
 
