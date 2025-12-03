@@ -680,6 +680,16 @@
                 <li><a class="link_name" href="donor">Find Donor</a></li>
             </ul>
         </li>
+
+        <li>
+            <a th:href="@{/patient/aichat}">
+                <i class='bx bxs-chat'></i>
+                <span class="link_name">CloudCare AI</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
+            </ul>
+        </li>
       
 
        
@@ -1096,16 +1106,58 @@
     </div>
 
     <script>
-         // Sidebar functionality
-       const toggle = document.getElementById("sidebarToggle");
-    const sidebar = document.querySelector(".sidebar");
-
-    toggle.addEventListener("click", () => {
-        sidebar.classList.toggle("close");
+    // Minimal Sidebar State Restorer
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector(".sidebar");
+        const toggleBtn = document.getElementById("sidebarToggle");
+        
+        if (!sidebar || !toggleBtn) return;
+        
+        // RESTORE STATE
+        // Check multiple sources for sidebar state
+        const urlParams = new URLSearchParams(window.location.search);
+        const sidebarParam = urlParams.get('sidebar');
+        
+        if (sidebarParam === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (sidebarParam === 'expanded') {
+            sidebar.classList.remove('close');
+        } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('close');
+        }
+        
+        // SAVE STATE on toggle
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+            const isCollapsed = sidebar.classList.contains('close');
+            
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+        });
+        
+        // Save state before form submissions
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            // Add hidden input if not already present
+            if (!form.querySelector('input[name="sidebar"]')) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'sidebar';
+                form.appendChild(input);
+            }
+            
+            form.addEventListener('submit', () => {
+                const isCollapsed = sidebar.classList.contains('close');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+                sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+            });
+        });
     });
+</script>
 
-
-    </script>
+   
 
     <script>
         // Set current date

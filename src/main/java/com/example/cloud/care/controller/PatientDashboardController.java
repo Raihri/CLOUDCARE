@@ -3,6 +3,7 @@ import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.model.User;
 import com.example.cloud.care.repository.PatientRepository;
+import com.example.cloud.care.service.ChatService;
 import com.example.cloud.care.service.UserService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.loggedInUserFind;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/patient")
 public class PatientDashboardController {
@@ -29,6 +32,23 @@ public class PatientDashboardController {
 
     @Autowired
     private doctor_service doctorService;
+
+    @Autowired
+    private ChatService chatService;
+
+    @GetMapping("/aichat")
+    public String home() {
+        return "aichat";
+    }
+
+    @PostMapping("/chat")
+    public String chat(@RequestParam("message") String message, Model model) {
+        String response = chatService.getChatResponse(message);
+        model.addAttribute("userMessage", message);
+        model.addAttribute("botResponse", response);
+        return "aichat";
+    }
+
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
