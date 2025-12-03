@@ -1,5 +1,6 @@
 package com.example.cloud.care.config;
 
+import com.example.cloud.care.dao.AdminDao;
 import com.example.cloud.care.dao.doctor_dao;
 import com.example.cloud.care.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
@@ -120,17 +121,38 @@ public class SecurityConfig {
         // ============================
         // 3️⃣ DEFAULT SECURITY (ADMIN OR PUBLIC)
         // ============================
-        @Bean
-        @Order(3)
-        public SecurityFilterChain defaultSecurity(HttpSecurity http) throws Exception {
+      @Bean
+@Order(3)
+public SecurityFilterChain adminSecurity(HttpSecurity http, AdminDao adminDao) throws Exception {
+    http
+        .securityMatcher("/admin/**")
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/admin/login", "/admin/css/**", "/admin/js/**").permitAll()
+            .anyRequest().hasRole("ADMIN")
+        )
+        .formLogin(form -> form
+            .loginPage("/admin/login")
+            .loginProcessingUrl("/admin/login")
+            .usernameParameter("username")
+            .passwordParameter("password")
+            .defaultSuccessUrl("/admin/doctor/status", true) // redirect after login
+            .permitAll()
+        )
+        .logout(logout -> logout
+            .logoutUrl("/admin/logout")
+            .logoutSuccessUrl("/admin/login?logout")
+            .permitAll()
+        )
+        .userDetailsService(username -> adminDao.findByUsername(username)
+            .map(admin -> org.springframework.security.core.userdetails.User.builder()
+                .username(admin.getUsername())
+                .password(admin.getPassword())
+                .roles("ADMIN")
+                .build())
+            .orElseThrow(() -> new RuntimeException("Admin not found"))
+        );
 
-                http
-                                .csrf(csrf -> csrf.disable())
-                                .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/", "/home", "/css/**", "/js/**","/admin/**")
-                                                .permitAll()
-                                                .anyRequest().authenticated());
-
-                return http.build();
-        }
+    return http.build();
+}
 }
