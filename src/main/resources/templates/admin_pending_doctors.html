@@ -601,8 +601,18 @@
 
 <body>
     <!-- Dashboard Header -->
+
+    <div class=""btns style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1001;">
+        <a href="/admin/dashboard" class="btn view-btn">
+           <i class="fa-solid fa-key"></i> Change Password
+        </a>
+        <a href="/admin/logout" class="btn reject">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
     <div class="dashboard-header">
-        <h1><i class="fas fa-user-md"></i> Doctor Review Dashboard</h1>
+        <h1>            <img th:src="@{/image/logo.png}" alt="CloudCare Logo" style="width: 190px;">
+ Doctor Review Dashboard</h1>
         <p>Review and manage doctor registrations. Approve or reject applications with detailed feedback.</p>
         
         <!-- Statistics Cards -->
