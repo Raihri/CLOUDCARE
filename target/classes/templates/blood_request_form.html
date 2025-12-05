@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${editMode} ? 'Edit Blood Request' : 'Create Blood Request'">Blood Request Form</title>
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 500px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(211, 47, 47, 0.15);
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: #fff;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .form-header i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .form-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .form-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group:last-of-type {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="date"]:focus,
+        input[type="number"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #d32f2f;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
+        }
+
+        input[type="email"]:read-only {
+            background: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button[type="submit"],
+        button[type="button"] {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button[type="submit"] {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+            color: #fff;
+            grid-column: span 2;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(211, 47, 47, 0.3);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        .back-btn {
+            color: #d32f2f;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .back-btn:hover {
+            gap: 10px;
+        }
+
+        .error-msg {
+            background: #ffebee;
+            border: 1px solid #ef5350;
+            color: #c62828;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .success-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .form-wrapper {
+                max-width: 100%;
+            }
+
+            .form-header {
+                padding: 24px;
+            }
+
+            .form-header h1 {
+                font-size: 24px;
+            }
+
+            .form-body {
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            button[type="submit"] {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-wrapper">
+        <!-- HEADER -->
+        <div class="form-header">
+            <i class='bx bx-heart' th:if="${editMode}" style="color: #fff;"></i>
+            <i class='bx bx-plus-circle' th:unless="${editMode}" style="color: #fff;"></i>
+            <h1 th:text="${editMode} ? '✎ Edit Request' : '🩸 New Request'"></h1>
+            <p th:text="${editMode} ? 'Update your blood request details' : 'Create a new blood request'"></p>
+        </div>
+
+        <!-- FORM BODY -->
+        <div class="form-body">
+            <div class="error-msg" id="errorMsg"></div>
+
+            <form th:action="${editMode} ? @{/request/edit/{id}(id=${request.id})} : @{/request/create}" method="post" id="requestForm">
+                
+                <!-- NAME & BLOOD GROUP ROW -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name"><i class='bx bxs-user'></i> Name</label>
+                        <input type="text" id="name" name="name" th:value="${editMode} ? ${request.name} : ${userName}" placeholder="Full name" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="bloodGroup"><i class='bx bxs-droplet'></i> Blood Group</label>
+                        <input type="text" id="bloodGroup" name="bloodGroup" th:value="${editMode} ? ${request.bloodGroup} : ${userBloodGroup}" placeholder="e.g., A+, O-" required />
+                    </div>
+                </div>
+
+                <!-- UNITS & DATE ROW -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="units"><i class='bx bxs-vial'></i> Units Needed</label>
+                        <input type="number" id="units" name="units" min="1" max="10" th:value="${editMode} ? ${request.units} : 1" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="requiredDate"><i class='bx bxs-calendar'></i> Required Date</label>
+                        <input type="date" id="requiredDate" name="requiredDate" th:attr="min=${today}" th:value="${editMode} ? ${request.requiredDate} : ''" required />
+                    </div>
+                </div>
+
+                <!-- EMAIL SECTION -->
+                <div class="form-group">
+                    <label for="loginEmail"><i class='bx bxs-envelope'></i> Primary Email</label>
+                    <input type="email" id="loginEmail" name="loginEmail" th:value="${editMode} ? ${request.email} : ${loginEmail}" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="newEmail"><i class='bx bx-envelope'></i> Alternate Email (Optional)</label>
+                    <input type="email" id="newEmail" name="newEmail" placeholder="Enter alternate email if needed" th:value="${editMode} ? '' : ''" />
+                </div>
+
+                <!-- MEDICAL REASON -->
+                <div class="form-group">
+                    <label for="medicalReason"><i class='bx bxs-notepad'></i> Medical Reason (Optional)</label>
+                    <textarea id="medicalReason" name="medicalReason" placeholder="e.g., Emergency surgery, Post-accident blood loss, Chemotherapy treatment..." th:text="${editMode} ? ${request.medicalReason} : ''"></textarea>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <div class="form-actions">
+                    <button type="submit" id="submitBtn">
+                        <i class='bx' th:classappend="${editMode} ? 'bxs-check-circle' : 'bxs-send'"></i>
+                        <span th:text="${editMode} ? '💾 Save Changes' : '✓ Submit Request'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Optional: Form validation before submit
+        document.getElementById('requestForm').addEventListener('submit', function(e) {
+            const name = document.getElementById('name').value.trim();
+            const bloodGroup = document.getElementById('bloodGroup').value.trim();
+            const units = document.getElementById('units').value;
+            const requiredDate = document.getElementById('requiredDate').value;
+
+            if (!name || !bloodGroup || !units || !requiredDate) {
+                e.preventDefault();
+                showError('Please fill in all required fields');
+                return false;
+            }
+
+            // Disable submit button to prevent double-submission
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').style.opacity = '0.6';
+            document.getElementById('submitBtn').style.cursor = 'not-allowed';
+        });
+
+        function showError(msg) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = msg;
+            errorDiv.classList.add('show');
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+
+</body>
+</html>

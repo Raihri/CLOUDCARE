@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface doctor_dao extends JpaRepository<Doctor,Integer> {
+public interface doctor_dao extends JpaRepository<Doctor, Long> {
     Optional<Doctor> findByEmail(String email);
+    
+    Optional<Doctor> findByResetToken(String token);
 
     boolean existsByEmail(String email);
     

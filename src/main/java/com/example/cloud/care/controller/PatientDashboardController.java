@@ -89,7 +89,7 @@ public class PatientDashboardController {
     }
 
     @GetMapping("/doctor/{id}")
-    public String getDoctorById(@PathVariable("id") int id, Model model) {
+    public String getDoctorById(@PathVariable("id") long id, Model model) {
         Doctor doc = doctorService.getDoctorByID(id);
         if (doc == null) {
             // Handle case when doctor is not found

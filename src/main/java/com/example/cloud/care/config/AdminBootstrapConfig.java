@@ -1,5 +1,5 @@
 
- package com.example.cloud.care.config;
+package com.example.cloud.care.config;
 
 import com.example.cloud.care.dao.AdminDao;
 import com.example.cloud.care.model.Admin;
@@ -12,10 +12,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 public class AdminBootstrapConfig {
 
-    @Value("${app.admin.username}")
+    @Value("${ADMIN_USERNAME}")
     private String adminUsername;
 
-    @Value("${app.admin.password}")
+    @Value("${ADMIN_PASSWORD}")
     private String adminPassword;
 
     @Bean
