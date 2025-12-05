@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CloudCare | View Blood Request</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; background: #fff6f6; color: #333; }
+        
+        .container { max-width: 700px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 40px; }
+        
+        h1 { color: #b71c1c; margin-bottom: 30px; text-align: center; }
+        
+        .request-info { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .info-label { font-weight: 600; color: #666; }
+        .info-value { color: #333; }
+        
+        .requester-info { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 25px; }
+        .requester-email { font-weight: 600; color: #1565c0; word-break: break-all; }
+        
+        .action-buttons { display: flex; gap: 12px; margin-top: 30px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.3s; flex: 1; text-align: center; }
+        .btn-confirm { background: #4caf50; color: #fff; }
+        .btn-confirm:hover { background: #2e7d32; }
+        .btn-ignore { background: #e53935; color: #fff; }
+        .btn-ignore:hover { background: #c62828; }
+        
+        .success-msg { background: #c8e6c9; color: #2e7d32; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
+        .error-msg { background: #ffcdd2; color: #c62828; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Blood Request Details</h1>
+    
+    <div class="success-msg" id="successMsg">
+        <i class='bx bxs-check-circle'></i> Thank you! Your response has been recorded.
+    </div>
+    
+    <div class="error-msg" id="errorMsg" th:if="${error}">
+        <i class='bx bxs-error-circle'></i> <span th:text="${error}"></span>
+    </div>
+    
+    <div class="request-info" th:if="${request}">
+        <div class="info-row">
+            <span class="info-label">Blood Group Needed:</span>
+            <span class="info-value" th:text="${request.bloodGroup}" style="font-weight: 600; color: #d32f2f; font-size: 18px;"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Units Needed:</span>
+            <span class="info-value" th:text="${request.units}"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Required By:</span>
+            <span class="info-value" th:text="${#dates.format(request.requiredDate, 'MMM dd, yyyy')}"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Status:</span>
+            <span class="info-value" th:text="${request.status}"></span>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Request Created:</span>
+            <span class="info-value" th:text="${#dates.format(request.createdAt, 'MMM dd, yyyy HH:mm')}"></span>
+        </div>
+    </div>
+    
+    <div class="requester-info" th:if="${request}">
+        <p style="margin-bottom: 10px; color: #666;">
+            <strong>Requester's Contact Email:</strong>
+        </p>
+        <p class="requester-email" th:text="${request.email}"></p>
+        <p style="margin-top: 12px; font-size: 13px; color: #1565c0;">
+            You can reach out to them directly if you have questions about the request.
+        </p>
+    </div>
+    
+    <div class="action-buttons">
+        <button class="btn btn-confirm" id="confirmBtn" onclick="respondToRequest('confirm')">
+            <i class='bx bxs-check-circle'></i> Confirm - I Can Help
+        </button>
+        <button class="btn btn-ignore" id="ignoreBtn" onclick="respondToRequest('ignore')">
+            <i class='bx bxs-x-circle'></i> Cannot Help
+        </button>
+    </div>
+</div>
+
+<script>
+    async function respondToRequest(action) {
+        const requestId = new URLSearchParams(window.location.search).get('id') || window.location.pathname.split('/').pop();
+        
+        try {
+            const res = await fetch('/request/api/respond/' + requestId, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ action: action })
+            });
+            
+            const result = await res.json();
+            if (result.success) {
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('confirmBtn').disabled = true;
+                document.getElementById('ignoreBtn').disabled = true;
+                setTimeout(() => {
+                    window.location.href = '/donor/dashboard';
+                }, 2000);
+            } else {
+                alert('Error: ' + (result.message || 'Unknown error'));
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
+    }
+</script>
+
+</body>
+</html>
