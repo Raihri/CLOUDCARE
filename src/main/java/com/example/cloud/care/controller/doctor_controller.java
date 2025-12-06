@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.cloud.care.dao.doctor_dao;
@@ -108,7 +109,7 @@ public String editCurrentDoctor(Model model) {
 
     @PostMapping("/update")
     public String updateDoctorInfo(
-            @ModelAttribute Doctor updatedDoctor,
+            @ModelAttribute Doctor updatedDoctor, BindingResult bindingResult,
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestParam(value = "certificateFile", required = false) MultipartFile certificateFile
     ) throws IOException {
@@ -118,6 +119,10 @@ public String editCurrentDoctor(Model model) {
         Doctor doctor = userDetails.getDoctor();
 
         if (doctor == null) return "redirect:/doctor/login";
+        if (bindingResult.hasErrors()) {
+        System.out.println("Binding errors: " + bindingResult.getAllErrors());
+        return "doctor_data_entry";
+    }
 
         // ===== UPDATE FIELDS =====
         doctor.setGender(updatedDoctor.getGender());

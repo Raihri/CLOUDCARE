@@ -21,7 +21,7 @@ public class DoctorUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // no roles for now
+        return Collections.singletonList(() -> "ROLE_DOCTOR");
     }
 
     @Override
@@ -51,8 +51,6 @@ public class DoctorUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        // compare with the enum using the fully-qualified type name to avoid
-        // confusion with the instance variable name 'doctor'
         return doctor.getStatus() == Doctor.Status.APPROVED;
     }
 }

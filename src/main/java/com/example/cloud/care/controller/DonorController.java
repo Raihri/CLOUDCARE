@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/donor")
+@RequestMapping("/patient/donor")
 public class DonorController {
 
     @Autowired
@@ -42,10 +42,7 @@ public class DonorController {
                 .replace("'", "&#x27;");
     }
 
-    @GetMapping("")
-    public String donorDashboard() {
-        return "donor_dashboard";
-    }
+    
 
     @GetMapping("/email-select")
     public String showEmailSelectForm(Model model, @RequestParam(required = false) String loginEmail) {

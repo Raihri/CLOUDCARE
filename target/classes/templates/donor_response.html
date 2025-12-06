@@ -8,7 +8,7 @@
 <body>
     <div class="container">
         <h2>Respond to Blood Request</h2>
-        <form th:action="@{/donor/response}" method="post">
+        <form th:action="@{/patient/donor/response}" method="post">
             <input type="hidden" name="requestId" th:value="${requestId}" />
             <div>
                 <button type="submit" name="action" value="confirm">Confirm</button>

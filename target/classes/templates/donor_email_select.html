@@ -8,7 +8,7 @@
 <body>
     <div class="container">
         <h2>Select Email for Donor Communication</h2>
-        <form th:action="@{/donor/email-select}" method="post">
+        <form th:action="@{/patient/donor/email-select}" method="post">
             <div>
                 <label>Login Email:</label>
                 <input type="email" name="loginEmail" th:value="${loginEmail}" readonly />

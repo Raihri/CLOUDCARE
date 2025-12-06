@@ -199,13 +199,19 @@
             <div class="availability-list">
                 <h2>Existing Slots</h2>
                 <div th:each="slot : ${doctor.availability}" class="slot">
-                    <div class="slot-info">
-                        <span th:text="${slot.day}"></span>
-                        <span th:text="${slot.startTime}"></span>
-                        <span th:text="${slot.endTime}"></span>
-                        <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>
-                    </div>
-                </div>
+    <div class="slot-info">
+        <span th:text="${slot.day}"></span>
+        <span th:text="${slot.startTime}"></span>
+        <span th:text="${slot.endTime}"></span>
+        <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>
+    </div>
+    <!-- Remove slot button -->
+    <form th:action="@{/doctor/removeAvailabilitySlot}" method="post" style="margin:0;">
+        <input type="hidden" name="slotId" th:value="${slot.id}">
+       <button type="submit" class="booking-btn" style="background:#e74c3c;" 
+        onclick="return confirm('Are you sure you want to remove this slot?');">Remove</button>
+    </form>
+</div>
                 <a th:href="@{/doctor/dashboard(doctorId=${doctor.id})}" class="booking-btn">Back to Dashboard</a>
             </div>
 

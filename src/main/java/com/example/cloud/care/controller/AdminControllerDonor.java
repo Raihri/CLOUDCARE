@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/donor-admin")
+@RequestMapping("/patient/donor-admin")
 public class AdminControllerDonor {
 
     @Autowired

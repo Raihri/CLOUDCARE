@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/request")
+@RequestMapping("/patient/request")
 public class RequestController {
     @Autowired
     private com.example.cloud.care.service.DonorService donorService;

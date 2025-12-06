@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import com.example.cloud.care.repository.DoctorAvailabilityRepository;
+
 
 @Service
 public class doctor_service {
@@ -23,12 +25,15 @@ public class doctor_service {
     private final BCryptPasswordEncoder passwordEncoder;
     private final Cloudinary cloudinary;
     private final EmailServiceD emailServiceD;
+    private final DoctorAvailabilityRepository doctorAvailabilityRepository;
+    
 
-    public doctor_service(doctor_dao doctor_dao, BCryptPasswordEncoder passwordEncoder, Cloudinary cloudinary, EmailServiceD emailServiceD) {
+    public doctor_service(doctor_dao doctor_dao, BCryptPasswordEncoder passwordEncoder, Cloudinary cloudinary, EmailServiceD emailServiceD, DoctorAvailabilityRepository doctorAvailabilityRepository) {
         this.doctor_dao = doctor_dao;
         this.passwordEncoder = passwordEncoder;
         this.cloudinary = cloudinary;
         this.emailServiceD = emailServiceD;
+        this.doctorAvailabilityRepository = doctorAvailabilityRepository;
     }
 
     public List<Doctor> getDoctors() {
@@ -187,4 +192,16 @@ public void approveDoctor(Long doctorId) {
     public Doctor getDoctorWithAvailability(Long doctorId) {
         return doctor_dao.findByIdWithAvailability(doctorId);
     }
+    @Transactional
+public void removeAvailabilitySlot(Long slotId, Long doctorId) {
+    Doctor doctor = getDoctorWithAvailability(doctorId);
+    if (doctor == null) return;
+
+    doctor.getAvailability().removeIf(slot -> slot.getId().equals(slotId));
+    // If using JPA, also remove from database
+    doctorAvailabilityRepository.deleteById(slotId);
+
+    // Save doctor (optional if cascading works)
+    doctor_dao.save(doctor);
+}
 }

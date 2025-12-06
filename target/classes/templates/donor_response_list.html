@@ -180,8 +180,8 @@
         
         try {
             // Step 1: Fetch request details
-            logDebug(`Fetching request details from /request/api/get/${requestId}...`);
-            const requestRes = await fetch(`/request/api/get/${requestId}`);
+            logDebug(`Fetching request details from /patient/request/api/get/${requestId}...`);
+            const requestRes = await fetch(`/patient/request/api/get/${requestId}`);
             const requestData = await requestRes.json();
             
             logDebug(`Request response status: ${requestRes.status}`);
@@ -209,7 +209,7 @@
             
             // Step 2: Find matching eligible donors
             logDebug(`Finding matching donors for blood group: ${request.bloodGroup}...`);
-            const matchRes = await fetch(`/request/api/find-match/${requestId}`);
+            const matchRes = await fetch(`/patient/request/api/find-match/${requestId}`);
             const matchData = await matchRes.json();
             
             logDebug(`Match response status: ${matchRes.status}`);
@@ -300,7 +300,7 @@
             
             logDebug(`POST payload: ${JSON.stringify(payload)}`);
             
-            const res = await fetch('/request/api/send-match-emails', {
+            const res = await fetch('/patient/request/api/send-match-emails', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -317,7 +317,7 @@
                 // Redirect to pending requests after 2 seconds
                 setTimeout(() => {
                     logDebug('Redirecting to pending requests list...');
-                    window.location.href = '/request/pending-requests';
+                    window.location.href = '/patient/request/pending-requests';
                 }, 2000);
             } else {
                 logDebug(`ERROR sending emails: ${responseData.message}`);

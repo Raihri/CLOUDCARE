@@ -98,7 +98,7 @@
         const requestId = new URLSearchParams(window.location.search).get('id') || window.location.pathname.split('/').pop();
         
         try {
-            const res = await fetch('/request/api/respond/' + requestId, {
+            const res = await fetch('/patient/request/api/respond/' + requestId, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ action: action })
@@ -110,7 +110,7 @@
                 document.getElementById('confirmBtn').disabled = true;
                 document.getElementById('ignoreBtn').disabled = true;
                 setTimeout(() => {
-                    window.location.href = '/donor/dashboard';
+                    window.location.href = '/patient/donor/dashboard';
                 }, 2000);
             } else {
                 alert('Error: ' + (result.message || 'Unknown error'));

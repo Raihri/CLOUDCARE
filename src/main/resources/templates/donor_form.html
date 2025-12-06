@@ -566,7 +566,7 @@
                                 lastDonated: lastDonated || null, diseases
                             };
 
-                            const endpoint = donor.id ? '/donor/api/update/' + donor.id : '/donor/api/create';
+                            const endpoint = donor.id ? '/patient/donor/api/update/' + donor.id : '/patient/donor/api/create';
                             const method = donor.id ? 'PUT' : 'POST';
 
                             // Show overlay while saving
@@ -607,7 +607,7 @@
                                         localStorage.setItem('donorUpdatedId', savedId);
                                         // Verify backend persisted the blood group by fetching the donor record
                                         try {
-                                            const verifyRes = await fetch(`/donor/api/get/${savedId}`);
+                                            const verifyRes = await fetch(`/patient/donor/api/get/${savedId}`);
                                             if (verifyRes.ok) {
                                                 const verifyData = await verifyRes.json();
                                                 const fetchedDonor = verifyData.data || verifyData;

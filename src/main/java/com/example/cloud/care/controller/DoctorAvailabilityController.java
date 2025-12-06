@@ -98,4 +98,14 @@ public class DoctorAvailabilityController {
 
         return doctorService.getDoctorWithAvailability(doctorId);
     }
+    @PostMapping("/doctor/removeAvailabilitySlot")
+public String removeAvailabilitySlot(@RequestParam Long slotId) {
+    Doctor doctor = getLoggedInDoctor();
+    if (doctor == null) return "redirect:/doctor/login";
+
+    // Remove the slot
+    doctorService.removeAvailabilitySlot(slotId, doctor.getId());
+
+    return "redirect:/doctor/saveAvailability";
+}
 }
