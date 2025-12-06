@@ -2,6 +2,9 @@ package com.example.cloud.care.service;
 
 import com.example.cloud.care.dao.doctor_dao;
 import com.example.cloud.care.model.Doctor;
+
+import org.springframework.transaction.annotation.Transactional;
+
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -179,5 +182,9 @@ public void approveDoctor(Long doctorId) {
     public Doctor findByEmail(String email) {
         
        return doctor_dao.findByEmail(email).orElse(null);
+    }
+    @Transactional(readOnly = true)
+    public Doctor getDoctorWithAvailability(Long doctorId) {
+        return doctor_dao.findByIdWithAvailability(doctorId);
     }
 }

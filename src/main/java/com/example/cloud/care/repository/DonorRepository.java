@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface DonorRepository extends JpaRepository<Donor, Long> {
     Optional<Donor> findByEmail(String email);
     java.util.List<Donor> findByBloodGroup(String bloodGroup);
+    
 }
     

@@ -88,6 +88,8 @@ public class SecurityConfig {
                                                                 "/doctor/signup",
                                                                 "/doctor/signup/request",
                                                                 "/doctor/check-email",
+                                                                "/doctor/forgot-password",
+                                                                "/doctor/reset-password**",
                                                                 "/doctor/css/**",
                                                                 "/doctor/js/**")
                                                 .permitAll()

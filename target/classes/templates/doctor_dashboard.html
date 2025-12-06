@@ -79,8 +79,8 @@
                 <ul class="nav-links">
                     <li><a href="/doctor/update"><i class="fa-solid fa-user-doctor"></i> Edit Profile</a></li>
                     <li><a href="/doctor/new"><i class="fa-solid fa-user-plus"></i> Add Doctor</a></li>
-                    <li><a href="#"><i class="fa-solid fa-file-lines"></i> Reports</a></li>
-                    <li><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+                    <li><a href="/doctor/saveAvailability"><i class="fa-solid fa-file-lines"></i> availability</a></li>
+                    <li><a th:href="@{/doctor/{doctorId}/appointments(doctorId=${doctor.id})}"><i class="fa-solid fa-gear"></i> Appointments</a></li>
                 </ul>
             </nav>
             <div class="profile-details">

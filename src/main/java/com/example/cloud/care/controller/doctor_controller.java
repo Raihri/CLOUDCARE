@@ -241,14 +241,15 @@ public String handleForgotPassword(@RequestParam String email, Model model) {
     emailServiceD.sendEmail(doctor.getEmail(), subject, body);
 
     model.addAttribute("message", "Password reset link sent to your email.");
-    return "doctor_forgot_password";
+return "doctor_forgot_password";
 }
 
 @GetMapping("/reset-password")
 public String showResetPasswordPage(@RequestParam String token, Model model) {
     Doctor doctor = doctorService.findByResetToken(token);
    if (doctor == null || doctor.getResetTokenExpiry().before(new java.util.Date())) { 
-        return "doctor_reset_password"; // show error message
+       model.addAttribute("error", "invalid or expired password reset link");
+    return "doctor_forgot_password"; // show error message
     }
     model.addAttribute("token", token);
     return "doctor_reset_password"; // template with new password input

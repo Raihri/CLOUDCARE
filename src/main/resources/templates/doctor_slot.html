@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Doctor Availability</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -21,8 +22,8 @@
         h1 {
             text-align: center;
             color: #1b3e72;
-            font-size: 32px;
-            margin-bottom: 25px;
+            font-size: 36px;
+            margin-bottom: 30px;
         }
 
         .container {
@@ -33,11 +34,16 @@
         }
 
         .add-slot, .availability-list {
-            flex: 1.2; /* wider columns */
+            flex: 1.2;
             background: linear-gradient(145deg, #ffffff, #f4faff);
             border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.05);
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .add-slot h2, .availability-list h2 {
+            color: #1b3e72;
+            margin-bottom: 20px;
         }
 
         .add-slot label {
@@ -49,10 +55,11 @@
 
         .add-slot input[type="time"], .add-slot select {
             width: 100%;
-            padding: 10px 12px;
-            margin-top: 4px;
-            border-radius: 6px;
+            padding: 12px 14px;
+            margin-top: 6px;
+            border-radius: 8px;
             border: 1px solid #d0e4ff;
+            font-size: 16px;
         }
 
         .toggle-switch {
@@ -60,6 +67,7 @@
             width: 50px;
             height: 26px;
             display: inline-block;
+            margin-top: 6px;
         }
 
         .toggle-switch input {
@@ -96,14 +104,18 @@
         }
 
         .booking-btn {
+            display: inline-block;
             background: #4A90E2;
             color: #fff;
             border: none;
             padding: 12px 25px;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: 600;
-            margin-top: 15px;
+            margin-top: 20px;
+            font-size: 16px;
+            transition: 0.3s;
+            text-decoration: none;
         }
 
         .booking-btn:hover {
@@ -120,14 +132,20 @@
             justify-content: space-between;
             align-items: center;
             background: linear-gradient(145deg, #ffffff, #d9edff);
-            padding: 12px 15px;
+            padding: 14px 18px;
             border-radius: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            transition: 0.3s;
+        }
+
+        .slot:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
 
         .slot-info span {
-            margin-right: 12px;
+            margin-right: 14px;
             font-weight: 500;
+            font-size: 15px;
         }
 
         @media(max-width: 900px){
@@ -141,111 +159,58 @@
 <div class="wrap">
     <div class="main-content">
         <h1>Manage Availability</h1>
-       <form th:action="@{/doctor/saveAvailability}" th:object="${doctor}" method="post">
-    <input type="hidden" th:field="*{id}"/> <!-- Doctor ID -->
-    <div class="container">
-        <!-- LEFT COLUMN: Add Slot -->
-        <div class="add-slot">
-            <h2>Add New Slot</h2>
-            <label for="day">Day:</label>
-            <select id="day">
-                <option value="">Select Day</option>
-                <option>Saturday</option>
-                <option>Sunday</option>
-                <option>Monday</option>
-                <option>Tuesday</option>
-                <option>Wednesday</option>
-                <option>Thursday</option>
-                <option>Friday</option>
-            </select>
+        <div class="container">
 
-            <label for="startTime">Start Time:</label>
-            <input type="time" id="startTime">
+            <!-- LEFT COLUMN: Add Slot Form -->
+            <div class="add-slot">
+                <h2>Add New Slot</h2>
+                <form th:action="@{/doctor/addAvailabilitySlot}" method="post">
+                    <input type="hidden" name="doctorId" th:value="${doctor.id}">
 
-            <label for="endTime">End Time:</label>
-            <input type="time" id="endTime">
+                    <label for="day">Day:</label>
+                    <select name="day" id="day">
+                        <option value="">Select Day</option>
+                        <option>Saturday</option>
+                        <option>Sunday</option>
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                    </select>
 
-            <label>Telemedicine:</label>
-            <label class="toggle-switch">
-                <input type="checkbox" id="telemedicine">
-                <span class="slider"></span>
-            </label>
+                    <label for="startTime">Start Time:</label>
+                    <input type="time" name="startTime" id="startTime">
 
-            <button type="button" class="booking-btn" onclick="addSlot()">Add Slot</button>
-        </div>
+                    <label for="endTime">End Time:</label>
+                    <input type="time" name="endTime" id="endTime">
 
-        <!-- RIGHT COLUMN: Slot List -->
-        <div class="availability-list" id="availability-list">
-            <h2>Existing Slots</h2>
-            <div th:each="slot, iterStat : *{availability}" class="slot">
-                <div class="slot-info">
-                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].day}" th:value="${slot.day}" />
-                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].startTime}" th:value="${slot.startTime}" />
-                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].endTime}" th:value="${slot.endTime}" />
-                    <input type="hidden" th:field="*{availability[__${iterStat.index}__].telemedicineAvailable}" th:value="${slot.telemedicineAvailable}" />
-                    
-                    <span th:text="${slot.day}"></span>
-                    <span th:text="${slot.startTime}"></span>
-                    <span th:text="${slot.endTime}"></span>
-                    <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>
-                </div>
-                <button type="button" class="booking-btn" onclick="removeSlot(this)">Remove</button>
+                    <label>Telemedicine:</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="telemedicine" id="telemedicine">
+                        <span class="slider"></span>
+                    </label>
+
+                    <button type="submit" class="booking-btn">Add Slot</button>
+                </form>
             </div>
-        </div>
-    </div>
 
-    <button type="submit" class="booking-btn" style="margin-top:20px;">Save All Slots</button>
-</form>
+            <!-- RIGHT COLUMN: Existing Slots -->
+            <div class="availability-list">
+                <h2>Existing Slots</h2>
+                <div th:each="slot : ${doctor.availability}" class="slot">
+                    <div class="slot-info">
+                        <span th:text="${slot.day}"></span>
+                        <span th:text="${slot.startTime}"></span>
+                        <span th:text="${slot.endTime}"></span>
+                        <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>
+                    </div>
+                </div>
+                <a th:href="@{/doctor/dashboard(doctorId=${doctor.id})}" class="booking-btn">Back to Dashboard</a>
+            </div>
+
+        </div>
     </div>
 </div>
-
-<script>
-
-let slotCount = document.querySelectorAll('#availability-list .slot').length;
-
-function addSlot() {
-    const day = document.getElementById('day').value;
-    const startTime = document.getElementById('startTime').value;
-    const endTime = document.getElementById('endTime').value;
-    const telemedicine = document.getElementById('telemedicine').checked;
-
-    if(!day || !startTime || !endTime){
-        alert("Please fill all fields");
-        return;
-    }
-
-    const container = document.getElementById('availability-list');
-
-    const slotDiv = document.createElement('div');
-    slotDiv.className = 'slot';
-    slotDiv.innerHTML = `
-        <div class="slot-info">
-            <input type="hidden" name="availability[${slotCount}].day" value="${day}">
-            <input type="hidden" name="availability[${slotCount}].startTime" value="${startTime}">
-            <input type="hidden" name="availability[${slotCount}].endTime" value="${endTime}">
-            <input type="hidden" name="availability[${slotCount}].telemedicineAvailable" value="${telemedicine}">
-            
-            <span>${day}</span>
-            <span>${startTime}</span>
-            <span>${endTime}</span>
-            <span>${telemedicine ? 'Telemedicine' : 'Physical Counselling'}</span>
-        </div>
-        <button type="button" class="booking-btn" onclick="removeSlot(this)">Remove</button>
-    `;
-    container.appendChild(slotDiv);
-
-    slotCount++;
-
-    // Reset form
-    document.getElementById('day').value = '';
-    document.getElementById('startTime').value = '';
-    document.getElementById('endTime').value = '';
-    document.getElementById('telemedicine').checked = false;
-}
-
-function removeSlot(btn){
-    btn.parentElement.remove();
-}
-</script>
 </body>
 </html>
