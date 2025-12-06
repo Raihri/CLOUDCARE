@@ -16,13 +16,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Controller
+@RequestMapping("/patient")
 public class QuizController {
 
     private static final String[] OPTIONS = {"Not at all", "Several days", "More than half the days", "Nearly every day"};
     private static final int[] SCORES = {0, 1, 2, 3};
     private static final Pattern QUESTION_KEY = Pattern.compile("^q(\\d+)$");
 
-    @GetMapping({"/", "/quiz_index1"})
+    @GetMapping({ "/quiz_index1"})
     public String index1() {
         return "index1";
     }
