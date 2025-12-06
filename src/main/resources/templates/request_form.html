@@ -510,7 +510,7 @@
         if (submitBtn) submitBtn.disabled = true;
 
         try {
-            const endpoint = request.id ? `/request/api/update/${request.id}` : '/request/api/create';
+            const endpoint = request.id ? `/patient/request/api/update/${request.id}` : '/patient/request/api/create';
             const method = request.id ? 'PUT' : 'POST';
 
             const res = await fetch(endpoint, {

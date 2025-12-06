@@ -597,7 +597,7 @@
 
         async function loadDonors() {
             // Add cache-busting query parameter to force fresh data from server
-            const res = await fetch(`/patient/${donorAPI}/list?t=${Date.now()}`, {
+            const res = await fetch(`${donorAPI}/list?t=${Date.now()}`, {
                 headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
             });
             const data = await res.json();
@@ -613,7 +613,7 @@
         async function saveDonorBackend(donor) {
             try {
                 if (donor.id) {
-                    const res = await fetch(`/patient/${donorAPI}/update/${donor.id}`, {
+                    const res = await fetch(`${donorAPI}/update/${donor.id}`, {
                         method: 'PUT',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(donor)
@@ -623,7 +623,7 @@
                     else if (result.error) alert('Error: ' + result.error);
                     else alert('Error: ' + (result.message || 'Unknown error'));
                 } else {
-                    const res = await fetch(`/patient/${donorAPI}/create`, {
+                    const res = await fetch(`${donorAPI}/create`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(donor)
@@ -641,7 +641,7 @@
 
         async function deleteDonorBackend(id) {
             try {
-                const res = await fetch(`/patient/${donorAPI}/delete/${id}`, {method: 'DELETE'});
+                const res = await fetch(`${donorAPI}/delete/${id}`, {method: 'DELETE'});
                 const result = await res.json();
                 if (result.success) alert('Donor deleted successfully');
                 else if (result.error) alert('Error: ' + result.error);
@@ -653,7 +653,7 @@
         }
 
         async function loadRequests() {
-            const res = await fetch(`/patient/${requestAPI}/list`);
+            const res = await fetch(`${requestAPI}/list`);
             const data = await res.json();
             return data.data || data;
         }
@@ -661,7 +661,7 @@
         async function saveRequestBackend(request) {
             try {
                 if (request.id) {
-                    const res = await fetch(`/patient/${requestAPI}/update/${request.id}`, {
+                    const res = await fetch(`${requestAPI}/update/${request.id}`, {
                         method: 'PUT',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(request)
@@ -669,7 +669,7 @@
                     const result = await res.json();
                     if (!result.success) throw new Error(result.message || result.error || 'Unknown error');
                 } else {
-                    const res = await fetch(`/patient/${requestAPI}/create`, {
+                    const res = await fetch(`${requestAPI}/create`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(request)
@@ -685,7 +685,7 @@
         }
 
         async function deleteRequestBackend(id) {
-            const res = await fetch(`/patient/${requestAPI}/delete/${id}`, {method: 'DELETE'});
+            const res = await fetch(`${requestAPI}/delete/${id}`, {method: 'DELETE'});
             const result = await res.json();
             if (!result.success) alert('Delete failed: ' + (result.message || result.error || 'Unknown'));
         }
@@ -777,7 +777,7 @@
             }
 
             try {
-                const res = await fetch(`/patient/${donorAPI}/get/${id}`);
+                const res = await fetch(`${donorAPI}/get/${id}`);
                 if (!res.ok) {
                     const txt = await res.text().catch(() => '');
                     throw new Error(`Server returned ${res.status} ${txt}`);
@@ -827,7 +827,7 @@
             };
 
             try {
-                const res = await fetch(`/patient/${donorAPI}/update/${id}`, {
+                const res = await fetch(`${donorAPI}/update/${id}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'same-origin',
@@ -882,7 +882,7 @@
             }
 
             try {
-                const res = await fetch(`/patient/${requestAPI}/get/${id}`);
+                const res = await fetch(`${requestAPI}/get/${id}`);
                 if (!res.ok) {
                     const txt = await res.text().catch(() => '');
                     throw new Error(`Server returned ${res.status} ${txt}`);
@@ -925,7 +925,7 @@
             };
 
             try {
-                const res = await fetch(`/patient/${requestAPI}/update/${requestId}`, {
+                const res = await fetch(`${requestAPI}/update/${requestId}`, {
                     method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
                     credentials: 'same-origin',

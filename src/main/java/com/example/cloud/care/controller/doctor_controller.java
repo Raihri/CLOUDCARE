@@ -108,74 +108,79 @@ public String editCurrentDoctor(Model model) {
 
 
     @PostMapping("/update")
-    public String updateDoctorInfo(
-            @ModelAttribute Doctor updatedDoctor, BindingResult bindingResult,
-            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-            @RequestParam(value = "certificateFile", required = false) MultipartFile certificateFile
-    ) throws IOException {
+public String updateDoctorInfo(
+        @ModelAttribute Doctor updatedDoctor,
+        BindingResult bindingResult,
+        @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+        @RequestParam(value = "certificateFile", required = false) MultipartFile certificateFile
+) throws IOException {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
-        Doctor doctor = userDetails.getDoctor();
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+    Doctor doctor = userDetails.getDoctor();
 
-        if (doctor == null) return "redirect:/doctor/login";
-        if (bindingResult.hasErrors()) {
+    if (doctor == null) return "redirect:/doctor/login";
+
+    if (bindingResult.hasErrors()) {
         System.out.println("Binding errors: " + bindingResult.getAllErrors());
         return "doctor_data_entry";
     }
 
-        // ===== UPDATE FIELDS =====
-        doctor.setGender(updatedDoctor.getGender());
-        doctor.setDob(updatedDoctor.getDob());
-        doctor.setBloodGroup(updatedDoctor.getBloodGroup());
-        doctor.setPhoneNumber(updatedDoctor.getPhoneNumber());
-        doctor.setAltPhone(updatedDoctor.getAltPhone());
-        doctor.setAddress(updatedDoctor.getAddress());
-        doctor.setDivision(updatedDoctor.getDivision());
-        doctor.setZilla(updatedDoctor.getZilla());
-        doctor.setStreet(updatedDoctor.getStreet());
-        doctor.setPostalCode(updatedDoctor.getPostalCode());
-        doctor.setEmergencyContact(updatedDoctor.getEmergencyContact());
-        doctor.setDegrees(updatedDoctor.getDegrees());
-        doctor.setSpecialization(updatedDoctor.getSpecialization());
-        doctor.setSpecialities(updatedDoctor.getSpecialities());
-        doctor.setEducation(updatedDoctor.getEducation());
-        doctor.setExperienceYears(updatedDoctor.getExperienceYears());
-        doctor.setLanguages(updatedDoctor.getLanguages());
-        doctor.setHospitalName(updatedDoctor.getHospitalName());
-        doctor.setHospitalAddress(updatedDoctor.getHospitalAddress());
-        doctor.setConsultationFee(updatedDoctor.getConsultationFee());
-        doctor.setDescription(updatedDoctor.getDescription());
-        doctor.setMedicalCollege(updatedDoctor.getMedicalCollege());
-        doctor.setWebsite(updatedDoctor.getWebsite());
-        doctor.setLinkedin(updatedDoctor.getLinkedin());
-        doctor.setFacebook(updatedDoctor.getFacebook());
-        doctor.setInstagram(updatedDoctor.getInstagram());
-        doctor.setTwitter(updatedDoctor.getTwitter());
+    // ===== UPDATE FIELDS =====
+    doctor.setGender(updatedDoctor.getGender());
+    doctor.setDob(updatedDoctor.getDob());
+    doctor.setBloodGroup(updatedDoctor.getBloodGroup());
+    doctor.setPhoneNumber(updatedDoctor.getPhoneNumber());
+    doctor.setAltPhone(updatedDoctor.getAltPhone());
+    doctor.setAddress(updatedDoctor.getAddress());
+    doctor.setDivision(updatedDoctor.getDivision());
+    doctor.setZilla(updatedDoctor.getZilla());
+    doctor.setStreet(updatedDoctor.getStreet());
+    doctor.setPostalCode(updatedDoctor.getPostalCode());
+    doctor.setEmergencyContact(updatedDoctor.getEmergencyContact());
+    doctor.setDegrees(updatedDoctor.getDegrees());
+    doctor.setSpecialization(updatedDoctor.getSpecialization());
+    doctor.setSpecialities(updatedDoctor.getSpecialities());
+    doctor.setEducation(updatedDoctor.getEducation());
+    doctor.setExperienceYears(updatedDoctor.getExperienceYears());
+    doctor.setLanguages(updatedDoctor.getLanguages());
+    doctor.setHospitalName(updatedDoctor.getHospitalName());
+    doctor.setHospitalAddress(updatedDoctor.getHospitalAddress());
+    doctor.setConsultationFee(updatedDoctor.getConsultationFee());
+    doctor.setDescription(updatedDoctor.getDescription());
+    doctor.setMedicalCollege(updatedDoctor.getMedicalCollege());
+    doctor.setWebsite(updatedDoctor.getWebsite());
+    doctor.setLinkedin(updatedDoctor.getLinkedin());
+    doctor.setFacebook(updatedDoctor.getFacebook());
+    doctor.setInstagram(updatedDoctor.getInstagram());
+    doctor.setTwitter(updatedDoctor.getTwitter());
 
-        // ===== CLOUDINARY FILE UPLOADS =====
-        if (profileImage != null && !profileImage.isEmpty()) {
-            Map uploadResult = cloudinary.uploader().upload(
-                    profileImage.getBytes(),
-                    ObjectUtils.asMap("folder", "doctor_profiles"));
-                    doctor.setProfileImage(uploadResult.get("secure_url") + "?v=" + System.currentTimeMillis());
-        }
-
-        if (certificateFile != null && !certificateFile.isEmpty()) {
-            Map certUpload = cloudinary.uploader().upload(
-                    certificateFile.getBytes(),
-                    ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "raw"));
-            doctor.setCertifications((String) certUpload.get("secure_url")+ "?v=" + System.currentTimeMillis());
-        }
-        
-
-        doctorRepository.save(doctor);
-
-        // 🔥 REFRESH THE SESSION
-        refreshDoctorSession(doctor);
-
-        return "redirect:/doctor/dashboard?updated=true";
+    // ===== HANDLE FILES SEPARATELY =====
+    if (profileImage != null && !profileImage.isEmpty()) {
+        Map uploadResult = cloudinary.uploader().upload(
+                profileImage.getBytes(),
+                ObjectUtils.asMap("folder", "doctor_profiles")
+        );
+        // Only set the URL string in your entity
+        doctor.setProfileImage((String) uploadResult.get("secure_url") + "?v=" + System.currentTimeMillis());
     }
+
+    if (certificateFile != null && !certificateFile.isEmpty()) {
+        Map certUpload = cloudinary.uploader().upload(
+                certificateFile.getBytes(),
+                ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "raw")
+        );
+        doctor.setCertifications((String) certUpload.get("secure_url") + "?v=" + System.currentTimeMillis());
+    }
+
+    // ===== SAVE =====
+    doctorRepository.save(doctor);
+
+    // 🔥 REFRESH THE SESSION
+    refreshDoctorSession(doctor);
+
+    return "redirect:/doctor/dashboard?updated=true";
+}
 
 
     // ==========================
