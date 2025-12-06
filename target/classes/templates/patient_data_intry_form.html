@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title> CloudCare | Patient Data Entry</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        /* Patient Form Specific Styles */
+        .patient-form-container {
+            background: #fff;
+            padding: 28px 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(4, 13, 114, 0.08);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            min-height: 300px;
+        }
+
+        .form-section {
+            border: 1px solid #e2e4e7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9fafb;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e4e7;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #040d72;
+        }
+
+        .section-submit-btn {
+            background: #040d72;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .section-submit-btn:hover {
+            background: #1d1b31;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            flex: 1 1 200px;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #23282d;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #e4e9f7;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 14px;
+            color: #11101d;
+            transition: border 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #040d72;
+            outline: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+        }
+
+        .form-message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .photo-upload-container {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .patient-photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #1d8cf8;
+            background: #f7f8fa;
+        }
+
+        .photo-upload-btn {
+            background: #040d72;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .photo-upload-btn:hover {
+            background: #1d1b31;
+        }
+
+        .conditional-fields {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f0f4f8;
+            border-radius: 8px;
+            border-left: 4px solid #1d8cf8;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            background: #10b981;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="sidebar">
+    <div class="logo-details">
+        <img th:src="@{/image/logo.png}" alt="CloudCare Logo"/>
+
+        <span class="logo_name">CloudCare</span>
+    </div>
+    <ul class="nav-links">
+        
+        <li>
+            <a th:href="@{/patient/dashboard}">
+                <i class="bx bxs-user"></i>
+                <span class="link_name">Patient Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Patient Profile</a></li>
+            </ul>
+        </li>
+
+          <li class="active">
+            <a th:href="@{/patient/dataEntry}">
+                <i class="bx bxs-edit"></i>
+                <span class="link_name">Edit Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Edit Profile</a></li>
+            </ul>
+        </li>
+
+         <li>
+            <a th:href="@{/patient/doctor_list}">
+                <i class="bx bx-menu"></i>
+                <span class="link_name">Doctors List</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Doctors List</a></li>
+            </ul>
+        </li>
+
+
+        <li>
+            <a th:href="@{/patient/donor}">
+                <i class='bx bxs-droplet'></i>
+                <span class="link_name">Find Donor</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="donor">Find Donor</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a th:href="@{/patient/aichat}">
+                <i class='bx bxs-chat'></i>
+                <span class="link_name">CloudCare AI</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
+            </ul>
+        </li>
+
+
+      
+
+       
+        <li>
+            <!-- Patient Content Here -->
+            <div class="profile-details" th:if="${patient != null}">
+                <a th:href="@{/patient/dashboard}"
+                   style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                    <div class="profile-content">
+                        <!-- show patient image -->
+                        <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                             th:src="${patient.user.photoUrl}"
+                             alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+                        <img th:if="${patient.user == null or patient.user.photoUrl == null}"
+                             src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
+                             alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+
+                        <div class="name-job">
+                            <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
+                            <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+<section class="home-section">
+    <div class="home-header">
+        <i class='bx bx-menu' id='sidebarToggle'></i>
+        <h1>Edit Profile</h1>
+    </div>
+
+    <div class="patient-form-container">
+        <h2>Patient</h2>
+        <div class="home-header">
+            <h1 th:text="${patient != null and patient.user != null and patient.user.name != null ? patient.user.name : 'N/A'}">Patient Name</h1>
+        </div>
+
+        <form th:action="@{/patient/picEdit}" method="post" enctype="multipart/form-data" class="form-section"
+              id="photoSection">
+
+            <!-- controller expects userId and base64 image -->
+            <input type="hidden" name="userId" th:value="${patient?.id}" />
+            <input type="hidden" name="base64Image" id="base64ImageHidden" />
+
+            <div class="section-header">
+                <h3 class="section-title">Patient Photo</h3>
+            </div>
+
+            <div class="photo-upload-container">
+
+                <!-- IF patient has a photo -->
+                <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                     id="photoPreview" th:src="${patient.user.photoUrl}" alt="Patient Photo"
+                     class="patient-photo-preview">
+
+                <!-- ELSE use default -->
+                <img th:if="${patient == null or patient.user == null or patient.user.photoUrl == null}"
+                     id="photoPreview" src="https://cdn-icons-png.flaticon.com/512/12225/12225881.png" alt="Default Patient Photo"
+                     class="patient-photo-preview">
+
+                <input type="file" id="patientPhoto" name="patientPhoto" accept="image/*" style="display:none;">
+
+                <button type="button" class="photo-upload-btn"
+                        onclick="document.getElementById('patientPhoto').click()">
+                    Upload Photo
+                </button>
+
+                <button type="submit" class="section-submit-btn">Save Photo</button>
+
+                <!-- <div style="font-size:0.85rem; color:#6b7280; margin-top:6px;">
+                    Allowed file types: JPG, PNG. Recommended size: &lt; 2MB.
+                </div> -->
+            </div>
+        </form>
+
+        <!-- Personal Information Section -->
+        <form th:action="@{/patient/UpdatePersonalInfo}" method="post">
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">Personal Information</h3>
+                    <button class="section-submit-btn" type="submit">Save Personal Info</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bloodGroup">Blood Group</label>
+                        <select id="bloodGroup" name="bloodGroup">
+                            <option value="">Select Blood Group</option>
+                            <option th:selected="${patient?.bloodGroup == 'A+'}" value="A+">A+</option>
+                            <option th:selected="${patient?.bloodGroup == 'A-'}" value="A-">A-</option>
+                            <option th:selected="${patient?.bloodGroup == 'B+'}" value="B+">B+</option>
+                            <option th:selected="${patient?.bloodGroup == 'B-'}" value="B-">B-</option>
+                            <option th:selected="${patient?.bloodGroup == 'AB+'}" value="AB+">AB+</option>
+                            <option th:selected="${patient?.bloodGroup == 'AB-'}" value="AB-">AB-</option>
+                            <option th:selected="${patient?.bloodGroup == 'O+'}" value="O+">O+</option>
+                            <option th:selected="${patient?.bloodGroup == 'O-'}" value="O-">O-</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" name="age" th:value="${patient?.age}" placeholder="Enter age">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="">Select Gender</option>
+                            <option th:selected="${patient?.gender == 'M'}" value="M">Male</option>
+                            <option th:selected="${patient?.gender == 'F'}" value="F">Female</option>
+                            <option th:selected="${patient?.gender == 'O'}" value="O">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="division">Division</label>
+                        <select id="division" name="division">
+                            <option value="">Select Division</option>
+                            <option th:selected="${patient?.division == 'Dhaka'}" value="Dhaka">Dhaka</option>
+                            <option th:selected="${patient?.division == 'Chittagong'}" value="Chittagong">Chittagong</option>
+                            <option th:selected="${patient?.division == 'Rajshahi'}" value="Rajshahi">Rajshahi</option>
+                            <option th:selected="${patient?.division == 'Khulna'}" value="Khulna">Khulna</option>
+                            <option th:selected="${patient?.division == 'Barisal'}" value="Barisal">Barisal</option>
+                            <option th:selected="${patient?.division == 'Sylhet'}" value="Sylhet">Sylhet</option>
+                            <option th:selected="${patient?.division == 'Rangpur'}" value="Rangpur">Rangpur</option>
+                            <option th:selected="${patient?.division == 'Mymensingh'}" value="Mymensingh">Mymensingh</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="zilla">Zilla</label>
+                        <select id="zilla" name="zilla">
+                            <option value="">Select Zilla</option>
+                            <!-- Barisal Division -->
+                            <option th:selected="${patient?.zilla == 'Barguna'}" value="Barguna">Barguna</option>
+                            <option th:selected="${patient?.zilla == 'Barisal'}" value="Barisal">Barisal</option>
+                            <option th:selected="${patient?.zilla == 'Bhola'}" value="Bhola">Bhola</option>
+                            <option th:selected="${patient?.zilla == 'Jhalokati'}" value="Jhalokati">Jhalokati</option>
+                            <option th:selected="${patient?.zilla == 'Patuakhali'}" value="Patuakhali">Patuakhali</option>
+                            <option th:selected="${patient?.zilla == 'Pirojpur'}" value="Pirojpur">Pirojpur</option>
+
+                            <!-- Chittagong Division -->
+                            <option th:selected="${patient?.zilla == 'Bandarban'}" value="Bandarban">Bandarban</option>
+                            <option th:selected="${patient?.zilla == 'Brahmanbaria'}" value="Brahmanbaria">Brahmanbaria</option>
+                            <option th:selected="${patient?.zilla == 'Chandpur'}" value="Chandpur">Chandpur</option>
+                            <option th:selected="${patient?.zilla == 'Chittagong'}" value="Chittagong">Chittagong</option>
+                            <option th:selected="${patient?.zilla == 'Comilla'}" value="Comilla">Comilla</option>
+                            <option th:selected="${patient?.zilla == 'Coxs Bazar'}" value="Coxs Bazar">Cox's Bazar</option>
+                            <option th:selected="${patient?.zilla == 'Feni'}" value="Feni">Feni</option>
+                            <option th:selected="${patient?.zilla == 'Khagrachhari'}" value="Khagrachhari">Khagrachhari</option>
+                            <option th:selected="${patient?.zilla == 'Lakshmipur'}" value="Lakshmipur">Lakshmipur</option>
+                            <option th:selected="${patient?.zilla == 'Noakhali'}" value="Noakhali">Noakhali</option>
+                            <option th:selected="${patient?.zilla == 'Rangamati'}" value="Rangamati">Rangamati</option>
+
+                            <!-- Dhaka Division -->
+                            <option th:selected="${patient?.zilla == 'Dhaka'}" value="Dhaka">Dhaka</option>
+                            <option th:selected="${patient?.zilla == 'Faridpur'}" value="Faridpur">Faridpur</option>
+                            <option th:selected="${patient?.zilla == 'Gazipur'}" value="Gazipur">Gazipur</option>
+                            <option th:selected="${patient?.zilla == 'Gopalganj'}" value="Gopalganj">Gopalganj</option>
+                            <option th:selected="${patient?.zilla == 'Kishoreganj'}" value="Kishoreganj">Kishoreganj</option>
+                            <option th:selected="${patient?.zilla == 'Madaripur'}" value="Madaripur">Madaripur</option>
+                            <option th:selected="${patient?.zilla == 'Manikganj'}" value="Manikganj">Manikganj</option>
+                            <option th:selected="${patient?.zilla == 'Munshiganj'}" value="Munshiganj">Munshiganj</option>
+                            <option th:selected="${patient?.zilla == 'Narayanganj'}" value="Narayanganj">Narayanganj</option>
+                            <option th:selected="${patient?.zilla == 'Narsingdi'}" value="Narsingdi">Narsingdi</option>
+                            <option th:selected="${patient?.zilla == 'Rajbari'}" value="Rajbari">Rajbari</option>
+                            <option th:selected="${patient?.zilla == 'Shariatpur'}" value="Shariatpur">Shariatpur</option>
+                            <option th:selected="${patient?.zilla == 'Tangail'}" value="Tangail">Tangail</option>
+
+                            <!-- Khulna Division -->
+                            <option th:selected="${patient?.zilla == 'Bagerhat'}" value="Bagerhat">Bagerhat</option>
+                            <option th:selected="${patient?.zilla == 'Chuadanga'}" value="Chuadanga">Chuadanga</option>
+                            <option th:selected="${patient?.zilla == 'Jashore'}" value="Jashore">Jashore</option>
+                            <option th:selected="${patient?.zilla == 'Jhenaidah'}" value="Jhenaidah">Jhenaidah</option>
+                            <option th:selected="${patient?.zilla == 'Khulna'}" value="Khulna">Khulna</option>
+                            <option th:selected="${patient?.zilla == 'Kushtia'}" value="Kushtia">Kushtia</option>
+                            <option th:selected="${patient?.zilla == 'Magura'}" value="Magura">Magura</option>
+                            <option th:selected="${patient?.zilla == 'Meherpur'}" value="Meherpur">Meherpur</option>
+                            <option th:selected="${patient?.zilla == 'Narail'}" value="Narail">Narail</option>
+                            <option th:selected="${patient?.zilla == 'Satkhira'}" value="Satkhira">Satkhira</option>
+
+                            <!-- Mymensingh Division -->
+                            <option th:selected="${patient?.zilla == 'Jamalpur'}" value="Jamalpur">Jamalpur</option>
+                            <option th:selected="${patient?.zilla == 'Mymensingh'}" value="Mymensingh">Mymensingh</option>
+                            <option th:selected="${patient?.zilla == 'Netrokona'}" value="Netrokona">Netrokona</option>
+                            <option th:selected="${patient?.zilla == 'Sherpur'}" value="Sherpur">Sherpur</option>
+
+                            <!-- Rajshahi Division -->
+                            <option th:selected="${patient?.zilla == 'Bogura'}" value="Bogura">Bogura</option>
+                            <option th:selected="${patient?.zilla == 'Chapainawabganj'}" value="Chapainawabganj">Chapainawabganj</option>
+                            <option th:selected="${patient?.zilla == 'Joypurhat'}" value="Joypurhat">Joypurhat</option>
+                            <option th:selected="${patient?.zilla == 'Naogaon'}" value="Naogaon">Naogaon</option>
+                            <option th:selected="${patient?.zilla == 'Natore'}" value="Natore">Natore</option>
+                            <option th:selected="${patient?.zilla == 'Pabna'}" value="Pabna">Pabna</option>
+                            <option th:selected="${patient?.zilla == 'Rajshahi'}" value="Rajshahi">Rajshahi</option>
+                            <option th:selected="${patient?.zilla == 'Sirajganj'}" value="Sirajganj">Sirajganj</option>
+
+                            <!-- Rangpur Division -->
+                            <option th:selected="${patient?.zilla == 'Rangpur'}" value="Rangpur">Rangpur</option>
+                            <option th:selected="${patient?.zilla == 'Dinajpur'}" value="Dinajpur">Dinajpur</option>
+                            <option th:selected="${patient?.zilla == 'Gaibandha'}" value="Gaibandha">Gaibandha</option>
+                            <option th:selected="${patient?.zilla == 'Kurigram'}" value="Kurigram">Kurigram</option>
+                            <option th:selected="${patient?.zilla == 'Lalmonirhat'}" value="Lalmonirhat">Lalmonirhat</option>
+                            <option th:selected="${patient?.zilla == 'Nilphamari'}" value="Nilphamari">Nilphamari</option>
+                            <option th:selected="${patient?.zilla == 'Panchagarh'}" value="Panchagarh">Panchagarh</option>
+                            <option th:selected="${patient?.zilla == 'Thakurgaon'}" value="Thakurgaon">Thakurgaon</option>
+
+                            <!-- Sylhet Division -->
+                            <option th:selected="${patient?.zilla == 'Sylhet'}" value="Sylhet">Sylhet</option>
+                            <option th:selected="${patient?.zilla == 'Habiganj'}" value="Habiganj">Habiganj</option>
+                            <option th:selected="${patient?.zilla == 'Moulvibazar'}" value="Moulvibazar">Moulvibazar</option>
+                            <option th:selected="${patient?.zilla == 'Sunamganj'}" value="Sunamganj">Sunamganj</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" name="address" th:value="${patient?.address}" placeholder="Enter address">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="weight">Weight (kg)</label>
+                        <input type="number" step="0.1" name="weight" th:value="${patient?.weight}" placeholder="Enter weight">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="height">Height (cm)</label>
+                        <input type="number" step="0.1" name="height" th:value="${patient?.height}" placeholder="Enter height">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nationalId">National ID</label>
+                        <input type="text" name="nationalId" th:value="${patient?.nationalId}" placeholder="Enter National ID">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="emergencyContact">Emergency Contact</label>
+                        <input type="text" name="emergencyContact" th:value="${patient?.emergencyContact}" placeholder="Enter emergency contact">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fatherName">Father's Name</label>
+                        <input type="text" name="fatherName" th:value="${patient?.fatherName}" placeholder="Enter father's name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="motherName">Mother's Name</label>
+                        <input type="text" name="motherName" th:value="${patient?.motherName}" placeholder="Enter mother's name">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maritalStatus">Marital Status</label>
+                        <select name="maritalStatus">
+                            <option value="">Select Status</option>
+                            <option th:selected="${patient?.maritalStatus == 'Single'}" value="Single">Single</option>
+                            <option th:selected="${patient?.maritalStatus == 'Married'}" value="Married">Married</option>
+                            <option th:selected="${patient?.maritalStatus == 'Divorced'}" value="Divorced">Divorced</option>
+                            <option th:selected="${patient?.maritalStatus == 'Widowed'}" value="Widowed">Widowed</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateOfBirth">Date of Birth</label>
+                        <input type="date" name="dateOfBirth" th:value="${#dates.format(patient?.dateOfBirth, 'yyyy-MM-dd')}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastDonated">Last Donated Blood</label>
+                        <input type="date" name="lastDonated" th:value="${#dates.format(patient?.lastDonated, 'yyyy-MM-dd')}">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Vital Signs Section -->
+        <form th:action="@{/patient/VitalSign}" method="post">
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">Vital Signs</h3>
+                    <button class="section-submit-btn" type="submit">Save Vital Signs</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="systolicBP">Systolic BP (mmHg)</label>
+                        <input type="number" name="systolicBP" th:value="${patient?.systolicBP}" placeholder="Enter systolic BP">
+                    </div>
+                    <div class="form-group">
+                        <label for="diastolicBP">Diastolic BP (mmHg)</label>
+                        <input type="number" name="diastolicBP" th:value="${patient?.diastolicBP}" placeholder="Enter diastolic BP">
+                    </div>
+                    <div class="form-group">
+                        <label for="heartRate">Heart Rate (bpm)</label>
+                        <input type="number" name="heartRate" th:value="${patient?.heartRate}" placeholder="Enter heart rate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="oxygenSaturation">Oxygen Saturation (%)</label>
+                        <input type="number" name="oxygenSaturation" th:value="${patient?.oxygenSaturation}" placeholder="Enter SpO2 %">
+                    </div>
+                    <div class="form-group">
+                        <label for="respiratoryRate">Respiratory Rate (breaths/min)</label>
+                        <input type="number" step="0.1" name="respiratoryRate" th:value="${patient?.respiratoryRate}" placeholder="Enter respiratory rate">
+                    </div>
+                    <div class="form-group">
+                        <label for="bodyTemperature">Body Temperature (°C)</label>
+                        <input type="number" step="0.1" name="bodyTemperature" th:value="${patient?.bodyTemperature}" placeholder="Enter body temperature">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bloodSugarLevel">Blood Sugar Level (mg/dL)</label>
+                        <input type="number" step="0.1" name="bloodSugarLevel" th:value="${patient?.bloodSugarLevel}" placeholder="Enter blood sugar level">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <!-- Lifestyle Information Section -->
+        <form th:action="@{/patient/LifeStyleInfo}" method="post">
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">Lifestyle Information</h3>
+                    <button class="section-submit-btn" type="submit">Save Lifestyle Info</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sleepHours">Sleep Hours (per day)</label>
+                        <input type="number" step="0.1" name="sleepHours" th:value="${patient?.sleepHours}" placeholder="Enter sleep hours">
+                    </div>
+                    <div class="form-group">
+                        <label for="waterIntake">Water Intake (liters/day)</label>
+                        <input type="number" step="0.1" name="waterIntake" th:value="${patient?.waterIntake}" placeholder="Enter water intake">
+                    </div>
+                    <div class="form-group">
+                        <label for="physicalActivity">Physical Activity Level</label>
+                        <select name="physicalActivity">
+                            <option value="">Select Activity Level</option>
+                            <option th:selected="${patient?.physicalActivity == 1}" value="1">Sedentary</option>
+                            <option th:selected="${patient?.physicalActivity == 2}" value="2">Lightly Active</option>
+                            <option th:selected="${patient?.physicalActivity == 3}" value="3">Moderately Active</option>
+                            <option th:selected="${patient?.physicalActivity == 4}" value="4">Very Active</option>
+                            <option th:selected="${patient?.physicalActivity == 5}" value="5">Extremely Active</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="smoker" name="smoker" th:checked="${patient?.smoker}" value="true">
+                        <input type="hidden" name="smoker" value="false">
+                        <label for="smoker">Smoker</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="alcoholConsumer" name="alcoholConsumer" th:checked="${patient?.alcoholConsumer}" value="true">
+                        <input type="hidden" name="alcoholConsumer" value="false">
+                        <label for="alcoholConsumer">Alcohol Consumer</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        <!-- Menstrual Cycle Section (Conditional for Female patients) -->
+        <div th:if="${patient.gender != null and #strings.trim(patient.gender.toString()).equalsIgnoreCase('F')}">
+            <form th:action="@{/patient/MenstrualCycleInfo}" method="post">
+                <div class="form-section">
+                    <div class="section-header">
+                        <h3 class="section-title">Menstrual Cycle Information</h3>
+                        <button class="section-submit-btn" type="submit">Save Menstrual Info</button>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="pregnant" name="pregnant" th:checked="${patient?.pregnant}" value="true">
+                            <input type="hidden" name="pregnant" value="false">
+                            <label for="pregnant">Currently Pregnant</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="breastFeeding" name="breastFeeding" th:checked="${patient?.breastFeeding}" value="true">
+                            <input type="hidden" name="breastFeeding" value="false">
+                            <label for="breastFeeding">Breast Feeding</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="menstruationRegular" name="menstruationRegular" th:checked="${patient?.menstruationRegular}" value="true">
+                            <input type="hidden" name="menstruationRegular" value="false">
+                            <label for="menstruationRegular">Regular Menstruation</label>
+                        </div>
+                    </div>
+                    <div class="conditional-fields">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pregnancyWeek">Pregnancy Week</label>
+                                <input type="number" name="pregnancyWeek" th:value="${patient?.pregnancyWeek}" placeholder="Enter pregnancy week">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="lastMenstrualDate">Last Menstrual Date</label>
+                            <input type="date" name="lastMenstrualDate" th:value="${#dates.format(patient?.lastMenstrualDate, 'yyyy-MM-dd')}">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Environment & Family Info Section -->
+        <form th:action="@{/patient/EnviromentFamilyInfo}" method="post">
+            <div class="form-section">
+                <div class="section-header">
+                    <h3 class="section-title">Environment & Family Information</h3>
+                    <button class="section-submit-btn" type="submit">Save Environment Info</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="parentalCareState">Parental Care State</label>
+                        <select name="parentalCareState">
+                            <option value="">Select Parental Care</option>
+                            <option th:selected="${patient?.parentalCareState == 'Good'}" value="Good">Good</option>
+                            <option th:selected="${patient?.parentalCareState == 'Average'}" value="Average">Average</option>
+                            <option th:selected="${patient?.parentalCareState == 'Poor'}" value="Poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="homeEnvironment">Home Environment</label>
+                        <select name="homeEnvironment">
+                            <option value="">Select Home Environment</option>
+                            <option th:selected="${patient?.homeEnvironment == 'Supportive'}" value="Supportive">Supportive</option>
+                            <option th:selected="${patient?.homeEnvironment == 'Neutral'}" value="Neutral">Neutral</option>
+                            <option th:selected="${patient?.homeEnvironment == 'Stressful'}" value="Stressful">Stressful</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="haveBeenBullied" name="haveBeenBullied" th:checked="${patient?.haveBeenBullied}" value="true">
+                        <input type="hidden" name="haveBeenBullied" value="false">
+                        <label for="haveBeenBullied">Have Been Bullied</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="feelingLeftOut" name="feelingLeftOut" th:checked="${patient?.feelingLeftOut}" value="true">
+                        <input type="hidden" name="feelingLeftOut" value="false">
+                        <label for="feelingLeftOut">Feeling Left Out</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+
+
+
+                // Photo upload preview + set hidden base64 input for controller
+                const photoInput = document.getElementById('patientPhoto');
+                const photoPreview = document.getElementById('photoPreview') || document.querySelector('.patient-photo-preview');
+                const base64Hidden = document.getElementById('base64ImageHidden');
+                const skipHidden = document.createElement('input');
+                skipHidden.type = 'hidden';
+                skipHidden.name = 'skip';
+                skipHidden.id = 'skipHidden';
+                skipHidden.value = '';
+                const photoForm = document.getElementById('photoSection');
+                if (photoForm && !document.getElementById('skipHidden')) photoForm.appendChild(skipHidden);
+
+                if (photoInput) {
+                    photoInput.addEventListener('change', function () {
+                        const file = this.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                photoPreview.src = e.target.result;
+                                // set the base64 hidden input so the controller can upload to Cloudinary
+                                if (base64Hidden) base64Hidden.value = e.target.result;
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+
+    </script>
+
+    <script>
+        // Toast functionality
+        const successMsg = "[[${successMessage}]]".trim();
+        const errorMsg = "[[${errorMessage}]]".trim();
+
+        function showToast(message, type) {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.classList.add("toast", type);
+            const icon = type === "success" ? "✔" : "⚠";
+            toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        if (successMsg && successMsg !== "null") {
+            showToast(successMsg, "success");
+        }
+
+        if (errorMsg && errorMsg !== "null") {
+            showToast(errorMsg, "error");
+        }
+
+       
+
+        // Handle checkbox hidden fields
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const hiddenInput = this.previousElementSibling;
+                if (hiddenInput && hiddenInput.type === 'hidden') {
+                    hiddenInput.value = this.checked ? 'false' : 'true';
+                }
+            });
+        });
+    </script>
+
+    <script>
+    // Minimal Sidebar State Restorer
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector(".sidebar");
+        const toggleBtn = document.getElementById("sidebarToggle");
+        
+        if (!sidebar || !toggleBtn) return;
+        
+        // RESTORE STATE
+        // Check multiple sources for sidebar state
+        const urlParams = new URLSearchParams(window.location.search);
+        const sidebarParam = urlParams.get('sidebar');
+        
+        if (sidebarParam === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (sidebarParam === 'expanded') {
+            sidebar.classList.remove('close');
+        } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('close');
+        }
+        
+        // SAVE STATE on toggle
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+            const isCollapsed = sidebar.classList.contains('close');
+            
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+        });
+        
+        // Save state before form submissions
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            // Add hidden input if not already present
+            if (!form.querySelector('input[name="sidebar"]')) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'sidebar';
+                form.appendChild(input);
+            }
+            
+            form.addEventListener('submit', () => {
+                const isCollapsed = sidebar.classList.contains('close');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+                sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+            });
+        });
+    });
+</script>
+</section>
+</body>
+</html>
