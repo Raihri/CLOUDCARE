@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.example.cloud.care.CloudCareApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.950 s -- in com.example.cloud.care.CloudCareApplicationTests

@@ -1,6 +1,6 @@
-package com.example.quiz.controller;
+package com.example.cloud.care.controller;
 
-import com.example.quiz.model.QuizResult;
+import com.example.cloud.care.model.QuizResult;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.core.io.ClassPathResource;
