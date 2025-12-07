@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import com.example.cloud.care.model.notification;
 
 @Controller
 @RequestMapping("/doctor/patientData")
@@ -19,6 +20,8 @@ public class DocUpdatesPatientController {
 
     @Autowired
     private patient_service patientService;
+
+
 
     // Helper method to update timestamp
     private Map<String, Object> updateTimestampHelper(Long patientId) {
@@ -33,6 +36,8 @@ public class DocUpdatesPatientController {
 
             Patient patient = patientOptional.get();
             patient.setUpdatedAt(new Date());
+
+
             patientService.save(patient);
 
             response.put("success", true);
@@ -119,6 +124,8 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
+            notification notify = new notification("Blood And Bio Chemistry Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
 
             response.put("success", true);
             response.put("message", "Biochemistry data updated successfully");
@@ -169,6 +176,8 @@ public class DocUpdatesPatientController {
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
 
+            notification notify = new notification("Common Criterion Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Criteria updated successfully");
             response.put("updatedAt", patient.getUpdatedAt());
@@ -224,6 +233,8 @@ public class DocUpdatesPatientController {
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
 
+            notification notify = new notification("Mental Health Info Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Mental health data updated successfully");
             response.put("updatedAt", patient.getUpdatedAt());
@@ -282,6 +293,8 @@ public class DocUpdatesPatientController {
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
 
+            notification notify = new notification("Surgery List Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "List updated successfully");
             response.put("updatedAt", patient.getUpdatedAt());
@@ -319,7 +332,8 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-
+            notification notify = new notification("Mental Disease Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Mental disease added successfully");
 
@@ -368,7 +382,8 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-
+            notification notify = new notification("Disease List Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Item removed successfully");
 
@@ -419,6 +434,8 @@ public class DocUpdatesPatientController {
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
 
+            notification notify = new notification("Report Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Files uploaded successfully");
 
@@ -452,6 +469,8 @@ public class DocUpdatesPatientController {
             patient.getMentalDiseases().remove(disease);
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
+            notification notify = new notification("MENTAL DISEASE REMOVAL  Updated by doctor",new Date(),patient);
+            patientService.addNotification(patient,notify);
 
             response.put("success", true);
             response.put("message", "Mental disease removed successfully");

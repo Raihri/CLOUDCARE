@@ -597,9 +597,11 @@
 
 .logout-form {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     margin-top: 30px;
     padding: 20px 0;
+    text-align: center;
+    
 }
 
 .logout-btn {
@@ -615,17 +617,19 @@
     gap: 8px;
     transition: background 0.3s ease;
     keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
+        from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
 }
 
 .logout-btn:hover {
-    background: #e05555;
+    background: #ffffff;
+    color: var(--accent);
+
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
     </style>
@@ -732,12 +736,7 @@
         <h1>Patient Dashboard</h1>
         <!-- <div class="date-display" style="postiton : absolute;"id="currentDate"></div> -->
          <!-- Logout Button -->
-<form th:action="@{/patient/logout}" method="post" class="logout-form">
-    <button type="submit" class="logout-btn">
-        <i class='bx bx-log-out'></i>
-        Logout
-    </button>
-</form>
+
     </div>
     <div class="patient-dashboard" th:if="${patient != null}">
         <!-- Dashboard Header -->
@@ -766,6 +765,28 @@
                         <div class="tag" th:text="(${patient.age != null ? patient.age : 'Age'}) + ' years'">Age years</div>
                         <div class="tag" th:text="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('M') ? 'Male' : (#strings.trim(patient.gender.toString()).equalsIgnoreCase('F') ? 'Female' : 'Other')}">Gender</div>
                     </div>
+                </div>
+                <div class="notification-btn">
+                    <a th:href="@{/patient/notifications}" 
+   style="
+       background: #ffffff;
+       padding: 12px 18px;
+       border-radius: 10px;
+       display: flex;
+       align-items: center;
+       gap: 10px;
+       font-weight: 600;
+       color: #2A7DE1;
+       text-decoration: none;
+       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+       transition: all 0.3s ease;
+   "
+onmouseover="this.style.background='#2A7DE1'; this.style.color='white'"
+onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
+>
+    <i class='bx bx-bell' style="font-size: 24px;"></i>
+    <span>Notifications</span>
+</a>
                 </div>
             </div>
             <div class="profile-stats">
@@ -1113,6 +1134,13 @@
             </div>
         </div>
     </div>
+
+    <form th:action="@{/patient/logout}" method="post" style="display: flex; justify-content: center; align-items: center;" class="logout-form">
+        <button type="submit" class="logout-btn" style="width:30vw; padding:10px; font-size:22px;text-align: center; ">
+            <i class='bx bx-log-out'></i>
+            <span style="text-align: center;">Logout</span>
+        </button>
+    </form>
 
     <script>
     // Minimal Sidebar State Restorer

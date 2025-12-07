@@ -1,5 +1,6 @@
 package com.example.cloud.care.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -143,4 +144,29 @@ public class Patient {
 
     // Default constructor for JPA
     public Patient() {}
+
+    // NOTIFICATIONS
+
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<notification> notifications = new ArrayList<>();
+
+    // Helper method to add notification
+    public void addNotification(notification notification) {
+        notification.setPatient(this);
+        notifications.add(notification);
+
+
+    }
+
+    // Helper method to remove notification
+    public void removeNotification(notification notification) {
+        notifications.remove(notification);
+        notification.setPatient(null);
+    }
+
+    public List<notification> getAllNotification()
+    {
+        return notifications;
+    }
 }
