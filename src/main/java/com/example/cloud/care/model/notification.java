@@ -1,5 +1,6 @@
 package com.example.cloud.care.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -31,9 +32,9 @@ public class notification {
 
     private String message;
     @Column(name = "created_date")
-    @Temporal(TemporalType.DATE)
+ 
 
-    private Date date;
+    private LocalDateTime date;
     private boolean isRead = false;
 
 
@@ -42,7 +43,7 @@ public class notification {
     @JsonBackReference
     private Patient patient;
 
-    public notification(String message, java.util.Date date,Patient patient) {
+    public notification(String message, LocalDateTime date,Patient patient) {
         this.message = message;
         this.date = date;
         this.patient = patient;

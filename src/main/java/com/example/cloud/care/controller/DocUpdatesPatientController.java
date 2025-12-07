@@ -1,13 +1,18 @@
 package com.example.cloud.care.controller;
 
+import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Patient;
+import com.example.cloud.care.service.DoctorUserDetails;
 import com.example.cloud.care.service.patient_service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +25,10 @@ public class DocUpdatesPatientController {
 
     @Autowired
     private patient_service patientService;
+
+
+
+        
 
 
 
@@ -124,7 +133,10 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-            notification notify = new notification("Blood And Bio Chemistry Updated by doctor",new Date(),patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
+            notification notify = new notification("Blood And Bio Chemistry Updated by Dr. " +doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
 
             response.put("success", true);
@@ -175,8 +187,10 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-
-            notification notify = new notification("Common Criterion Updated by doctor",new Date(),patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
+            notification notify = new notification("Common Criterion Updated by Dr. " + doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Criteria updated successfully");
@@ -232,8 +246,10 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-
-            notification notify = new notification("Mental Health Info Updated by doctor",new Date(),patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
+            notification notify = new notification("Mental Health Info Updated by Dr. " + doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Mental health data updated successfully");
@@ -292,8 +308,10 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-
-            notification notify = new notification("Surgery List Updated by doctor",new Date(),patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
+            notification notify = new notification("Surgery List Updated by Dr. " + doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "List updated successfully");
@@ -332,7 +350,10 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-            notification notify = new notification("Mental Disease Updated by doctor",new Date(),patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
+            notification notify = new notification("Mental Disease Updated by Dr. " + doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Mental disease added successfully");
@@ -382,7 +403,10 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-            notification notify = new notification("Disease List Updated by doctor",new Date(),patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
+            notification notify = new notification("Disease List Updated by Dr. "+ doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Item removed successfully");
@@ -433,8 +457,12 @@ public class DocUpdatesPatientController {
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
 
-            notification notify = new notification("Report Updated by doctor",new Date(),patient);
+
+            notification notify = new notification("Report Updated by Dr. " + doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Files uploaded successfully");
@@ -469,7 +497,10 @@ public class DocUpdatesPatientController {
             patient.getMentalDiseases().remove(disease);
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-            notification notify = new notification("MENTAL DISEASE REMOVAL  Updated by doctor",new Date(),patient);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+            Doctor doctor = userDetails.getDoctor();
+            notification notify = new notification("MENTAL DISEASE REMOVAL  Updated by Dr. " + doctor.getName(), LocalDateTime.now(),patient);
             patientService.addNotification(patient,notify);
 
             response.put("success", true);
@@ -490,10 +521,5 @@ public class DocUpdatesPatientController {
         return updateTimestampHelper(patientId);
     }
 
-    // Test endpoint
-    @GetMapping("/test")
-    @ResponseBody
-    public String test() {
-        return "Controller is working!";
-    }
+   
 }

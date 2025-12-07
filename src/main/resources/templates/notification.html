@@ -347,7 +347,7 @@
             
             <div class="notification-date">
                 <i class="far fa-clock" style="font-size: 0.8rem;"></i>
-                <span th:text="${#dates.format(notification?.date, 'MMM dd, yyyy • hh:mm a')}">
+<span th:text="${#temporals.format(notification?.date, 'MMM dd, yyyy • hh:mm a')}"></span>
                     Jan 01, 2024 • 10:30 AM
                 </span>
             </div>
@@ -356,12 +356,12 @@
 </main>
 
 <!-- FOOTER -->
-<footer class="footer">
+<!-- <footer class="footer">
     <div class="footer-content">
-        <img th:src="@{/image/logo.png}" alt="CloudCare Logo" ">
-    </div>
-</footer>
-
+         <img th:src="@{/image/logo.png}" alt="CloudCare Logo"> -->
+    <!-- </div> -->
+<!-- </footer> --> 
+<!--
 <script>
     // Delete notification function
     function deleteNotification(button) {
@@ -448,6 +448,6 @@
         });
     });
 </script>
-
+-->
 </body>
 </html>
