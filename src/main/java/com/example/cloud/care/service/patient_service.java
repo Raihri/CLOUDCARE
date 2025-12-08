@@ -1,6 +1,7 @@
 package com.example.cloud.care.service;
 
 import com.example.cloud.care.model.Patient;
+import com.example.cloud.care.model.notification;
 import com.example.cloud.care.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,5 +65,11 @@ public class patient_service {
             return patientRepository.save(patientOptional.get());
         }
         return null;
+    }
+
+    public void addNotification(Patient patient, notification notification)
+    {
+        patient.addNotification(notification);
+        patientRepository.save(patient);
     }
 }
