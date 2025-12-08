@@ -110,6 +110,32 @@ a.back i {
     flex-direction: column;
     gap: 25px;
 }
+.btn-appointments {
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+        margin-top: 20px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+
+    .btn-appointments:hover {
+        background: linear-gradient(135deg, #2575fc, #6a11cb);
+        box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+        transform: translateY(-2px);
+    }
+
+    .btn-appointments i {
+        margin-right: 8px;
+    }
 
 /* Section Card */
 .section {
@@ -244,6 +270,11 @@ a.back i {
         <p><strong>Telemedicine:</strong>
             <span th:text="${doctor.telemedicineAvailable}">true</span>
         </p>
+        <a th:href="@{|/patient/${doctor.id}/availability|}" 
+       class="btn-appointments" 
+       >
+        <i class="fa fa-calendar"></i> View Appointments
+    </a>
 
     </div>
 

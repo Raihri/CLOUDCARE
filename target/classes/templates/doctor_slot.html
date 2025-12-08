@@ -162,45 +162,44 @@
         <div class="container">
 
             <!-- LEFT COLUMN: Add Slot Form -->
-            <div class="add-slot">
-                <h2>Add New Slot</h2>
-                <form th:action="@{/doctor/addAvailabilitySlot}" method="post">
-                    <input type="hidden" name="doctorId" th:value="${doctor.id}">
+<div class="add-slot">
+    <h2>Add New Slot</h2>
+    <form th:action="@{/doctor/addAvailabilitySlot}" method="post">
+        <!-- Hidden field for doctor id -->
+        <input type="hidden" name="doctorId" th:value="${doctor.id}">
 
-                    <label for="day">Day:</label>
-                    <select name="day" id="day">
-                        <option value="">Select Day</option>
-                        <option>Saturday</option>
-                        <option>Sunday</option>
-                        <option>Monday</option>
-                        <option>Tuesday</option>
-                        <option>Wednesday</option>
-                        <option>Thursday</option>
-                        <option>Friday</option>
-                    </select>
+        <!-- Date picker -->
+        <label for="date">Date:</label>
+        <input type="date" name="date" id="date" required
+               th:value="${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}"
+               th:attr="min=${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')}">
 
-                    <label for="startTime">Start Time:</label>
-                    <input type="time" name="startTime" id="startTime">
+        <!-- Start time -->
+        <label for="startTime">Start Time:</label>
+        <input type="time" name="startTime" id="startTime" required>
 
-                    <label for="endTime">End Time:</label>
-                    <input type="time" name="endTime" id="endTime">
+        <!-- End time -->
+        <label for="endTime">End Time:</label>
+        <input type="time" name="endTime" id="endTime" required>
 
-                    <label>Telemedicine:</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" name="telemedicine" id="telemedicine">
-                        <span class="slider"></span>
-                    </label>
+        <!-- Telemedicine toggle -->
+        <label>Telemedicine:</label>
+        <label class="toggle-switch">
+            <input type="checkbox" name="telemedicineAvailable" id="telemedicine">
+            <span class="slider"></span>
+        </label>
 
-                    <button type="submit" class="booking-btn">Add Slot</button>
-                </form>
-            </div>
+        <!-- Submit button -->
+        <button type="submit" class="booking-btn">Add Slot</button>
+    </form>
+</div>
 
             <!-- RIGHT COLUMN: Existing Slots -->
             <div class="availability-list">
                 <h2>Existing Slots</h2>
                 <div th:each="slot : ${doctor.availability}" class="slot">
     <div class="slot-info">
-        <span th:text="${slot.day}"></span>
+        <span th:text="${slot.date}"></span>
         <span th:text="${slot.startTime}"></span>
         <span th:text="${slot.endTime}"></span>
         <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>

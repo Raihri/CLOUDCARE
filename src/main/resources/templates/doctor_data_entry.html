@@ -416,7 +416,7 @@
                                  class="profile-img">
                             <div class="profile-img-upload">
                                 <i class="fas fa-camera"></i>
-                                <input type="file" name="profileImage" accept="image/*" onchange="previewProfileImage(event)">
+                                <input type="file" name="profileImagename" accept="image/*" onchange="previewProfileImage(event)">
                             </div>
                         </div>
                         
@@ -602,7 +602,7 @@
                                     <label>
                                         <i class="fas fa-file-pdf"></i>
                                         <span>Click to upload certificate</span>
-                                        <input type="file" name="certificateFile" accept=".pdf" style="display:none;">
+                                        <input type="file" name="certificateFilename" accept=".pdf" style="display:none;">
                                     </label>
                                     <div class="current-file" th:if="${doctor.certifications != null}">
                                         <a th:href="${doctor.certifications}" target="_blank">

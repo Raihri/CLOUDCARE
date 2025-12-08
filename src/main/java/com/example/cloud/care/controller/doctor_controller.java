@@ -111,8 +111,8 @@ public String editCurrentDoctor(Model model) {
 public String updateDoctorInfo(
         @ModelAttribute Doctor updatedDoctor,
         BindingResult bindingResult,
-        @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-        @RequestParam(value = "certificateFile", required = false) MultipartFile certificateFile
+        @RequestParam(value = "profileImagename", required = false) MultipartFile profileImagename,
+        @RequestParam(value = "certificateFilename", required = false) MultipartFile certificateFilename
 ) throws IOException {
 
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -156,18 +156,18 @@ public String updateDoctorInfo(
     doctor.setTwitter(updatedDoctor.getTwitter());
 
     // ===== HANDLE FILES SEPARATELY =====
-    if (profileImage != null && !profileImage.isEmpty()) {
+    if (profileImagename != null && !profileImagename.isEmpty()) {
         Map uploadResult = cloudinary.uploader().upload(
-                profileImage.getBytes(),
+                profileImagename.getBytes(),
                 ObjectUtils.asMap("folder", "doctor_profiles")
         );
         // Only set the URL string in your entity
         doctor.setProfileImage((String) uploadResult.get("secure_url") + "?v=" + System.currentTimeMillis());
     }
 
-    if (certificateFile != null && !certificateFile.isEmpty()) {
+    if (certificateFilename != null && !certificateFilename.isEmpty()) {
         Map certUpload = cloudinary.uploader().upload(
-                certificateFile.getBytes(),
+                certificateFilename.getBytes(),
                 ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "raw")
         );
         doctor.setCertifications((String) certUpload.get("secure_url") + "?v=" + System.currentTimeMillis());

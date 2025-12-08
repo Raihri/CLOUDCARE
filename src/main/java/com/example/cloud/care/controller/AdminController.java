@@ -48,6 +48,6 @@ public class AdminController {
         admin.setPassword(passwordEncoder.encode(newPassword));
         adminDao.save(admin);
         model.addAttribute("success", "Password changed successfully");
-        return "admin_pending_doctors";
+        return "redirect:/admin/doctor/status";
     }
 }

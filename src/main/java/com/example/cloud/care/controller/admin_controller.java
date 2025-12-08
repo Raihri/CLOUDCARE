@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,15 @@ private EmailServiceD emailService;
         List<Doctor> doctors = doctorService.getDoctors(); // include all statuses
         List<Doctor> doctors_pending = doctorService.getDoctorsPending();
         List<Doctor> doctors_rejected = doctorService.getDoctorsRejected();
+        if(doctors==null){
+            doctors=new ArrayList<>();
+        }
+        if(doctors_pending==null){
+            doctors_pending=new ArrayList<>();        
+        }
+        if(doctors_rejected==null){
+            doctors_rejected=new ArrayList<>();
+        }
         model.addAttribute("doctors", doctors);
         model.addAttribute("doctors_pending", doctors_pending);
         model.addAttribute("doctors_rejected", doctors_rejected);
