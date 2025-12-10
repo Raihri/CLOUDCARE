@@ -938,7 +938,11 @@
                     <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
                 </ul>
             </li>
-
+            <li>
+                <a th:href="@{/patient/appointments}">
+                    <i class="bx bxs-calendar-check"></i>
+                    <span class="link_name">Appointments</span>
+                </a>
             <!-- Profile in sidebar -->
             <li>
                 <div class="profile-details" th:if="${patient != null}">
