@@ -110,7 +110,7 @@
         </thead>
         <tbody>
             <tr th:each="appt : ${appointments}">
-                <td th:text="${appt.patient.name}">Patient Name</td>
+                <td th:text="${appt.patient.user.name}">Patient Name</td>
                 <td th:text="${#dates.format(appt.appointmentDate, 'dd MMM yyyy')}">2025-12-06</td>
                 <td th:text="${appt.timeSlot}">09:00-10:00</td>
                 <td th:text="${appt.type}">TELEMEDICINE</td>

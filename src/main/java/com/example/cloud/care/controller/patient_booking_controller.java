@@ -59,14 +59,13 @@ public String bookSlot(@PathVariable long doctorId,
                        @PathVariable long slotId,
                        Principal principal,
                        RedirectAttributes redirectAttributes) {
-    
-    // Fetch patient
+
     if (principal == null) {
         return "redirect:/patient/";
     }
-    String email = principal.getName();
 
-    // Fetch patient using email
+    // Get logged-in patient
+    String email = principal.getName();
     Patient patient = patientService.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Patient not found"));
 
@@ -74,34 +73,35 @@ public String bookSlot(@PathVariable long doctorId,
     Doctor doctor = doctorService.getDoctorByID(doctorId);
     DoctorAvailability slot = availabilityService.getSlotById(slotId);
 
+    if (slot == null) {
+        redirectAttributes.addFlashAttribute("errorMessage", "❌ Slot not found!");
+        return "redirect:/patient/" + doctorId + "/availability";
+    }
+
     if (slot.isBooked()) {
         redirectAttributes.addFlashAttribute("errorMessage", "❌ This slot is already booked!");
         return "redirect:/patient/" + doctorId + "/availability";
     }
 
-    // Mark slot as booked
-    slot.setBooked(true);
-    availabilityService.save(slot);
+    // Mark slot as booked and save appointment in a single transaction
+    try {
+        // Use your service method that handles saving
+        Appointment appt = appointmentService.bookAppointment(patient, doctorId, slotId);
 
-    // Create appointment
-    Appointment appt = new Appointment();
-    appt.setDoctor(doctor);
-    appt.setPatient(patient);      // <-- Assign patient here
-    appt.setAppointmentDate(slot.getDate());
-    appt.setTimeSlot(slot.getStartTime() + "-" + slot.getEndTime());
-    appt.setType(slot.getTelemedicineAvailable() ? 
-                        Appointment.AppointmentType.TELEMEDICINE : 
-                        Appointment.AppointmentType.PHYSICAL);
-    appt.setStatus(Appointment.Status.PENDING);
+        // Mark slot as booked
+        slot.setBooked(true);
+        availabilityService.save(slot);
 
-   
-
-    appointmentService.save(appt); // Save appointment
-
-    redirectAttributes.addFlashAttribute(
-            "successMessage",
-            "✅ Your booking request has been saved successfully!"
-    );
+        redirectAttributes.addFlashAttribute(
+                "successMessage",
+                "✅ Your booking request has been saved successfully!"
+        );
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute(
+                "errorMessage",
+                "❌ Something went wrong while booking: " + e.getMessage()
+        );
+    }
 
     return "redirect:/patient/" + doctorId + "/availability";
 }

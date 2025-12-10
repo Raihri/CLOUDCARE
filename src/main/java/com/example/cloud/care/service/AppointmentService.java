@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
 import java.util.Map;
+import java.util.UUID;
+
 import com.example.cloud.care.dao.doctor_dao;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,7 +53,7 @@ public class AppointmentService {
         return appointmentRepo.save(appointment);
     }
 
-    public List<Appointment> getPatientAppointments(int patientId) {
+    public List<Appointment> getPatientAppointments(long patientId) {
         return appointmentRepo.findByPatientId(patientId);
     }
     public Appointment getAppointmentById(int appointmentId) {
@@ -60,7 +62,14 @@ public class AppointmentService {
     
     public void confirmAppointment(Appointment appointment) {
         appointment.setStatus(Appointment.Status.CONFIRMED);
-        appointmentRepo.save(appointment);
+        if (appointment.getType() == Appointment.AppointmentType.TELEMEDICINE) {
+        // Generate a unique, hard-to-guess Jitsi room
+        String roomName = "appt-" + appointment.getId() + "-" + UUID.randomUUID().toString().substring(0, 8);
+        String jitsiLink = "https://meet.jit.si/" + roomName;
+        appointment.setTelemedicineLink(jitsiLink);
+    }
+
+    appointmentRepo.save(appointment);
     }
     public void cancelAppointment(Appointment appointment) {
         appointment.setStatus(Appointment.Status.CANCELLED);
