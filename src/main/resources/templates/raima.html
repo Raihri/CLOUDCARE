@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tuki - Raima Receiver</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>Patient Dashboard</h2>
+    <p>Patient ID: <span id="patientId">patient123</span></p>
+    
+    <h3>Notifications:</h3>
+    <div id="notifications" style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto;"></div>
+    
+    <script>
+        // Set patient ID (in real app, this would come from login)
+        const patientId = 'farhanlabibahan@gmail.com';
+        
+        // Connect to WebSocket
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+        
+        stompClient.connect({}, function(frame) {
+            console.log('Connected: RAIMA______________' + frame);
+            
+            // Subscribe to personal notifications
+            // Note: Spring automatically converts /user/queue/notifications 
+            // to /user/{username}/queue/notifications
+            stompClient.subscribe('/user/queue/specific', function(notification) {
+                const message = JSON.parse(notification.body);
+                displayNotification(message);
+            });
+            
+            // Subscribe to global notifications (optional)
+            stompClient.subscribe('/all', function(notification) {
+                const message = JSON.parse(notification.body);
+                displayNotification(message);
+                console.log('Global notification received: ', message);
+            });
+
+            console.log("YAYyyyyyyyyyyyyyyyyyyyYYyyyyyyy")
+         console.log(message);
+        });
+        
+        
+    </script>
+</body>
+</html>

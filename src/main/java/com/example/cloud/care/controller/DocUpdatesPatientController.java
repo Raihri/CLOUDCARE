@@ -3,6 +3,7 @@ package com.example.cloud.care.controller;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.service.DoctorUserDetails;
+import com.example.cloud.care.service.notificationService;
 import com.example.cloud.care.service.patient_service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,9 @@ public class DocUpdatesPatientController {
 
     @Autowired
     private patient_service patientService;
+
+    @Autowired
+    private notificationService notificationService;
 
 
 
@@ -137,6 +141,7 @@ public class DocUpdatesPatientController {
             DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
             Doctor doctor = userDetails.getDoctor();
             notification notify = new notification("Blood And Bio Chemistry Updated by Dr. " +doctor.getName(), LocalDateTime.now(),patient);
+            notificationService.sendToSpecific(patient.getUser().getEmail(), notify);
             patientService.addNotification(patient,notify);
 
             response.put("success", true);

@@ -56,6 +56,12 @@ public class PatientDashboardController {
         return "aichat";
     }
 
+    @GetMapping("/raima")
+    public String raima()
+    {
+        return "raima";
+    }
+
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
