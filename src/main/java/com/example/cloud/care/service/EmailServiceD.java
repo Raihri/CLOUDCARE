@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.cloud.care.model.Appointment;
 import com.example.cloud.care.model.Doctor;
+import com.example.cloud.care.model.User;
 
 import org.springframework.scheduling.annotation.Async;;
 
@@ -30,8 +31,8 @@ public class EmailServiceD {
     }
     public void sendAppointmentConfirmation(Appointment appt) {
         Doctor doctor = appt.getDoctor();
-        String patientEmail = appt.getPatient().getEmail();
-        String patientName = appt.getPatient().getName();
+        String patientEmail = appt.getPatient().getUser().getEmail();
+        String patientName = appt.getPatient().getUser().getName();
 
         String subject = "Appointment Confirmed - CloudCare";
         String body;
@@ -64,8 +65,8 @@ public class EmailServiceD {
     // Send cancellation email
     public void sendAppointmentCancellation(Appointment appt) {
         Doctor doctor = appt.getDoctor();
-        String patientEmail = appt.getPatient().getEmail();
-        String patientName = appt.getPatient().getName();
+        String patientEmail = appt.getPatient().getUser().getEmail();
+        String patientName = appt.getPatient().getUser().getName();
 
         String subject = "Appointment Cancelled - CloudCare";
         String body = String.format(

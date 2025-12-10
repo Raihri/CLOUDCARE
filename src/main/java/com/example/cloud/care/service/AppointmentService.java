@@ -2,6 +2,9 @@ package com.example.cloud.care.service;
 
 import com.example.cloud.care.model.*;
 import com.example.cloud.care.repository.*;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import com.example.cloud.care.dao.doctor_dao;
@@ -29,7 +32,7 @@ public class AppointmentService {
         return availabilityRepo.findByDoctor(doctor);
     }
 
-    public Appointment bookAppointment(User patient, long doctorId, long slotId) {
+    public Appointment bookAppointment(Patient patient, long doctorId, long slotId) {
         Doctor doctor = doctorRepo.findById(doctorId).orElseThrow();
         DoctorAvailability slot = availabilityRepo.findById(slotId).orElseThrow();
 
@@ -69,6 +72,7 @@ public class AppointmentService {
     public List<Appointment> getAppointmentsByDoctorAndDate(int doctorId, Date date) {
         return appointmentRepo.findByDoctorIdAndAppointmentDate(doctorId, date);
     }
+    @Transactional
     public void save(Appointment appointment) {
         appointmentRepo.save(appointment);
     }

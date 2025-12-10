@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CloudCare | Patient Profile</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Modern Healthcare Color Palette */
+        :root {
+            --primary: #2A7DE1;
+            --primary-light: #E8F2FF;
+            --secondary: #00C9A7;
+            --accent: #FF6B6B;
+            --dark: #2D3748;
+            --light: #F7FAFC;
+            --gray: #718096;
+            --gray-light: #E2E8F0;
+            --white: #FFFFFF;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+        }
+
+        section, .home-section {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        section .home-section {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Patient Dashboard Styles */
+        .patient-dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+
+
+
+        /* Header Section */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .dashboard-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .date-display {
+            color: var(--gray);
+            font-size: 14px;
+            background: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .profile-header {
+            display: flex;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary), #1E5BB5);
+            color: var(--white);
+        }
+
+        .profile-image-container {
+            position: relative;
+            margin-right: 24px;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            object-fit: cover;
+            background: var(--gray-light);
+        }
+
+        .profile-status {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--secondary);
+            border: 2px solid var(--white);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .profile-id {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 20px 30px;
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0 15px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Main Content Layout */
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        /* Navigation Tabs */
+        .tabs-container {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .tab {
+            padding: 16px 24px;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            padding: 24px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .card-action {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .card-action:hover {
+            color: #1E5BB5;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 20px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--gray);
+            font-weight: 600;
+        }
+
+        /* Activity List */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: var(--light);
+        }
+
+        .activity-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 20px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        /* Quick Actions */
+       /* Quick Actions */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.action-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 16px;
+    background: var(--light);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.action-link:hover {
+    background: var(--primary-light);
+    transform: translateY(-3px);
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+}
+
+.action-label {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 14px;
+    text-align: center;
+}
+
+        /* Emergency Card */
+        .emergency-card {
+            background: linear-gradient(135deg, #FF6B6B, #EE5A24);
+            color: white;
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .emergency-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .emergency-icon {
+            font-size: 24px;
+        }
+
+        .emergency-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .emergency-number {
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .emergency-note {
+            font-size: 14px;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        /* Health Tips */
+        .health-tips {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .health-tip {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 10px;
+            background: var(--light);
+        }
+
+        .tip-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .tip-content {
+            flex: 1;
+        }
+
+        .tip-text {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-image-container {
+                margin-right: 0;
+                margin-bottom: 16px;
+            }
+
+            .profile-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs-header {
+                flex-wrap: wrap;
+            }
+
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .profile-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Styles */
+/* Sidebar Styles - Handled by external CSS */
+/* Sidebar Styles - Handled by external CSS */
+.sidebar {
+    /* dummy property */
+    -webkit-user-select: auto;
+}
+
+.sidebar.close {
+    /* dummy property */
+    -webkit-user-select: auto;
+}
+
+.home-section {
+    /* dummy property */
+    -webkit-user-select: auto;
+}
+
+.sidebar.close ~ .home-section {
+    /* dummy property */
+    -webkit-user-select: auto;
+}
+
+.home-header {
+    /* dummy property */
+    -webkit-user-select: auto;
+}
+
+.home-header .bx-menu {
+    /* dummy property */
+    -webkit-user-select: auto;
+}
+
+
+/* Logout Button Styles */
+
+.logout-form {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    padding: 20px 0;
+    text-align: center;
+    
+}
+
+.logout-btn {
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s ease;
+    keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+.logout-btn:hover {
+    background: #ffffff;
+    color: var(--accent);
+
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+    <div class="logo-details">
+        <img th:src="@{/image/logo.png}" alt="CloudCare Logo"/>
+
+        <span class="logo_name">CloudCare</span>
+    </div>
+    <ul class="nav-links">
+        
+        <li class="active">
+            <a th:href="@{/patient/dashboard}">
+                <i class="bx bxs-user"></i>
+                <span class="link_name">Patient Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Patient Profile</a></li>
+            </ul>
+        </li>
+
+          <li >
+            <a th:href="@{/patient/dataEntry}">
+                <i class="bx bxs-edit"></i>
+                <span class="link_name">Edit Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Edit Profile</a></li>
+            </ul>
+        </li>
+
+         <li>
+            <a th:href="@{/patient/doctor_list}">
+                <i class="bx bx-menu"></i>
+                <span class="link_name">Doctors List</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Doctors List</a></li>
+            </ul>
+        </li>
+
+
+        <li>
+            <a th:href="@{/patient/donor}">
+                <i class='bx bxs-droplet'></i>
+                <span class="link_name">Find Donor</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="donor">Find Donor</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a th:href="@{/patient/aichat}">
+                <i class='bx bxs-chat'></i>
+                <span class="link_name">CloudCare AI</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
+            </ul>
+        </li>
+        <li>
+            <a th:href="@{/patient/quiz_index1}">
+                <i class='bx bxs-chat'></i>
+                <span class="link_name">Mental Health Quiz</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/quiz_index1">Mental Health Quiz</a></li>
+            </ul>
+        </li>
+         
+      
+
+       
+        <li>
+            <!-- Patient Content Here -->
+            <div class="profile-details" th:if="${patient != null}">
+                <a th:href="@{/patient/dashboard}"
+                   style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                    <div class="profile-content">
+                        <!-- show patient image -->
+                        <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                             th:src="${patient.user.photoUrl}"
+                             alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+                        <img th:if="${patient.user == null or patient.user.photoUrl == null}"
+                             src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
+                             alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+
+                        <div class="name-job">
+                            <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
+                            <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+    </ul>
+</div>
+<section class="home-section">
+    <div class="home-header">
+        <i class='bx bx-menu' id='sidebarToggle'></i>
+        <h1>Patient Dashboard</h1>
+        <!-- <div class="date-display" style="postiton : absolute;"id="currentDate"></div> -->
+         <!-- Logout Button -->
+
+    </div>
+    <div class="patient-dashboard" th:if="${patient != null}">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            
+            
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-image-container">
+                    <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                         th:src="${patient.user.photoUrl}"
+                         alt="Patient Photo" class="profile-image">
+                    <img th:if="${patient.user == null or patient.user.photoUrl == null}"
+                         src="https://via.placeholder.com/150"
+                         alt="defaultPatientPhoto" class="profile-image">
+                    <div class="profile-status"></div>
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient Name'}">Patient Name</h1>
+                    <div class="profile-id" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID: N/A</div>
+                    <div class="profile-tags">
+                        <div class="tag" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Blood Group'}">Blood Group</div>
+                        <div class="tag" th:text="(${patient.age != null ? patient.age : 'Age'}) + ' years'">Age years</div>
+                        <div class="tag" th:text="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('M') ? 'Male' : (#strings.trim(patient.gender.toString()).equalsIgnoreCase('F') ? 'Female' : 'Other')}">Gender</div>
+                    </div>
+                </div>
+                <div class="notification-btn">
+                    <a th:href="@{/patient/notifications}" 
+   style="
+       background: #ffffff;
+       padding: 12px 18px;
+       border-radius: 10px;
+       display: flex;
+       align-items: center;
+       gap: 10px;
+       font-weight: 600;
+       color: #2A7DE1;
+       text-decoration: none;
+       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+       transition: all 0.3s ease;
+   "
+onmouseover="this.style.background='#2A7DE1'; this.style.color='white'"
+onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
+>
+    <i class='bx bx-bell' style="font-size: 24px;"></i>
+    <span>Notifications</span>
+</a>
+                </div>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value" th:text="${patient.age != null ? patient.age : '0'}">0</div>
+                    <div class="stat-label">Age</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" th:text="${patient.weight != null ? patient.weight : '0'}">0</div>
+                    <div class="stat-label">Weight (kg)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" th:text="${patient.height != null ? patient.height : '0'}">0</div>
+                    <div class="stat-label">Height (cm)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" th:text="${patient.bmi != null ? #numbers.formatDecimal(patient.bmi, 1, 1) : '0.0'}">0.0</div>
+                    <div class="stat-label">BMI</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="dashboard-content">
+            <!-- Left Column -->
+            <div class="main-content">
+                <!-- Tabs Navigation -->
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <div class="tab active" data-tab="overview">Overview</div>
+                        <div class="tab" data-tab="medical">Medical History</div>
+                        <div class="tab" data-tab="reports">Lab Reports</div>
+                        <div class="tab" data-tab="appointments">Appointments</div>
+                        <div class="tab" data-tab="medications">Medications</div>
+                    </div>
+                    <div class="tab-content">
+                        <!-- Overview Tab -->
+                        <div id="overview" class="tab-pane active">
+                            <!-- Personal Information Card -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Personal Information</h3>
+                                    <div class="card-action">Edit</div>
+                                </div>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-id-card'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">National ID</div>
+                                            <div class="info-value" th:text="${patient.nationalId != null ? patient.nationalId : 'Not provided'}">Not provided</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-calendar'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Date of Birth</div>
+                                            <div class="info-value" th:text="${patient.dateOfBirth != null ? patient.dateOfBirth : 'Not provided'}">Not provided</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-dna'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Gender</div>
+                                            <div class="info-value" th:text="${patient.gender == 'M' ? 'Male' : (patient.gender == 'F' ? 'Female' : 'Other')}">Other</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-map'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Location</div>
+                                            <div class="info-value" th:text="(${patient.division != null ? patient.division : 'Division'}) + ', ' + (${patient.zilla != null ? patient.zilla : 'Zilla'})">Division, Zilla</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-heart'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Blood Group</div>
+                                            <div class="info-value" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Not provided'}">Not provided</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-test-tube'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Rh Factor</div>
+                                            <div class="info-value" th:text="${patient.rhFactor != null ? patient.rhFactor : 'Not provided'}">Not provided</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Health Metrics Card -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Health Metrics</h3>
+                                    <div class="card-action">View History</div>
+                                </div>
+                                <div class="metrics-grid">
+                                    <div class="metric-card">
+                                        <div class="metric-value" th:text="(${patient.systolicBP != null ? patient.systolicBP : '120'}) + '/' + (${patient.diastolicBP != null ? patient.diastolicBP : '80'})">120/80</div>
+                                        <div class="metric-label">Blood Pressure</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-value" th:text="${patient.heartRate != null ? patient.heartRate : '72'}">72</div>
+                                        <div class="metric-label">Heart Rate</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-value" th:text="${patient.bloodSugarLevel != null ? #numbers.formatDecimal(patient.bloodSugarLevel, 1, 1) : '95.0'}">95.0</div>
+                                        <div class="metric-label">Blood Sugar</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-value" th:text="(${patient.oxygenSaturation != null ? patient.oxygenSaturation : '98'}) + '%'">98%</div>
+                                        <div class="metric-label">Oxygen Level</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Activity Card -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Recent Activity</h3>
+                                    <div class="card-action">See All</div>
+                                </div>
+                                <div class="activity-list">
+                                    <th:block th:if="${patient != null and patient.recentUpdates != null}" th:each="update : ${patient.recentUpdates}">
+                                        <div class="activity-item">
+                                            <div class="activity-icon">
+                                                <i class='bx bx-bell'></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <div class="activity-text" th:text="${update}">Activity text</div>
+                                                <div class="activity-time">Today</div>
+                                            </div>
+                                        </div>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical History Tab -->
+                        <div id="medical" class="tab-pane">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Medical History</h3>
+                                    <div class="card-action">Edit</div>
+                                </div>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-plus-medical'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Past Surgeries</div>
+                                            <div class="info-value">
+                                                <th:block th:if="${patient != null and patient.pastSurgeries != null and !patient.pastSurgeries.isEmpty()}" th:each="s : ${patient.pastSurgeries}">
+                                                    <span th:text="${s}"></span><br>
+                                                    <ul></ul>
+                                                </th:block>
+                                                
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-pill'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Allergies</div>
+                                            <div class="info-value">
+                                                <th:block th:if="${patient != null and patient.allergies != null and !patient.allergies.isEmpty()}" th:each="a : ${patient.allergies}">
+                                                    <span th:text="${a}"></span><br>
+                                                </th:block>
+                                                <th:block th:if="${patient.allergies == null or patient.allergies.isEmpty()}">None known</th:block>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-virus'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Chronic Diseases</div>
+                                            <div class="info-value">
+                                                <th:block th:if="${patient != null and patient.diseases != null and !patient.diseases.isEmpty()}" th:each="d : ${patient.diseases}">
+                                                    <span th:text="${d}"></span><br>
+                                                </th:block>
+                                                <th:block th:if="${patient.diseases == null or patient.diseases.isEmpty()}">None recorded</th:block>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-icon">
+                                            <i class='bx bx-family'></i>
+                                        </div>
+                                        <div class="info-content">
+                                            <div class="info-label">Family Medical History</div>
+                                            <div class="info-value">
+                                                <th:block th:if="${patient != null and patient.familyDiseaseHistory != null and !patient.familyDiseaseHistory.isEmpty()}" th:each="f : ${patient.familyDiseaseHistory}">
+                                                    <span th:text="${f}"></span><br>
+                                                </th:block>
+                                                <th:block th:if="${patient.familyDiseaseHistory == null or patient.familyDiseaseHistory.isEmpty()}">Not provided</th:block>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Other tabs would go here with similar structure -->
+                        <div id="reports" class="tab-pane">
+                            
+                            <!-- <ul>
+                                <th:block th:if="${patient != null and patient.labReports != null and !patient.labReports.isEmpty()}">
+                                    <li th:each="report : ${patient.labReports}" style="list-style: circle; " >
+                                    <span th:text="${report}">Report Details</span>
+                                </li>
+                                                    
+                                </th:block>
+                                <th:block th:if="${patient.labReports == null or patient.labReports.isEmpty()}">
+                                    <li>No lab reports available.</li>
+                                </th:block>
+                            </ul> -->
+                        </div>
+                        <div id="appointments" class="tab-pane">
+                            <!-- <ul>
+                                <th:block th:if="${patient != null and patient.appointments != null and !patient.appointments.isEmpty()}">
+                                    <li th:each="appointment : ${patient.appointments}" style="list-style: circle; " >
+                                    <span th:text="${appointment}">Appointment Details</span>
+                                </li>
+                                                    
+                                </th:block>
+                                <th:block th:if="${patient.appointments == null or patient.appointments.isEmpty()}">
+                                    <li>No appointments scheduled.</li>
+                                </th:block>
+                            </ul> -->
+                        </div>
+                        <div id="medications" class="tab-pane">
+                            <!-- Medications Content -->
+                            <ul>
+                                <th:block th:if="${patient != null and patient.medications != null and !patient.medications.isEmpty()}">
+                                    <li th:each="medication : ${patient.medications}" style="list-style: circle; " >
+                                    <span th:text="${medication}">Medication Name</span>
+                                </li>
+                                                    
+                                </th:block>
+                                <th:block th:if="${patient.medications == null or patient.medications.isEmpty()}">
+                                    <li>No medications recorded.</li>
+                                </th:block>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="sidebar-content">
+                <!-- Quick Actions Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+                   <div class="actions-grid">
+    <!-- Replace # with your actual links later -->
+    <a href="#" class="action-link">
+        <div class="action-icon">
+            <i class='bx bx-calendar'></i>
+        </div>
+        <div class="action-label">Book Appointment</div>
+    </a>
+    <a href="#" class="action-link">
+        <div class="action-icon">
+            <i class='bx bx-file'></i>
+        </div>
+        <div class="action-label">View Reports</div>
+    </a>
+    <a href="#" class="action-link">
+        <div class="action-icon">
+            <i class='bx bx-refresh'></i>
+        </div>
+        <div class="action-label">Update Health Data</div>
+    </a>
+    <a href="#" class="action-link">
+        <div class="action-icon">
+            <i class='bx bx-chat'></i>
+        </div>
+        <div class="action-label">Message Doctor</div>
+    </a>
+</div>
+                </div>
+
+                <!-- Emergency Contact Card -->
+                <div class="emergency-card">
+                    <div class="emergency-header">
+                        <i class='bx bx-phone emergency-icon'></i>
+                        <h3 class="emergency-title">Emergency Contact</h3>
+                    </div>
+                    <div class="emergency-number" th:text="${patient.emergencyContact != null ? patient.emergencyContact : '+880 XXXX-XXXXXX'}">+880 XXXX-XXXXXX</div>
+                    <div class="emergency-note">Available 24/7 for medical emergencies</div>
+                </div>
+
+                <!-- Health Tips Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Health Tips</h3>
+                    </div>
+                    <div class="health-tips">
+                        <div class="health-tip">
+                            <div class="tip-icon" style="background: #00C9A7;">
+                                <i class='bx bx-run'></i>
+                            </div>
+                            <div class="tip-content">
+                                <div class="tip-text">30 minutes of daily exercise recommended</div>
+                            </div>
+                        </div>
+                        <div class="health-tip">
+                            <div class="tip-icon" style="background: #2A7DE1;">
+                                <i class='bx bx-water'></i>
+                            </div>
+                            <div class="tip-content">
+                                <div class="tip-text">Stay hydrated - drink 8 glasses of water</div>
+                            </div>
+                        </div>
+                        <div class="health-tip">
+                            <div class="tip-icon" style="background: #FF6B6B;">
+                                <i class='bx bx-bed'></i>
+                            </div>
+                            <div class="tip-content">
+                                <div class="tip-text">Get 7-8 hours of sleep nightly</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/patient/logout}" method="post" style="display: flex; justify-content: center; align-items: center;" class="logout-form">
+        <button type="submit" class="logout-btn" style="width:30vw; padding:10px; font-size:22px;text-align: center; ">
+            <i class='bx bx-log-out'></i>
+            <span style="text-align: center;">Logout</span>
+        </button>
+    </form>
+
+    <script>
+    // Minimal Sidebar State Restorer
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector(".sidebar");
+        const toggleBtn = document.getElementById("sidebarToggle");
+        
+        if (!sidebar || !toggleBtn) return;
+        
+        // RESTORE STATE
+        // Check multiple sources for sidebar state
+        const urlParams = new URLSearchParams(window.location.search);
+        const sidebarParam = urlParams.get('sidebar');
+        
+        if (sidebarParam === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (sidebarParam === 'expanded') {
+            sidebar.classList.remove('close');
+        } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('close');
+        }
+        
+        // SAVE STATE on toggle
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+            const isCollapsed = sidebar.classList.contains('close');
+            
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+        });
+        
+        // Save state before form submissions
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            // Add hidden input if not already present
+            if (!form.querySelector('input[name="sidebar"]')) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'sidebar';
+                form.appendChild(input);
+            }
+            
+            form.addEventListener('submit', () => {
+                const isCollapsed = sidebar.classList.contains('close');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+                sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+            });
+        });
+    });
+</script>
+
+   
+
+    <script>
+        // Set current date
+        const currentDate = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('en-US', options);
+
+     
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and panes
+            tabs.forEach(t => t.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Add active class to clicked tab and corresponding pane
+            tab.classList.add('active');
+            document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+        });
+    });
+    
+    </script>
+
+    <script>
+        // Tabs functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const tabs = document.querySelectorAll('.tab');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Get the tab name from clicked tab
+            const tabName = this.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and panes
+            tabs.forEach(t => t.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Add active class to corresponding pane
+            const targetPane = document.getElementById(tabName);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+        });
+    });
+});
+    </script>
+</body>
+</html>

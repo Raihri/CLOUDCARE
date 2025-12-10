@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,63 +52,48 @@ private EmailServiceD emailService;
 
     // Approve a doctor via AJAX
     @PostMapping("/approve-doctor")
-@ResponseBody
-public ResponseEntity<Map<String, Object>> approveDoctor(@RequestParam Long doctorId) {
-    Map<String, Object> response = new HashMap<>();
+public String approveDoctor(@RequestParam Long doctorId, RedirectAttributes redirectAttributes) {
+    Optional<Doctor> optDoc = doctordao.findById(doctorId);
 
-    try {
-        // Find the doctor by ID
-        Optional<Doctor> optDoc = doctordao.findById(doctorId);
-        if (optDoc.isEmpty()) {
-            response.put("success", false);
-            response.put("message", "Doctor not found");
-            return ResponseEntity.ok(response);
-        }
-
-        Doctor doc = optDoc.get();
-        doc.setStatus(Doctor.Status.APPROVED);
-        doctordao.save(doc); // Save the updated status
-
-        // Send approval email
-        String subject = "Your Doctor Account Has Been Approved!";
-        String body = "Hello " + doc.getName() + ",\n\nYour account has been approved. You can now log in.\n\nThanks!";
-        emailService.sendEmail(doc.getEmail(), subject, body);
-
-        response.put("success", true);
-        response.put("message", "Doctor approved successfully and email sent");
-        return ResponseEntity.ok(response);
-
-    } catch (Exception e) {
-        response.put("success", false);
-        response.put("message", "Error approving doctor: " + e.getMessage());
-        return ResponseEntity.status(500).body(response);
+    if(optDoc.isEmpty()) {
+        redirectAttributes.addFlashAttribute("notificationType", "error");
+        redirectAttributes.addFlashAttribute("notificationMessage", "Doctor not found");
+        return "redirect:/admin/doctor/status";
     }
+
+    Doctor doc = optDoc.get();
+    doc.setStatus(Status.APPROVED);
+    doctordao.save(doc);
+
+    emailService.sendEmail(doc.getEmail(),
+        "Your Doctor Account Has Been Approved!",
+        "Hello " + doc.getName() + ",\n\nYour account has been approved. You can now log in.\n\nThanks!");
+
+    redirectAttributes.addFlashAttribute("notificationType", "success");
+    redirectAttributes.addFlashAttribute("notificationMessage", "Doctor approved successfully!");
+    return "redirect:/admin/doctor/status";
 }
 
-    // Reject a doctor via AJAX
-    @PostMapping("/reject-doctor")
-@ResponseBody
-public Map<String, Object> rejectDoctor(@RequestParam long doctorId, @RequestParam String reason) {
-    Map<String, Object> response = new HashMap<>();
+@PostMapping("doctor/reject")
+public String rejectDoctor(@RequestParam Long doctorId, @RequestParam String reason,
+                           RedirectAttributes redirectAttributes) {
 
     Optional<Doctor> optDoc = doctordao.findById(doctorId);
-if(optDoc.isEmpty()){
-    response.put("success", false);
-    response.put("message", "Doctor not found");
-    return response;
-}
-Doctor doc = optDoc.get();
+    if(optDoc.isEmpty()){
+        redirectAttributes.addFlashAttribute("notificationType", "error");
+        redirectAttributes.addFlashAttribute("notificationMessage", "Doctor not found");
+        return "redirect:/admin/doctor/status";
+    }
 
-     
+    Doctor doc = optDoc.get();
     doc.setStatus(Status.REJECTED);
-    doctordao.save(doc);       // save the status change
+    doctordao.save(doc);
 
-    // Send email asynchronously
     emailService.sendEmail(doc.getEmail(), "Your signup was rejected", reason);
 
-    response.put("success", true);
-    response.put("message", "Doctor rejected successfully");
-    return response;
+    redirectAttributes.addFlashAttribute("notificationType", "warning");
+    redirectAttributes.addFlashAttribute("notificationMessage", "Doctor rejected successfully!");
+    return "redirect:/admin/doctor/status";
 }
     // Update doctor status dynamically via PATCH
     @PatchMapping("/doctor/{id}/status")

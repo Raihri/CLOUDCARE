@@ -3,6 +3,8 @@ package com.example.cloud.care.service;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.DoctorAvailability;
 import com.example.cloud.care.repository.DoctorAvailabilityRepository;
+
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,7 @@ public class DoctorAvailabilityService {
     public DoctorAvailability getSlotById(Long id) {
         return availabilityRepository.findById(id).orElse(null);
     }
-
+    @Transactional
     public void save(DoctorAvailability slot) {
         // TODO Auto-generated method stub
          availabilityRepository.save(slot); 

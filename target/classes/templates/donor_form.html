@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CloudCare | Add / Edit Donor</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(135deg, #fff6f6 0%, #ffe6e6 100%); color: #333; }
+        
+        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 99vh; background: #23282d; z-index: 100; }
+        .sidebar.sidebar-static { margin: 0; border-radius: 0; left: 0; top: 0; }
+        .home-section {  padding: 10px 20px; }
+        
+        .form-container { max-width: 750 px; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(211,47,47,0.15); padding: 45px; }
+        
+        h1 { color: #b71c1c; margin-bottom: 10px; text-align: center; font-size: 28px; font-weight: 700; }
+        .form-subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 13px; }
+        
+        .form-group { margin-bottom: 22px; }
+        .form-group-row { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 22px; }
+        .form-label-left { flex: 0 0 40%; }
+        .form-label-left label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px; }
+        .form-input-right { flex: 1; display: flex; gap: 10px; align-items: flex-start; }
+        .form-input-right input, .form-input-right select { flex: 1; padding: 13px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; transition: all 0.3s; background: #fff; }
+        .form-input-right input:focus, .form-input-right select:focus { outline: none; border-color: #d32f2f; box-shadow: 0 0 8px rgba(211,47,47,0.2); background: #fffbfb; }
+        
+        label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px; }
+        input[type="text"], input[type="email"], input[type="number"], input[type="date"], select, textarea { 
+            width: 100%; padding: 13px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; 
+            transition: all 0.3s; background: #fff; 
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus, textarea:focus { 
+            outline: none; border-color: #d32f2f; box-shadow: 0 0 8px rgba(211,47,47,0.2); background: #fffbfb; 
+        }
+        input:disabled, select:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; border-color: #ddd; }
+        
+        /* Static field display */
+        .static-field-group { display: flex; align-items: center; gap: 10px; }
+        .static-field-display { flex: 1; padding: 13px; background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; color: #555; min-height: 48px; display: flex; align-items: center; }
+        .btn-change { padding: 10px 18px; background: #1976d2; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 12px; transition: 0.2s; white-space: nowrap; height: 48px; display: flex; align-items: center; justify-content: center; }
+        .btn-change:hover { background: #1565c0; }
+        .hidden-field { display: none; }
+        
+        /* Email selection with left-right layout */
+        .email-selection { background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%); padding: 18px; border-radius: 10px; margin-bottom: 22px; border: 1px solid #e0e0e0; }
+        .email-selection-label { font-weight: 600; color: #333; margin-bottom: 12px; display: block; font-size: 14px; }
+        .email-options-row { display: flex; gap: 30px; }
+        .email-option { display: flex; align-items: center; gap: 8px; }
+        .email-option input[type="radio"] { margin: 0; accent-color: #d32f2f; cursor: pointer; }
+        .email-option label { display: inline; font-weight: 400; margin: 0; margin-bottom: 0; cursor: pointer; }
+        .email-custom-input { margin-top: 12px; display: none; }
+        
+        /* Disease layout improvements */
+        .disease-section { margin-bottom: 20px; padding: 15px; background: #fafafa; border-radius: 10px; border-left: 4px solid #d32f2f; }
+        .disease-section.serious { border-color: #ff6f00; }
+        .disease-section.manageable { border-color: #4caf50; }
+        /* Save overlay / spinner */
+        #saveOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 2000; visibility: hidden; opacity: 0; transition: all 0.18s ease; }
+        #saveOverlay.show { visibility: visible; opacity: 1; }
+        #saveOverlay .panel { background: #fff; padding: 18px 22px; border-radius: 10px; display: flex; gap: 12px; align-items: center; box-shadow: 0 8px 30px rgba(0,0,0,0.28); }
+        .spinner { width: 34px; height: 34px; border-radius: 50%; border: 4px solid rgba(211,47,47,0.12); border-top-color: #d32f2f; animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .save-msg { font-weight: 700; color: #333; font-size: 14px; }
+        .save-success { color: #2e7d32; font-weight: 800; }
+        
+        .disease-section strong { display: block; margin-bottom: 12px; font-size: 14px; }
+        .disease-section strong.critical { color: #d32f2f; }
+        .disease-section strong.serious { color: #ff6f00; }
+        .disease-section strong.manageable { color: #4caf50; }
+        
+        .disease-group { margin: 10px 0; display: flex; align-items: center; padding: 8px; background: #fff; border-radius: 6px; }
+        .disease-checkbox { margin-right: 10px; cursor: pointer; accent-color: #d32f2f; }
+        .disease-label { display: inline; font-weight: 400; cursor: pointer; font-size: 14px; }
+        .disease-level { font-size: 11px; color: #999; margin-left: 10px; font-style: italic; }
+        
+        .eligibility-alert { padding: 16px; border-radius: 10px; margin-bottom: 22px; font-weight: 600; display: none; border: 2px solid; font-size: 14px; animation: slideDown 0.3s ease; }
+        .eligibility-alert.eligible { background: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .eligibility-alert.not-eligible { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .button-group { display: flex; gap: 12px; margin-top: 35px; }
+        .btn { padding: 13px 28px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 15px; }
+        .btn-primary { background: linear-gradient(135deg, #d32f2f, #b71c1c); color: #fff; flex: 1; box-shadow: 0 4px 12px rgba(211,47,47,0.3); }
+        .btn-primary:hover { background: linear-gradient(135deg, #e53935, #c62828); box-shadow: 0 6px 16px rgba(211,47,47,0.4); }
+        .btn-secondary { background: #999; color: #fff; flex: 1; }
+        .btn-secondary:hover { background: #777; }
+        
+        .error { color: #d32f2f; font-size: 12px; margin-top: 5px; display: none; font-weight: 500; }
+        .form-group.error input, .form-group.error select, .form-group-row.error input, .form-group-row.error select { border-color: #d32f2f; }
+        .form-group.error .error, .form-group-row.error .error { display: block; }
+        
+        .back-link { margin-bottom: 25px; }
+        .back-link a { color: #d32f2f; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 5px; }
+        .back-link a:hover { text-decoration: underline; }
+        
+        .info-box { background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-left: 4px solid #1976d2; padding: 14px; border-radius: 8px; margin-bottom: 22px; font-size: 13px; color: #1565c0; line-height: 1.5; }
+        .info-box.warning { background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left-color: #ff6f00; color: #e65100; }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div th:replace="fragments/sidebar :: sidebar"></div>
+
+<!-- MAIN CONTENT -->
+<section class="home-section">
+    <div class="back-link">
+        <a th:href="@{/patient/donor}">← Back to Donor Dashboard</a>
+    </div>
+    
+    <div class="form-container">
+        <h1>Register as Blood Donor</h1>
+        <div class="form-subtitle">Complete your donor profile to help save lives</div>
+        
+        <div class="info-box">
+            ℹ️ Donor eligibility depends on age (18-65), blood group, health status, and minimum 3-month gap since last donation.
+        </div>
+        
+        <!-- Eligibility Status Display -->
+        <div id="eligibilityAlert" class="eligibility-alert"></div>
+
+        <form id="donorForm">
+            <input type="hidden" id="donorId" name="donorId" th:value="${donor != null ? donor.id : ''}">
+            <div data-donor-diseases="[[${ donor != null ? #json.serialize(donor.diseases) : '[]' }]]" style="display:none;"></div>
+            <div data-patient-diseases="[[${ #json.serialize(patient.diseases) }]]" style="display:none;"></div>
+            
+            <!-- Email Selection -->
+            <div class="email-selection">
+                <label class="email-selection-label">📧 Select Email for Communication:</label>
+                <div class="email-options-row">
+                    <div class="email-option">
+                        <input type="radio" id="emailLogin" name="emailChoice" value="login" checked>
+                        <label for="emailLogin" th:text="${ (donor != null and donor.email != null) ? donor.email : (patient != null ? patient.user.email : 'Not logged in') }"></label>
+                    </div>
+                    <div class="email-option">
+                        <input type="radio" id="emailCustom" name="emailChoice" value="custom">
+                        <label for="emailCustom">Use different email</label>
+                    </div>
+                </div>
+                <input type="email" id="customEmailInput" name="customEmail" placeholder="Enter alternative email" class="email-custom-input">
+                <input type="hidden" id="selectedEmail" name="email" th:value="${ (donor != null and donor.email != null) ? donor.email : (patient != null ? patient.user.email : '') }">
+            </div>
+            
+            <!-- Name -->
+            <div class="form-group">
+                <label for="name">👤 Name: *</label>
+                <input type="text" id="name" name="name" required th:value="${ donor != null ? donor.name : (patient != null ? patient.user.name : '') }">
+                <div class="error">Name is required</div>
+            </div>
+            
+            <!-- Age and Contact in Row -->
+            <div class="form-group-row">
+                <div class="form-label-left">
+                    <label for="age">📅 Age: *</label>
+                </div>
+                <div class="form-input-right">
+                    <input type="number" id="age" name="age" required min="18" max="100" th:value="${ donor != null ? donor.age : (patient != null and patient.age != null ? patient.age : '') }">
+                </div>
+            </div>
+            <div class="form-group-row" style="margin-top: -10px;">
+                <div class="form-label-left"></div>
+                <div class="form-input-right">
+                    <div class="error" style="margin-top: 0;">Age must be between 18-65 years</div>
+                </div>
+            </div>
+            
+            <!-- Gender and Blood Group in Row -->
+            <div class="form-group-row">
+                <div class="form-label-left">
+                    <label>⚕️ Gender & Blood Group:</label>
+                </div>
+                <div class="form-input-right" style="flex-direction: column; gap: 12px;">
+                    <!-- Gender Static -->
+                    <div style="display: flex; gap: 10px; align-items: center; width: 100%;">
+                        <div style="flex: 1; padding: 13px; background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; color: #555; min-height: 48px; display: flex; align-items: center;" id="genderDisplay" th:text="${ (donor != null and donor.gender != null) ? donor.gender : (patient != null and patient.gender != null ? patient.gender : 'Not set') }"></div>
+                        <button type="button" class="btn-change" id="changeGenderBtn">Change</button>
+                    </div>
+                    <select id="gender" name="gender" class="hidden-field" th:value="${ donor != null ? donor.gender : (patient != null ? patient.gender : '') }" style="width: 100%;">
+                        <option value="">-- Select Gender --</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    
+                    <!-- Blood Group Static -->
+                    <div style="display: flex; gap: 10px; align-items: center; width: 100%;">
+                        <div style="flex: 1; padding: 13px; background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; color: #555; min-height: 48px; display: flex; align-items: center;" id="bloodGroupDisplay" th:text="${ (donor != null and donor.bloodGroup != null) ? donor.bloodGroup : (patient != null and patient.bloodGroup != null ? patient.bloodGroup : 'Not set') }"></div>
+                        <button type="button" class="btn-change" id="changeBloodGroupBtn">Change</button>
+                    </div>
+                    <select id="bloodGroup" name="bloodGroup" class="hidden-field" th:value="${ donor != null ? donor.bloodGroup : (patient != null ? patient.bloodGroup : '') }" style="width: 100%;">
+                        <option value="">-- Select Blood Group --</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group-row" style="margin-top: -10px;">
+                <div class="form-label-left"></div>
+                <div class="form-input-right">
+                    <div class="error" style="margin-top: 0;">Blood group is required</div>
+                </div>
+            </div>
+            
+            <!-- Contact -->
+            <div class="form-group">
+                <label for="contact">📞 Contact Number: *</label>
+                <input type="text" id="contact" name="contact" required placeholder="Your mobile number" th:value="${ donor != null ? donor.contact : (patient != null and patient.emergencyContact != null ? patient.emergencyContact : '') }">
+                <div class="error">Contact number is required</div>
+            </div>
+            
+            <!-- Last Donated with Change Option -->
+            <div class="form-group-row">
+                <div class="form-label-left">
+                    <label>🩹 Last Donated:</label>
+                </div>
+                <div class="form-input-right">
+                    <input type="date" id="lastDonated" name="lastDonated" th:value="${ (donor != null and donor.lastDonated != null) ? #dates.format(donor.lastDonated, 'yyyy-MM-dd') : (patient != null and patient.lastDonated != null ? #dates.format(patient.lastDonated, 'yyyy-MM-dd') : '') }">
+                    <button type="button" class="btn-change" id="clearLastDonatedBtn" style="min-width: auto;">Clear</button>
+                </div>
+            </div>
+            <div class="form-group-row" style="margin-top: -10px;">
+                <div class="form-label-left"></div>
+                <div class="form-input-right">
+                    <div class="error" style="margin-top: 0;">Last donated date cannot be in the future</div>
+                </div>
+            </div>
+            
+            <!-- Diseases -->
+            <div class="form-group">
+                <label>🏥 Health Conditions (if any): *</label>
+                <div class="info-box warning" style="margin-bottom: 12px;">
+                    ⚠️ Level 3 = Critical (disqualifies) | Level 2 = Serious (disqualifies) | Level 1 = Manageable (may allow)
+                </div>
+                
+                <!-- Critical -->
+                <div class="disease-section">
+                    <strong class="critical">🔴 Critical Conditions (Level 3):</strong>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="HIV" data-level="3">
+                        <label class="disease-label">HIV/AIDS</label>
+                        <span class="disease-level">Level 3</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Hepatitis B" data-level="3">
+                        <label class="disease-label">Hepatitis B</label>
+                        <span class="disease-level">Level 3</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Hepatitis C" data-level="3">
+                        <label class="disease-label">Hepatitis C</label>
+                        <span class="disease-level">Level 3</span>
+                    </div>
+                </div>
+                
+                <!-- Serious -->
+                <div class="disease-section serious">
+                    <strong class="serious">🟠 Serious Conditions (Level 2):</strong>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Malaria" data-level="2">
+                        <label class="disease-label">Malaria</label>
+                        <span class="disease-level">Level 2</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Tuberculosis" data-level="2">
+                        <label class="disease-label">Tuberculosis (TB)</label>
+                        <span class="disease-level">Level 2</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Heart Disease" data-level="2">
+                        <label class="disease-label">Heart Disease / Cardiovascular</label>
+                        <span class="disease-level">Level 2</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Cancer" data-level="2">
+                        <label class="disease-label">Cancer / Malignancy</label>
+                        <span class="disease-level">Level 2</span>
+                    </div>
+                </div>
+                
+                <!-- Manageable -->
+                <div class="disease-section manageable">
+                    <strong class="manageable">🟢 Manageable Conditions (Level 1):</strong>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Diabetes" data-level="1">
+                        <label class="disease-label">Diabetes</label>
+                        <span class="disease-level">Level 1</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Hypertension" data-level="1">
+                        <label class="disease-label">Hypertension / High BP</label>
+                        <span class="disease-level">Level 1</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Asthma" data-level="1">
+                        <label class="disease-label">Asthma</label>
+                        <span class="disease-level">Level 1</span>
+                    </div>
+                    <div class="disease-group">
+                        <input type="checkbox" class="disease-checkbox" name="disease" value="Thyroid Disorder" data-level="1">
+                        <label class="disease-label">Thyroid Disorder</label>
+                        <span class="disease-level">Level 1</span>
+                    </div>
+                </div>
+                
+                <div class="error">Please select your health conditions if applicable</div>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">💾 Save Donor Profile</button>
+                <button type="button" class="btn btn-secondary" onclick="history.back()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    (function(){
+        // All event binding and setup inside DOMContentLoaded to avoid timing issues
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Helper functions
+                function computeEligibility() {
+                    const age = parseInt(document.getElementById('age').value);
+                    const bloodGroup = document.getElementById('bloodGroup').value;
+                    const lastDonated = document.getElementById('lastDonated').value;
+                    let status = 'Eligible';
+                    let reason = [];
+                    if (!age || age < 18 || age > 65) {
+                        status = 'Not Eligible';
+                        reason.push('Age must be between 18-65 years');
+                    }
+                    if (!bloodGroup) {
+                        status = 'Not Eligible';
+                        reason.push('Blood group is required');
+                    }
+                    const checkedDiseases = Array.from(document.querySelectorAll('input[name="disease"]:checked'));
+                    const hasCritical = checkedDiseases.some(d => d.dataset.level === '3');
+                    const hasSerious = checkedDiseases.some(d => d.dataset.level === '2');
+                    if (hasCritical) {
+                        status = 'Not Eligible';
+                        reason.push('Critical conditions disqualify donation');
+                    } else if (hasSerious) {
+                        status = 'Not Eligible';
+                        reason.push('Serious conditions disqualify donation');
+                    }
+                    if (lastDonated) {
+                        const lastDate = new Date(lastDonated);
+                        const today = new Date();
+                        const monthsDiff = (today.getFullYear() - lastDate.getFullYear()) * 12 + (today.getMonth() - lastDate.getMonth());
+                        if (monthsDiff < 3) {
+                            status = 'Not Eligible';
+                            reason.push('Must wait ' + (3 - monthsDiff) + ' more month(s) before donating');
+                        }
+                    }
+                    return { status, eligible: status === 'Eligible', reason: reason.join('; ') };
+                }
+
+                function updateEligibilityDisplay() {
+                    const result = computeEligibility();
+                    const alert = document.getElementById('eligibilityAlert');
+                    if (!alert) return;
+                    if (result.status === 'Eligible') {
+                        alert.className = 'eligibility-alert eligible';
+                        alert.innerHTML = '✓ <strong>Eligible to Donate</strong>';
+                    } else {
+                        alert.className = 'eligibility-alert not-eligible';
+                        alert.innerHTML = '✗ <strong>Not Eligible:</strong> ' + result.reason;
+                    }
+                    alert.style.display = 'block';
+                }
+
+                // Toggle handlers
+                const changeGenderBtn = document.getElementById('changeGenderBtn');
+                if (changeGenderBtn) {
+                    changeGenderBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const genderSelect = document.getElementById('gender');
+                        const genderDisplay = document.getElementById('genderDisplay');
+                        if (!genderSelect || !genderDisplay) return;
+                        if (genderSelect.classList.contains('hidden-field')) {
+                            genderSelect.classList.remove('hidden-field');
+                            genderDisplay.style.display = 'none';
+                            changeGenderBtn.textContent = 'Done';
+                            genderSelect.focus();
+                        } else {
+                            genderSelect.classList.add('hidden-field');
+                            genderDisplay.style.display = 'flex';
+                            changeGenderBtn.textContent = 'Change';
+                            genderDisplay.textContent = genderSelect.options[genderSelect.selectedIndex] ? genderSelect.options[genderSelect.selectedIndex].text : '';
+                        }
+                    });
+                }
+
+                const changeBloodGroupBtn = document.getElementById('changeBloodGroupBtn');
+                if (changeBloodGroupBtn) {
+                    changeBloodGroupBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const bgSelect = document.getElementById('bloodGroup');
+                        const bgDisplay = document.getElementById('bloodGroupDisplay');
+                        if (!bgSelect || !bgDisplay) return;
+                        if (bgSelect.classList.contains('hidden-field')) {
+                            bgSelect.classList.remove('hidden-field');
+                            bgDisplay.style.display = 'none';
+                            changeBloodGroupBtn.textContent = 'Done';
+                            bgSelect.focus();
+                        } else {
+                            bgSelect.classList.add('hidden-field');
+                            bgDisplay.style.display = 'flex';
+                            changeBloodGroupBtn.textContent = 'Change';
+                            bgDisplay.textContent = bgSelect.options[bgSelect.selectedIndex] ? bgSelect.options[bgSelect.selectedIndex].text : '';
+                        }
+                    });
+                }
+
+                const clearLastDonatedBtn = document.getElementById('clearLastDonatedBtn');
+                if (clearLastDonatedBtn) {
+                    clearLastDonatedBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const last = document.getElementById('lastDonated');
+                        if (last) last.value = '';
+                        updateEligibilityDisplay();
+                    });
+                }
+
+                // Prefill diseases
+                try {
+                    const donorDiseasesEl = document.querySelector('[data-donor-diseases]');
+                    const patientDiseasesEl = document.querySelector('[data-patient-diseases]');
+                    let diseases = [];
+                    if (donorDiseasesEl && donorDiseasesEl.textContent && donorDiseasesEl.textContent.trim() !== '') {
+                        diseases = JSON.parse(donorDiseasesEl.textContent);
+                    } else if (patientDiseasesEl && patientDiseasesEl.textContent) {
+                        diseases = JSON.parse(patientDiseasesEl.textContent);
+                    }
+                    if (Array.isArray(diseases)) {
+                        diseases.forEach(disease => {
+                            if (disease && disease.name) {
+                                const checkbox = document.querySelector('input[name="disease"][value="' + disease.name + '"]');
+                                if (checkbox) checkbox.checked = true;
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.warn('Could not parse diseases', e);
+                }
+
+                // Ensure select elements have values matching the static display (server-populated)
+                try {
+                    const bgSelect = document.getElementById('bloodGroup');
+                    const bgDisplay = document.getElementById('bloodGroupDisplay');
+                    if (bgSelect && bgDisplay && (!bgSelect.value || bgSelect.value.trim() === '')) {
+                        const txt = bgDisplay.textContent.trim();
+                        if (txt) {
+                            const match = Array.from(bgSelect.options).find(o => o.value === txt || o.text === txt);
+                            if (match) {
+                                bgSelect.value = match.value;
+                            } else {
+                                const opt = document.createElement('option');
+                                opt.value = txt; opt.text = txt; bgSelect.appendChild(opt); bgSelect.value = txt;
+                            }
+                        }
+                    }
+
+                    const genderSelect = document.getElementById('gender');
+                    const genderDisplay = document.getElementById('genderDisplay');
+                    if (genderSelect && genderDisplay && (!genderSelect.value || genderSelect.value.trim() === '')) {
+                        const txt = genderDisplay.textContent.trim();
+                        if (txt) {
+                            const matchG = Array.from(genderSelect.options).find(o => o.value === txt || o.text === txt);
+                            if (matchG) {
+                                genderSelect.value = matchG.value;
+                            } else {
+                                const optg = document.createElement('option');
+                                optg.value = txt; optg.text = txt; genderSelect.appendChild(optg); genderSelect.value = txt;
+                            }
+                        }
+                    }
+                } catch (fillErr) {
+                    console.warn('Auto-fill select from display failed', fillErr);
+                }
+
+                // Email handling
+                const emailLoginRadio = document.getElementById('emailLogin');
+                const emailCustomRadio = document.getElementById('emailCustom');
+                const customEmailInput = document.getElementById('customEmailInput');
+                const selectedEmailInput = document.getElementById('selectedEmail');
+
+                function updateSelectedEmail() {
+                    if (!selectedEmailInput) return;
+                    if (emailCustomRadio && emailCustomRadio.checked) {
+                        selectedEmailInput.value = customEmailInput ? (customEmailInput.value || '') : '';
+                        if (customEmailInput) customEmailInput.style.display = 'block';
+                    } else {
+                        const loginLabel = document.getElementById('emailLogin') ? document.getElementById('emailLogin').nextElementSibling : null;
+                        selectedEmailInput.value = loginLabel ? loginLabel.textContent : '';
+                        if (customEmailInput) customEmailInput.style.display = 'none';
+                    }
+                }
+                if (emailLoginRadio) emailLoginRadio.addEventListener('change', updateSelectedEmail);
+                if (emailCustomRadio) emailCustomRadio.addEventListener('change', updateSelectedEmail);
+                if (customEmailInput) customEmailInput.addEventListener('input', updateSelectedEmail);
+
+                // Attach input listeners to update eligibility
+                const form = document.getElementById('donorForm');
+                if (form) {
+                    const inputs = form.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        input.addEventListener('change', updateEligibilityDisplay);
+                        input.addEventListener('input', updateEligibilityDisplay);
+                    });
+                }
+
+                // Ensure eligibility status shows on load
+                setTimeout(updateEligibilityDisplay, 150);
+
+                // Form submission with improved error handling and diagnostics
+                // Attach submit handler
+                if (form) {
+                    form.addEventListener('submit', async function(e) {
+                        e.preventDefault();
+                        console.log('[donor_form] submit handler invoked');
+                        try {
+                            document.querySelectorAll('.form-group, .form-group-row').forEach(g => g.classList.remove('error'));
+                            const nameEl = document.getElementById('name');
+                            const selectedEmail = document.getElementById('selectedEmail');
+                            const ageEl = document.getElementById('age');
+                            const bgEl = document.getElementById('bloodGroup');
+                            const contactEl = document.getElementById('contact');
+                            const lastDonatedEl = document.getElementById('lastDonated');
+
+                            const name = nameEl ? nameEl.value.trim() : '';
+                            const email = selectedEmail ? selectedEmail.value.trim() : '';
+                            const age = ageEl ? parseInt(ageEl.value) : NaN;
+                            const bloodGroup = bgEl ? bgEl.value : '';
+                            const contact = contactEl ? contactEl.value.trim() : '';
+                            const lastDonated = lastDonatedEl ? lastDonatedEl.value : '';
+
+                            let hasError = false;
+                            if (!name) { if (nameEl) nameEl.parentElement.classList.add('error'); hasError = true; }
+                            if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please provide a valid email address.'); hasError = true; }
+                            if (isNaN(age) || age < 18 || age > 65) { if (ageEl) ageEl.closest('.form-group-row').classList.add('error'); hasError = true; }
+                            if (!bloodGroup) { if (bgEl) bgEl.closest('.form-group-row').classList.add('error'); hasError = true; }
+                            if (!contact) { if (contactEl) contactEl.parentElement.classList.add('error'); hasError = true; }
+                            if (lastDonated) { const ld = new Date(lastDonated); const today = new Date(); today.setHours(0,0,0,0); if (ld > today) { if (lastDonatedEl) lastDonatedEl.closest('.form-group-row').classList.add('error'); hasError = true; } }
+                            if (hasError) return;
+
+                            const diseases = [];
+                            Array.from(document.querySelectorAll('input[name="disease"]:checked')).forEach(chk => { diseases.push({name: chk.value, level: chk.dataset.level}); });
+
+                            const donor = {
+                                id: document.getElementById('donorId') ? document.getElementById('donorId').value || null : null,
+                                name, email, age, gender: (document.getElementById('gender') ? document.getElementById('gender').value : ''), bloodGroup, contact,
+                                lastDonated: lastDonated || null, diseases
+                            };
+
+                            const endpoint = donor.id ? '/patient/donor/api/update/' + donor.id : '/patient/donor/api/create';
+                            const method = donor.id ? 'PUT' : 'POST';
+
+                            // Show overlay while saving
+                            if (typeof showSaveOverlay === 'function') showSaveOverlay('Saving donor profile…');
+
+                            const res = await fetch(endpoint, {
+                                method,
+                                credentials: 'same-origin',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: JSON.stringify(donor)
+                            });
+
+                            if (!res.ok) {
+                                const text = await res.text();
+                                console.error('Save failed', res.status, text);
+                                if (typeof hideSaveOverlay === 'function') hideSaveOverlay();
+                                alert('Server error: ' + res.status + '. Check browser console for details.');
+                                return;
+                            }
+
+                            let result;
+                            try { result = await res.json(); } catch (jsonErr) {
+                                console.error('Invalid JSON response', await res.text());
+                                if (typeof hideSaveOverlay === 'function') hideSaveOverlay();
+                                alert('Server returned an invalid response.');
+                                return;
+                            }
+
+                            if (result && result.success) {
+                                console.log('[DEBUG] Saved donor:', donor);
+                                console.log('[DEBUG] Backend response:', result);
+                                try {
+                                    const savedId = (result.data && result.data.id) || donor.id;
+                                    if (savedId) {
+                                        localStorage.setItem('donorUpdatedId', savedId);
+                                        // Verify backend persisted the blood group by fetching the donor record
+                                        try {
+                                            const verifyRes = await fetch(`/patient/donor/api/get/${savedId}`);
+                                            if (verifyRes.ok) {
+                                                const verifyData = await verifyRes.json();
+                                                const fetchedDonor = verifyData.data || verifyData;
+                                                const fetchedBlood = fetchedDonor.bloodGroup || fetchedDonor.blood_group || fetchedDonor.bloodType || fetchedDonor.blood;
+                                                console.log('[DEBUG] Fetched donor from backend - blood group:', fetchedBlood);
+                                                if (fetchedBlood && fetchedBlood !== donor.bloodGroup) {
+                                                    console.warn('[WARNING] Backend blood group mismatch! Sent:', donor.bloodGroup, 'Got:', fetchedBlood);
+                                                } else if (fetchedBlood) {
+                                                    console.log('[DEBUG] ✓ Backend blood group persisted correctly:', fetchedBlood);
+                                                    localStorage.setItem('donorUpdatedBlood', fetchedBlood);
+                                                }
+                                            }
+                                        } catch (verifyErr) {
+                                            console.warn('[DEBUG] Could not verify donor record:', verifyErr);
+                                            // Fallback: store the blood group that was sent, in case verification fails
+                                            if (donor.bloodGroup) localStorage.setItem('donorUpdatedBlood', donor.bloodGroup);
+                                        }
+                                    }
+                                } catch (e) { /* ignore */ }
+
+                                // show success and redirect shortly after
+                                if (typeof showSaveOverlay === 'function') showSaveOverlay('Donor saved ✓', true);
+                                setTimeout(function(){ window.location.href = '/patient/donor'; }, 800);
+                            } else {
+                                console.error('Save response error', result);
+                                if (typeof hideSaveOverlay === 'function') hideSaveOverlay();
+                                alert('Error saving donor: ' + (result && (result.message || result.error) ? (result.message || result.error) : 'Unknown error'));
+                            }
+
+                        } catch (err) {
+                            console.error('Unexpected error saving donor', err);
+                            if (typeof hideSaveOverlay === 'function') hideSaveOverlay();
+                            alert('Unexpected error: ' + err.message + '. See console for details.');
+                        }
+                    });
+                }
+
+            } catch (outerErr) {
+                console.error('Initialization error in donor form script', outerErr);
+                alert('Initialization error loading donor form. See console for details.');
+            }
+        });
+    })();
+</script>
+
+<!-- Save overlay (global helper) -->
+<div id="saveOverlay" aria-hidden="true">
+    <div class="panel">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="save-msg" id="saveOverlayMessage">Saving…</div>
+    </div>
+</div>
+
+<script>
+    // Overlay helper functions (resilient global helpers)
+    (function(){
+        function getOverlay() { return document.getElementById('saveOverlay'); }
+        function getMsg() { return document.getElementById('saveOverlayMessage'); }
+        window.showSaveOverlay = function(msg, success) {
+            const ov = getOverlay();
+            const m = getMsg();
+            if (!ov) return;
+            if (m && msg) m.textContent = msg;
+            ov.classList.add('show');
+            ov.setAttribute('aria-hidden','false');
+            if (success) {
+                const sp = ov.querySelector('.spinner');
+                if (sp) { sp.style.borderTopColor = '#2e7d32'; sp.style.borderColor = 'rgba(46,125,50,0.12)'; }
+            }
+        };
+        window.hideSaveOverlay = function() {
+            const ov = getOverlay();
+            if (!ov) return;
+            ov.classList.remove('show');
+            ov.setAttribute('aria-hidden','true');
+            const sp = ov.querySelector('.spinner');
+            if (sp) { sp.style.borderTopColor = '#d32f2f'; sp.style.borderColor = ''; }
+        };
+    })();
+</script>
+
+</body>
+</html>

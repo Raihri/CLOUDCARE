@@ -46,6 +46,8 @@ public class DoctorAvailabilityController {
         model.addAttribute("doctor", doctor);
         model.addAttribute("error", error);
         model.addAttribute("slotAdded", slotAdded);
+        LocalDate today = LocalDate.now();
+    model.addAttribute("today", today);
         return "doctor_slot";
     }
 

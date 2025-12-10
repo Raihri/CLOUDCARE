@@ -22,7 +22,7 @@ public class Appointment {
     // Link to Patient (User entity)
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
-    private User patient;
+    private Patient patient;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date appointmentDate;
@@ -48,4 +48,11 @@ public class Appointment {
         CANCELLED,
         COMPLETED
     }
+
+    public void setPatient(Patient patient) {
+        // TODO Auto-generated method stub
+        this.patient = patient;
+    }
+
+   
 }

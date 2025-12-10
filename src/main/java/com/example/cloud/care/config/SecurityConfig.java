@@ -7,6 +7,7 @@ import com.example.cloud.care.service.DoctorUserDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -81,8 +82,11 @@ public class SecurityConfig {
                     "/patient/reset-otp-verify",
                     "/patient/css/**", "/patient/js/**"
                 ).permitAll()
+                 .requestMatchers(HttpMethod.POST, "/patient/*/book/*").authenticated()
+                
                 .anyRequest().authenticated()
-            )
+               
+            )   
             .formLogin(form -> form
                 .loginPage("/patient/login")
                 .loginProcessingUrl("/patient/login")
