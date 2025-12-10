@@ -1,48 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tuki - Raima Receiver</title>
+    <title>Patient Notifications</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .notification {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4CAF50;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .connected { background: #d4edda; color: #155724; }
+        .disconnected { background: #f8d7da; color: #721c24; }
+        .loading { background: #fff3cd; color: #856404; }
+    </style>
 </head>
 <body>
     <h2>Patient Dashboard</h2>
-    <p>Patient ID: <span id="patientId">patient123</span></p>
+    <div id="status" class="status loading">Status: Loading...</div>
+    <p>Patient Email: <strong><span id="patientEmail">Loading...</span></strong></p>
     
+
+    <!-- Principal-->
+     <h1>Principal</h1>
+    <span th:text="${principal_name}"></span>
+
     <h3>Notifications:</h3>
-    <div id="notifications" style="border:1px solid #ccc; padding:10px; height:300px; overflow-y:auto;"></div>
+    <div id="notifications"></div>
     
     <script>
-        // Set patient ID (in real app, this would come from login)
-        const patientId = 'farhanlabibahan@gmail.com';
-        
-        // Connect to WebSocket
-        const socket = new SockJS('/ws');
-        const stompClient = Stomp.over(socket);
-        
-        stompClient.connect({}, function(frame) {
-            console.log('Connected: RAIMA______________' + frame);
-            
-            // Subscribe to personal notifications
-            // Note: Spring automatically converts /user/queue/notifications 
-            // to /user/{username}/queue/notifications
-            stompClient.subscribe('/user/queue/specific', function(notification) {
-                const message = JSON.parse(notification.body);
-                displayNotification(message);
-            });
-            
-            // Subscribe to global notifications (optional)
-            stompClient.subscribe('/all', function(notification) {
-                const message = JSON.parse(notification.body);
-                displayNotification(message);
-                console.log('Global notification received: ', message);
+    let stompClient = null;
+    let patientEmail = null;
+
+    async function fetchCurrentUser() {
+        try {
+            const response = await fetch('/patient/current', {
+                method: 'GET',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log("YAYyyyyyyyyyyyyyyyyyyyYYyyyyyyy")
-         console.log(message);
+            if (!response.ok) throw new Error('Failed to fetch user');
+
+            const userData = await response.json();
+            console.log("Fetched user:", userData);
+            patientEmail = userData.email;
+
+            document.getElementById("patientEmail").textContent = patientEmail;
+            return userData;
+
+        } catch (err) {
+            console.error("User fetch error:", err);
+        }
+    }
+
+    function connectWebSocket() {
+        const socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.debug = str => console.log("STOMP:", str);
+
+        stompClient.connect({}, function (frame) {
+            console.log("Connected:", frame);
+            updateStatus(true);
+
+            // Personal notification subscription
+            stompClient.subscribe('/user/queue/notifications', function (msg) {
+                const body = JSON.parse(msg.body);
+                console.log("Personal notification:", body);
+                displayNotification(body, "Personal");
+            });
+
+            // Global notifications
+            stompClient.subscribe('/topic/all', function (msg) {
+                const body = JSON.parse(msg.body);
+                console.log("Global notification:", body);
+                displayNotification(body, "Global");
+            });
+
+        }, function (error) {
+            console.error("WebSocket Error:", error);
+            updateStatus(false);
+            setTimeout(connectWebSocket, 5000);
         });
-        
-        
-    </script>
+    }
+
+    function displayNotification(notification, type) {
+        const container = document.getElementById("notifications");
+        const box = document.createElement("div");
+        box.className = "notification";
+
+        box.innerHTML = `
+            <strong>[${type}]</strong> ${new Date().toLocaleTimeString()} <br>
+            <pre>${JSON.stringify(notification, null, 2)}</pre>
+        `;
+
+        container.prepend(box);
+    }
+
+    function updateStatus(connected) {
+        const statusDiv = document.getElementById("status");
+        if (connected) {
+            statusDiv.textContent = "Status: Connected ✓";
+            statusDiv.className = "status connected";
+        } else {
+            statusDiv.textContent = "Status: Disconnected ✗";
+            statusDiv.className = "status disconnected";
+        }
+    }
+
+    async function initialize() {
+        const user = await fetchCurrentUser();
+        if (user) connectWebSocket();
+        else {
+            const container = document.getElementById("notifications");
+            container.innerHTML = "<div class='notification'>Login required</div>";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", initialize);
+</script>
+    
 </body>
 </html>

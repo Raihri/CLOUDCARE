@@ -14,17 +14,16 @@ public class notificationService {
     // notification to all
     public void sendToAll(notification notification)
     {
-        messagingTemplate.convertAndSend("/all",notification);
+        messagingTemplate.convertAndSend("/topic/all",notification);
     }
 
     // notification to specific
     public void sendToSpecific(String email,notification notification)
     {
-        String des = String.format("/queue/specific");
 
         try
         {
-            messagingTemplate.convertAndSendToUser(email,des,notification);
+            messagingTemplate.convertAndSendToUser(email, "/specific",notification);
             System.out.println("Raima-------------------DONE");
         }
 

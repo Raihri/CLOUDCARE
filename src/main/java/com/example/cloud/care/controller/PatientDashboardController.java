@@ -9,6 +9,9 @@ import com.example.cloud.care.service.UserService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.loggedInUserFind;
 import com.example.cloud.care.service.DonorService;
+
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,11 +59,19 @@ public class PatientDashboardController {
         return "aichat";
     }
 
-    @GetMapping("/raima")
-    public String raima()
-    {
+    // @GetMapping("/raima")
+    // public String raima()
+    // {
+    //     return "raima";
+    // }
+
+     @GetMapping("/raima")
+    public String currentUser(Model model,Principal principal) {
+        model.addAttribute("principal_name", principal.getName());
         return "raima";
+        
     }
+
 
 
     @GetMapping("/dashboard")
