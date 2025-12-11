@@ -43,9 +43,6 @@
             padding: 20px;
         }
 
-
-
-
         /* Header Section */
         .dashboard-header {
             display: flex;
@@ -378,51 +375,50 @@
         }
 
         /* Quick Actions */
-       /* Quick Actions */
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-}
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
 
-.action-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 20px 16px;
-    background: var(--light);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
+        .action-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 20px 16px;
+            background: var(--light);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
 
-.action-link:hover {
-    background: var(--primary-light);
-    transform: translateY(-3px);
-}
+        .action-link:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+        }
 
-.action-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-}
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
 
-.action-label {
-    font-weight: 600;
-    color: var(--dark);
-    font-size: 14px;
-    text-align: center;
-}
+        .action-label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+            text-align: center;
+        }
 
         /* Emergency Card */
         .emergency-card {
@@ -501,6 +497,240 @@
             font-size: 14px;
         }
 
+        /* Notification System Styles */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-left: 5px solid var(--primary);
+            animation: slideInRight 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s ease;
+            transform-origin: right;
+            opacity: 0;
+            animation-fill-mode: forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0.7;
+        }
+
+        .notification.personal {
+            border-left-color: var(--primary);
+        }
+
+        .notification.global {
+            border-left-color: var(--secondary);
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .notification-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .notification-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .notification-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--dark);
+            transform: rotate(90deg);
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--gray);
+            margin-bottom: 8px;
+        }
+
+        .notification-body {
+            font-size: 14px;
+            color: var(--dark);
+            line-height: 1.5;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .notification-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .notification-body::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+
+        .notification-body::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+        }
+
+        .notification-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .notification-action {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .notification-action:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .notification.removing {
+            animation: slideOutRight 0.4s cubic-bezier(0.755, 0.05, 0.855, 0.06) forwards;
+            pointer-events: none;
+        }
+
+        @keyframes slideInRight {
+            0% {
+                opacity: 0;
+                transform: translateX(100%) scale(0.8);
+            }
+            70% {
+                opacity: 0.8;
+                transform: translateX(-10%) scale(1.02);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+
+        @keyframes slideOutRight {
+            0% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            30% {
+                opacity: 0.7;
+                transform: translateX(-10%) scale(1.05);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(120%) scale(0.8);
+            }
+        }
+
+        /* Status indicator for WebSocket */
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 9998;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .status-connected {
+            background: rgba(42, 125, 225, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(42, 125, 225, 0.2);
+        }
+
+        .status-disconnected {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        /* For desktop */
+        @media (min-width: 768px) {
+            .notification {
+                min-width: 350px;
+                max-width: 400px;
+            }
+        }
+
+        /* For mobile */
+        @media (max-width: 767px) {
+            .notification-container {
+                width: 90%;
+                left: 5%;
+                right: 5%;
+                top: 10px;
+            }
+            
+            .notification {
+                width: 100%;
+            }
+        }
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .dashboard-content {
@@ -559,700 +789,842 @@
             }
         }
 
-        /* Sidebar Styles */
-/* Sidebar Styles - Handled by external CSS */
-/* Sidebar Styles - Handled by external CSS */
-.sidebar {
-    /* dummy property */
-    -webkit-user-select: auto;
-}
+        /* Logout Button Styles */
+        .logout-form {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            padding: 20px 0;
+            text-align: center;
+        }
 
-.sidebar.close {
-    /* dummy property */
-    -webkit-user-select: auto;
-}
+        .logout-btn {
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease;
+        }
 
-.home-section {
-    /* dummy property */
-    -webkit-user-select: auto;
-}
-
-.sidebar.close ~ .home-section {
-    /* dummy property */
-    -webkit-user-select: auto;
-}
-
-.home-header {
-    /* dummy property */
-    -webkit-user-select: auto;
-}
-
-.home-header .bx-menu {
-    /* dummy property */
-    -webkit-user-select: auto;
-}
-
-
-/* Logout Button Styles */
-
-.logout-form {
-    display: flex;
-    justify-content: center;
-    margin-top: 30px;
-    padding: 20px 0;
-    text-align: center;
-    
-}
-
-.logout-btn {
-    background: var(--accent);
-    color: var(--white);
-    border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s ease;
-    keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-}
-
-.logout-btn:hover {
-    background: #ffffff;
-    color: var(--accent);
-
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+        .logout-btn:hover {
+            background: #ffffff;
+            color: var(--accent);
+        }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
-    <div class="logo-details">
-        <img th:src="@{/image/logo.png}" alt="CloudCare Logo"/>
-
-        <span class="logo_name">CloudCare</span>
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+    
+    <!-- Status Indicator -->
+    <div class="status-indicator status-disconnected" id="statusIndicator">
+        <span id="statusText">Connecting...</span>
     </div>
-    <ul class="nav-links">
-        
-        <li class="active">
-            <a th:href="@{/patient/dashboard}">
-                <i class="bx bxs-user"></i>
-                <span class="link_name">Patient Profile</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Patient Profile</a></li>
-            </ul>
-        </li>
 
-          <li >
-            <a th:href="@{/patient/dataEntry}">
-                <i class="bx bxs-edit"></i>
-                <span class="link_name">Edit Profile</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Edit Profile</a></li>
-            </ul>
-        </li>
+    <div class="sidebar">
+        <div class="logo-details">
+            <img th:src="@{/image/logo.png}" alt="CloudCare Logo"/>
+            <span class="logo_name">CloudCare</span>
+        </div>
+        <ul class="nav-links">
+            <li class="active">
+                <a th:href="@{/patient/dashboard}">
+                    <i class="bx bxs-user"></i>
+                    <span class="link_name">Patient Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="patient">Patient Profile</a></li>
+                </ul>
+            </li>
 
-         <li>
-            <a th:href="@{/patient/doctor_list}">
-                <i class="bx bx-menu"></i>
-                <span class="link_name">Doctors List</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Doctors List</a></li>
-            </ul>
-        </li>
+            <li>
+                <a th:href="@{/patient/dataEntry}">
+                    <i class="bx bxs-edit"></i>
+                    <span class="link_name">Edit Profile</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="patient">Edit Profile</a></li>
+                </ul>
+            </li>
 
+            <li>
+                <a th:href="@{/patient/doctor_list}">
+                    <i class="bx bx-menu"></i>
+                    <span class="link_name">Doctors List</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="patient">Doctors List</a></li>
+                </ul>
+            </li>
 
-        <li>
-            <a th:href="@{/patient/donor}">
-                <i class='bx bxs-droplet'></i>
-                <span class="link_name">Find Donor</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="donor">Find Donor</a></li>
-            </ul>
-        </li>
+            <li>
+                <a th:href="@{/patient/donor}">
+                    <i class='bx bxs-droplet'></i>
+                    <span class="link_name">Find Donor</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="donor">Find Donor</a></li>
+                </ul>
+            </li>
 
-        <li>
-            <a th:href="@{/patient/aichat}">
-                <i class='bx bxs-chat'></i>
-                <span class="link_name">CloudCare AI</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
-            </ul>
-        </li>
-        <li>
-            <a th:href="@{/patient/quiz_index1}">
-                <i class='bx bxs-chat'></i>
-                <span class="link_name">Mental Health Quiz</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/quiz_index1">Mental Health Quiz</a></li>
-            </ul>
-        </li>
-         <li>
-            <a th:href="@{/patient/appointments}">
-                <i class='bx bxs-droplet'></i>
-                <span class="link_name">Appointments</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="appointments">Appointments</a></li>
-            </ul>
-        </li>
-      
+            <li>
+                <a th:href="@{/patient/aichat}">
+                    <i class='bx bxs-chat'></i>
+                    <span class="link_name">CloudCare AI</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/patient/quiz_index1}">
+                    <i class='bx bxs-chat'></i>
+                    <span class="link_name">Mental Health Quiz</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="/patient/quiz_index1">Mental Health Quiz</a></li>
+                </ul>
+            </li>
+            <li>
+                <a th:href="@{/patient/appointments}">
+                    <i class='bx bxs-droplet'></i>
+                    <span class="link_name">Appointments</span>
+                </a>
+                <ul class="sub-menu blank">
+                    <li><a class="link_name" href="appointments">Appointments</a></li>
+                </ul>
+            </li>
 
-       
-        <li>
-            <!-- Patient Content Here -->
-            <div class="profile-details" th:if="${patient != null}">
-                <a th:href="@{/patient/dashboard}"
-                   style="display: flex; align-items: center; text-decoration: none; width: 100%;">
-                    <div class="profile-content">
-                        <!-- show patient image -->
+            <li>
+                <!-- Patient Content Here -->
+                <div class="profile-details" th:if="${patient != null}">
+                    <a th:href="@{/patient/dashboard}"
+                       style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                        <div class="profile-content">
+                            <!-- show patient image -->
+                            <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                                 th:src="${patient.user.photoUrl}"
+                                 alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+                            <img th:if="${patient.user == null or patient.user.photoUrl == null}"
+                                 src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
+                                 alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+
+                            <div class="name-job">
+                                <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
+                                <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <div class="home-header">
+            <i class='bx bx-menu' id='sidebarToggle'></i>
+            <h1>Patient Dashboard</h1>
+        </div>
+        <div class="patient-dashboard" th:if="${patient != null}">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header"></div>
+
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-image-container">
                         <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
                              th:src="${patient.user.photoUrl}"
-                             alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+                             alt="Patient Photo" class="profile-image">
                         <img th:if="${patient.user == null or patient.user.photoUrl == null}"
-                             src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
-                             alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
-
-                        <div class="name-job">
-                            <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
-                            <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
+                             src="https://via.placeholder.com/150"
+                             alt="defaultPatientPhoto" class="profile-image">
+                        <div class="profile-status"></div>
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="profile-name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient Name'}">Patient Name</h1>
+                        <div class="profile-id" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID: N/A</div>
+                        <div class="profile-tags">
+                            <div class="tag" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Blood Group'}">Blood Group</div>
+                            <div class="tag" th:text="(${patient.age != null ? patient.age : 'Age'}) + ' years'">Age years</div>
+                            <div class="tag" th:text="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('M') ? 'Male' : (#strings.trim(patient.gender.toString()).equalsIgnoreCase('F') ? 'Female' : 'Other')}">Gender</div>
                         </div>
                     </div>
-                </a>
-            </div>
-        </li>
-    </ul>
-</div>
-<section class="home-section">
-    <div class="home-header">
-        <i class='bx bx-menu' id='sidebarToggle'></i>
-        <h1>Patient Dashboard</h1>
-        <!-- <div class="date-display" style="postiton : absolute;"id="currentDate"></div> -->
-         <!-- Logout Button -->
-
-    </div>
-    <div class="patient-dashboard" th:if="${patient != null}">
-        <!-- Dashboard Header -->
-        <div class="dashboard-header">
-            
-            
-        </div>
-
-        <!-- Profile Card -->
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="profile-image-container">
-                    <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
-                         th:src="${patient.user.photoUrl}"
-                         alt="Patient Photo" class="profile-image">
-                    <img th:if="${patient.user == null or patient.user.photoUrl == null}"
-                         src="https://via.placeholder.com/150"
-                         alt="defaultPatientPhoto" class="profile-image">
-                    <div class="profile-status"></div>
-                </div>
-                <div class="profile-info">
-                    <h1 class="profile-name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient Name'}">Patient Name</h1>
-                    <div class="profile-id" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID: N/A</div>
-                    <div class="profile-tags">
-                        <div class="tag" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Blood Group'}">Blood Group</div>
-                        <div class="tag" th:text="(${patient.age != null ? patient.age : 'Age'}) + ' years'">Age years</div>
-                        <div class="tag" th:text="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('M') ? 'Male' : (#strings.trim(patient.gender.toString()).equalsIgnoreCase('F') ? 'Female' : 'Other')}">Gender</div>
+                    <div class="notification-btn">
+                        <a th:href="@{/patient/notifications}" 
+                           style="
+                               background: #ffffff;
+                               padding: 12px 18px;
+                               border-radius: 10px;
+                               display: flex;
+                               align-items: center;
+                               gap: 10px;
+                               font-weight: 600;
+                               color: #2A7DE1;
+                               text-decoration: none;
+                               box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                               transition: all 0.3s ease;
+                           "
+                           onmouseover="this.style.background='#2A7DE1'; this.style.color='white'"
+                           onmouseout="this.style.background='white'; this.style.color='#2A7DE1'">
+                            <i class='bx bx-bell' style="font-size: 24px;"></i>
+                            <span>Notifications</span>
+                        </a>
                     </div>
                 </div>
-                <div class="notification-btn">
-                    <a th:href="@{/patient/notifications}" 
-   style="
-       background: #ffffff;
-       padding: 12px 18px;
-       border-radius: 10px;
-       display: flex;
-       align-items: center;
-       gap: 10px;
-       font-weight: 600;
-       color: #2A7DE1;
-       text-decoration: none;
-       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-       transition: all 0.3s ease;
-   "
-onmouseover="this.style.background='#2A7DE1'; this.style.color='white'"
-onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
->
-    <i class='bx bx-bell' style="font-size: 24px;"></i>
-    <span>Notifications</span>
-</a>
-                </div>
-            </div>
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <div class="stat-value" th:text="${patient.age != null ? patient.age : '0'}">0</div>
-                    <div class="stat-label">Age</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" th:text="${patient.weight != null ? patient.weight : '0'}">0</div>
-                    <div class="stat-label">Weight (kg)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" th:text="${patient.height != null ? patient.height : '0'}">0</div>
-                    <div class="stat-label">Height (cm)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" th:text="${patient.bmi != null ? #numbers.formatDecimal(patient.bmi, 1, 1) : '0.0'}">0.0</div>
-                    <div class="stat-label">BMI</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="dashboard-content">
-            <!-- Left Column -->
-            <div class="main-content">
-                <!-- Tabs Navigation -->
-                <div class="tabs-container">
-                    <div class="tabs-header">
-                        <div class="tab active" data-tab="overview">Overview</div>
-                        <div class="tab" data-tab="medical">Medical History</div>
-                        <div class="tab" data-tab="reports">Lab Reports</div>
-                        <div class="tab" data-tab="appointments">Appointments</div>
-                        <div class="tab" data-tab="medications">Medications</div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${patient.age != null ? patient.age : '0'}">0</div>
+                        <div class="stat-label">Age</div>
                     </div>
-                    <div class="tab-content">
-                        <!-- Overview Tab -->
-                        <div id="overview" class="tab-pane active">
-                            <!-- Personal Information Card -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Personal Information</h3>
-                                    <div class="card-action">Edit</div>
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${patient.weight != null ? patient.weight : '0'}">0</div>
+                        <div class="stat-label">Weight (kg)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${patient.height != null ? patient.height : '0'}">0</div>
+                        <div class="stat-label">Height (cm)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" th:text="${patient.bmi != null ? #numbers.formatDecimal(patient.bmi, 1, 1) : '0.0'}">0.0</div>
+                        <div class="stat-label">BMI</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="dashboard-content">
+                <!-- Left Column -->
+                <div class="main-content">
+                    <!-- Tabs Navigation -->
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <div class="tab active" data-tab="overview">Overview</div>
+                            <div class="tab" data-tab="medical">Medical History</div>
+                            <div class="tab" data-tab="reports">Lab Reports</div>
+                            <div class="tab" data-tab="appointments">Appointments</div>
+                            <div class="tab" data-tab="medications">Medications</div>
+                        </div>
+                        <div class="tab-content">
+                            <!-- Overview Tab -->
+                            <div id="overview" class="tab-pane active">
+                                <!-- Personal Information Card -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Personal Information</h3>
+                                        <div class="card-action">Edit</div>
+                                    </div>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-id-card'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">National ID</div>
+                                                <div class="info-value" th:text="${patient.nationalId != null ? patient.nationalId : 'Not provided'}">Not provided</div>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-calendar'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Date of Birth</div>
+                                                <div class="info-value" th:text="${patient.dateOfBirth != null ? patient.dateOfBirth : 'Not provided'}">Not provided</div>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-dna'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Gender</div>
+                                                <div class="info-value" th:text="${patient.gender == 'M' ? 'Male' : (patient.gender == 'F' ? 'Female' : 'Other')}">Other</div>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-map'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Location</div>
+                                                <div class="info-value" th:text="(${patient.division != null ? patient.division : 'Division'}) + ', ' + (${patient.zilla != null ? patient.zilla : 'Zilla'})">Division, Zilla</div>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-heart'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Blood Group</div>
+                                                <div class="info-value" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Not provided'}">Not provided</div>
+                                            </div>
+                                        </div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-test-tube'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Rh Factor</div>
+                                                <div class="info-value" th:text="${patient.rhFactor != null ? patient.rhFactor : 'Not provided'}">Not provided</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="info-grid">
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-id-card'></i>
+
+                                <!-- Health Metrics Card -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Health Metrics</h3>
+                                        <div class="card-action">View History</div>
+                                    </div>
+                                    <div class="metrics-grid">
+                                        <div class="metric-card">
+                                            <div class="metric-value" th:text="(${patient.systolicBP != null ? patient.systolicBP : '120'}) + '/' + (${patient.diastolicBP != null ? patient.diastolicBP : '80'})">120/80</div>
+                                            <div class="metric-label">Blood Pressure</div>
                                         </div>
-                                        <div class="info-content">
-                                            <div class="info-label">National ID</div>
-                                            <div class="info-value" th:text="${patient.nationalId != null ? patient.nationalId : 'Not provided'}">Not provided</div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" th:text="${patient.heartRate != null ? patient.heartRate : '72'}">72</div>
+                                            <div class="metric-label">Heart Rate</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" th:text="${patient.bloodSugarLevel != null ? #numbers.formatDecimal(patient.bloodSugarLevel, 1, 1) : '95.0'}">95.0</div>
+                                            <div class="metric-label">Blood Sugar</div>
+                                        </div>
+                                        <div class="metric-card">
+                                            <div class="metric-value" th:text="(${patient.oxygenSaturation != null ? patient.oxygenSaturation : '98'}) + '%'">98%</div>
+                                            <div class="metric-label">Oxygen Level</div>
                                         </div>
                                     </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-calendar'></i>
-                                        </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Date of Birth</div>
-                                            <div class="info-value" th:text="${patient.dateOfBirth != null ? patient.dateOfBirth : 'Not provided'}">Not provided</div>
-                                        </div>
+                                </div>
+
+                                <!-- Recent Activity Card -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Recent Activity</h3>
+                                        <div class="card-action">See All</div>
                                     </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-dna'></i>
-                                        </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Gender</div>
-                                            <div class="info-value" th:text="${patient.gender == 'M' ? 'Male' : (patient.gender == 'F' ? 'Female' : 'Other')}">Other</div>
-                                        </div>
+                                    <div class="activity-list">
+                                        <th:block th:if="${patient != null and patient.recentUpdates != null}" th:each="update : ${patient.recentUpdates}">
+                                            <div class="activity-item">
+                                                <div class="activity-icon">
+                                                    <i class='bx bx-bell'></i>
+                                                </div>
+                                                <div class="activity-content">
+                                                    <div class="activity-text" th:text="${update}">Activity text</div>
+                                                    <div class="activity-time">Today</div>
+                                                </div>
+                                            </div>
+                                        </th:block>
                                     </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-map'></i>
-                                        </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Location</div>
-                                            <div class="info-value" th:text="(${patient.division != null ? patient.division : 'Division'}) + ', ' + (${patient.zilla != null ? patient.zilla : 'Zilla'})">Division, Zilla</div>
-                                        </div>
+                                </div>
+                            </div>
+
+                            <!-- Medical History Tab -->
+                            <div id="medical" class="tab-pane">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Medical History</h3>
+                                        <div class="card-action">Edit</div>
                                     </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-heart'></i>
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-plus-medical'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Past Surgeries</div>
+                                                <div class="info-value">
+                                                    <th:block th:if="${patient != null and patient.pastSurgeries != null and !patient.pastSurgeries.isEmpty()}" th:each="s : ${patient.pastSurgeries}">
+                                                        <span th:text="${s}"></span><br>
+                                                    </th:block>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Blood Group</div>
-                                            <div class="info-value" th:text="${patient.bloodGroup != null ? patient.bloodGroup : 'Not provided'}">Not provided</div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-pill'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Allergies</div>
+                                                <div class="info-value">
+                                                    <th:block th:if="${patient != null and patient.allergies != null and !patient.allergies.isEmpty()}" th:each="a : ${patient.allergies}">
+                                                        <span th:text="${a}"></span><br>
+                                                    </th:block>
+                                                    <th:block th:if="${patient.allergies == null or patient.allergies.isEmpty()}">None known</th:block>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-test-tube'></i>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-virus'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Chronic Diseases</div>
+                                                <div class="info-value">
+                                                    <th:block th:if="${patient != null and patient.diseases != null and !patient.diseases.isEmpty()}" th:each="d : ${patient.diseases}">
+                                                        <span th:text="${d}"></span><br>
+                                                    </th:block>
+                                                    <th:block th:if="${patient.diseases == null or patient.diseases.isEmpty()}">None recorded</th:block>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Rh Factor</div>
-                                            <div class="info-value" th:text="${patient.rhFactor != null ? patient.rhFactor : 'Not provided'}">Not provided</div>
+                                        <div class="info-item">
+                                            <div class="info-icon">
+                                                <i class='bx bx-family'></i>
+                                            </div>
+                                            <div class="info-content">
+                                                <div class="info-label">Family Medical History</div>
+                                                <div class="info-value">
+                                                    <th:block th:if="${patient != null and patient.familyDiseaseHistory != null and !patient.familyDiseaseHistory.isEmpty()}" th:each="f : ${patient.familyDiseaseHistory}">
+                                                        <span th:text="${f}"></span><br>
+                                                    </th:block>
+                                                    <th:block th:if="${patient.familyDiseaseHistory == null or patient.familyDiseaseHistory.isEmpty()}">Not provided</th:block>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Health Metrics Card -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Health Metrics</h3>
-                                    <div class="card-action">View History</div>
-                                </div>
-                                <div class="metrics-grid">
-                                    <div class="metric-card">
-                                        <div class="metric-value" th:text="(${patient.systolicBP != null ? patient.systolicBP : '120'}) + '/' + (${patient.diastolicBP != null ? patient.diastolicBP : '80'})">120/80</div>
-                                        <div class="metric-label">Blood Pressure</div>
-                                    </div>
-                                    <div class="metric-card">
-                                        <div class="metric-value" th:text="${patient.heartRate != null ? patient.heartRate : '72'}">72</div>
-                                        <div class="metric-label">Heart Rate</div>
-                                    </div>
-                                    <div class="metric-card">
-                                        <div class="metric-value" th:text="${patient.bloodSugarLevel != null ? #numbers.formatDecimal(patient.bloodSugarLevel, 1, 1) : '95.0'}">95.0</div>
-                                        <div class="metric-label">Blood Sugar</div>
-                                    </div>
-                                    <div class="metric-card">
-                                        <div class="metric-value" th:text="(${patient.oxygenSaturation != null ? patient.oxygenSaturation : '98'}) + '%'">98%</div>
-                                        <div class="metric-label">Oxygen Level</div>
-                                    </div>
-                                </div>
+                            <!-- Other tabs -->
+                            <div id="reports" class="tab-pane">
+                                <!-- Lab Reports Content -->
                             </div>
-
-                            <!-- Recent Activity Card -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Recent Activity</h3>
-                                    <div class="card-action">See All</div>
-                                </div>
-                                <div class="activity-list">
-                                    <th:block th:if="${patient != null and patient.recentUpdates != null}" th:each="update : ${patient.recentUpdates}">
-                                        <div class="activity-item">
-                                            <div class="activity-icon">
-                                                <i class='bx bx-bell'></i>
-                                            </div>
-                                            <div class="activity-content">
-                                                <div class="activity-text" th:text="${update}">Activity text</div>
-                                                <div class="activity-time">Today</div>
-                                            </div>
-                                        </div>
+                            <div id="appointments" class="tab-pane">
+                                <!-- Appointments Content -->
+                            </div>
+                            <div id="medications" class="tab-pane">
+                                <!-- Medications Content -->
+                                <ul>
+                                    <th:block th:if="${patient != null and patient.medications != null and !patient.medications.isEmpty()}">
+                                        <li th:each="medication : ${patient.medications}" style="list-style: circle;">
+                                            <span th:text="${medication}">Medication Name</span>
+                                        </li>
                                     </th:block>
-                                </div>
+                                    <th:block th:if="${patient.medications == null or patient.medications.isEmpty()}">
+                                        <li>No medications recorded.</li>
+                                    </th:block>
+                                </ul>
                             </div>
-                        </div>
-
-                        <!-- Medical History Tab -->
-                        <div id="medical" class="tab-pane">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Medical History</h3>
-                                    <div class="card-action">Edit</div>
-                                </div>
-                                <div class="info-grid">
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-plus-medical'></i>
-                                        </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Past Surgeries</div>
-                                            <div class="info-value">
-                                                <th:block th:if="${patient != null and patient.pastSurgeries != null and !patient.pastSurgeries.isEmpty()}" th:each="s : ${patient.pastSurgeries}">
-                                                    <span th:text="${s}"></span><br>
-                                                    <ul></ul>
-                                                </th:block>
-                                                
-                                                
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-pill'></i>
-                                        </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Allergies</div>
-                                            <div class="info-value">
-                                                <th:block th:if="${patient != null and patient.allergies != null and !patient.allergies.isEmpty()}" th:each="a : ${patient.allergies}">
-                                                    <span th:text="${a}"></span><br>
-                                                </th:block>
-                                                <th:block th:if="${patient.allergies == null or patient.allergies.isEmpty()}">None known</th:block>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-virus'></i>
-                                        </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Chronic Diseases</div>
-                                            <div class="info-value">
-                                                <th:block th:if="${patient != null and patient.diseases != null and !patient.diseases.isEmpty()}" th:each="d : ${patient.diseases}">
-                                                    <span th:text="${d}"></span><br>
-                                                </th:block>
-                                                <th:block th:if="${patient.diseases == null or patient.diseases.isEmpty()}">None recorded</th:block>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="info-item">
-                                        <div class="info-icon">
-                                            <i class='bx bx-family'></i>
-                                        </div>
-                                        <div class="info-content">
-                                            <div class="info-label">Family Medical History</div>
-                                            <div class="info-value">
-                                                <th:block th:if="${patient != null and patient.familyDiseaseHistory != null and !patient.familyDiseaseHistory.isEmpty()}" th:each="f : ${patient.familyDiseaseHistory}">
-                                                    <span th:text="${f}"></span><br>
-                                                </th:block>
-                                                <th:block th:if="${patient.familyDiseaseHistory == null or patient.familyDiseaseHistory.isEmpty()}">Not provided</th:block>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Other tabs would go here with similar structure -->
-                        <div id="reports" class="tab-pane">
-                            
-                            <!-- <ul>
-                                <th:block th:if="${patient != null and patient.labReports != null and !patient.labReports.isEmpty()}">
-                                    <li th:each="report : ${patient.labReports}" style="list-style: circle; " >
-                                    <span th:text="${report}">Report Details</span>
-                                </li>
-                                                    
-                                </th:block>
-                                <th:block th:if="${patient.labReports == null or patient.labReports.isEmpty()}">
-                                    <li>No lab reports available.</li>
-                                </th:block>
-                            </ul> -->
-                        </div>
-                        <div id="appointments" class="tab-pane">
-                            <!-- <ul>
-                                <th:block th:if="${patient != null and patient.appointments != null and !patient.appointments.isEmpty()}">
-                                    <li th:each="appointment : ${patient.appointments}" style="list-style: circle; " >
-                                    <span th:text="${appointment}">Appointment Details</span>
-                                </li>
-                                                    
-                                </th:block>
-                                <th:block th:if="${patient.appointments == null or patient.appointments.isEmpty()}">
-                                    <li>No appointments scheduled.</li>
-                                </th:block>
-                            </ul> -->
-                        </div>
-                        <div id="medications" class="tab-pane">
-                            <!-- Medications Content -->
-                            <ul>
-                                <th:block th:if="${patient != null and patient.medications != null and !patient.medications.isEmpty()}">
-                                    <li th:each="medication : ${patient.medications}" style="list-style: circle; " >
-                                    <span th:text="${medication}">Medication Name</span>
-                                </li>
-                                                    
-                                </th:block>
-                                <th:block th:if="${patient.medications == null or patient.medications.isEmpty()}">
-                                    <li>No medications recorded.</li>
-                                </th:block>
-                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Right Sidebar -->
-            <div class="sidebar-content">
-                <!-- Quick Actions Card -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Quick Actions</h3>
-                    </div>
-                   <div class="actions-grid">
-    <!-- Replace # with your actual links later -->
-    <a href="#" class="action-link">
-        <div class="action-icon">
-            <i class='bx bx-calendar'></i>
-        </div>
-        <div class="action-label">Book Appointment</div>
-    </a>
-    <a href="#" class="action-link">
-        <div class="action-icon">
-            <i class='bx bx-file'></i>
-        </div>
-        <div class="action-label">View Reports</div>
-    </a>
-    <a href="#" class="action-link">
-        <div class="action-icon">
-            <i class='bx bx-refresh'></i>
-        </div>
-        <div class="action-label">Update Health Data</div>
-    </a>
-    <a href="#" class="action-link">
-        <div class="action-icon">
-            <i class='bx bx-chat'></i>
-        </div>
-        <div class="action-label">Message Doctor</div>
-    </a>
-</div>
-                </div>
-
-                <!-- Emergency Contact Card -->
-                <div class="emergency-card">
-                    <div class="emergency-header">
-                        <i class='bx bx-phone emergency-icon'></i>
-                        <h3 class="emergency-title">Emergency Contact</h3>
-                    </div>
-                    <div class="emergency-number" th:text="${patient.emergencyContact != null ? patient.emergencyContact : '+880 XXXX-XXXXXX'}">+880 XXXX-XXXXXX</div>
-                    <div class="emergency-note">Available 24/7 for medical emergencies</div>
-                </div>
-
-                <!-- Health Tips Card -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Health Tips</h3>
-                    </div>
-                    <div class="health-tips">
-                        <div class="health-tip">
-                            <div class="tip-icon" style="background: #00C9A7;">
-                                <i class='bx bx-run'></i>
-                            </div>
-                            <div class="tip-content">
-                                <div class="tip-text">30 minutes of daily exercise recommended</div>
-                            </div>
+                <!-- Right Sidebar -->
+                <div class="sidebar-content">
+                    <!-- Quick Actions Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Quick Actions</h3>
                         </div>
-                        <div class="health-tip">
-                            <div class="tip-icon" style="background: #2A7DE1;">
-                                <i class='bx bx-water'></i>
-                            </div>
-                            <div class="tip-content">
-                                <div class="tip-text">Stay hydrated - drink 8 glasses of water</div>
-                            </div>
+                        <div class="actions-grid">
+                            <a href="#" class="action-link">
+                                <div class="action-icon">
+                                    <i class='bx bx-calendar'></i>
+                                </div>
+                                <div class="action-label">Book Appointment</div>
+                            </a>
+                            <a href="#" class="action-link">
+                                <div class="action-icon">
+                                    <i class='bx bx-file'></i>
+                                </div>
+                                <div class="action-label">View Reports</div>
+                            </a>
+                            <a href="#" class="action-link">
+                                <div class="action-icon">
+                                    <i class='bx bx-refresh'></i>
+                                </div>
+                                <div class="action-label">Update Health Data</div>
+                            </a>
+                            <a href="#" class="action-link">
+                                <div class="action-icon">
+                                    <i class='bx bx-chat'></i>
+                                </div>
+                                <div class="action-label">Message Doctor</div>
+                            </a>
                         </div>
-                        <div class="health-tip">
-                            <div class="tip-icon" style="background: #FF6B6B;">
-                                <i class='bx bx-bed'></i>
+                    </div>
+
+                    <!-- Emergency Contact Card -->
+                    <div class="emergency-card">
+                        <div class="emergency-header">
+                            <i class='bx bx-phone emergency-icon'></i>
+                            <h3 class="emergency-title">Emergency Contact</h3>
+                        </div>
+                        <div class="emergency-number" th:text="${patient.emergencyContact != null ? patient.emergencyContact : '+880 XXXX-XXXXXX'}">+880 XXXX-XXXXXX</div>
+                        <div class="emergency-note">Available 24/7 for medical emergencies</div>
+                    </div>
+
+                    <!-- Health Tips Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Health Tips</h3>
+                        </div>
+                        <div class="health-tips">
+                            <div class="health-tip">
+                                <div class="tip-icon" style="background: #00C9A7;">
+                                    <i class='bx bx-run'></i>
+                                </div>
+                                <div class="tip-content">
+                                    <div class="tip-text">30 minutes of daily exercise recommended</div>
+                                </div>
                             </div>
-                            <div class="tip-content">
-                                <div class="tip-text">Get 7-8 hours of sleep nightly</div>
+                            <div class="health-tip">
+                                <div class="tip-icon" style="background: #2A7DE1;">
+                                    <i class='bx bx-water'></i>
+                                </div>
+                                <div class="tip-content">
+                                    <div class="tip-text">Stay hydrated - drink 8 glasses of water</div>
+                                </div>
+                            </div>
+                            <div class="health-tip">
+                                <div class="tip-icon" style="background: #FF6B6B;">
+                                    <i class='bx bx-bed'></i>
+                                </div>
+                                <div class="tip-content">
+                                    <div class="tip-text">Get 7-8 hours of sleep nightly</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <form th:action="@{/patient/logout}" method="post" style="display: flex; justify-content: center; align-items: center;" class="logout-form">
-        <button type="submit" class="logout-btn" style="width:30vw; padding:10px; font-size:22px;text-align: center; ">
-            <i class='bx bx-log-out'></i>
-            <span style="text-align: center;">Logout</span>
-        </button>
-    </form>
+        <form th:action="@{/patient/logout}" method="post" style="display: flex; justify-content: center; align-items: center;" class="logout-form">
+            <button type="submit" class="logout-btn" style="width:30vw; padding:10px; font-size:22px;text-align: center;">
+                <i class='bx bx-log-out'></i>
+                <span style="text-align: center;">Logout</span>
+            </button>
+        </form>
+    </section>
 
+    <!-- WebSocket Notification Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.0/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    
     <script>
-    // Minimal Sidebar State Restorer
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.querySelector(".sidebar");
-        const toggleBtn = document.getElementById("sidebarToggle");
-        
-        if (!sidebar || !toggleBtn) return;
-        
-        // RESTORE STATE
-        // Check multiple sources for sidebar state
-        const urlParams = new URLSearchParams(window.location.search);
-        const sidebarParam = urlParams.get('sidebar');
-        
-        if (sidebarParam === 'collapsed') {
-            sidebar.classList.add('close');
-        } else if (sidebarParam === 'expanded') {
-            sidebar.classList.remove('close');
-        } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
-            sidebar.classList.add('close');
-        } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
-            sidebar.classList.add('close');
-        }
-        
-        // SAVE STATE on toggle
-        toggleBtn.addEventListener("click", () => {
-            sidebar.classList.toggle("close");
-            const isCollapsed = sidebar.classList.contains('close');
+        // Minimal Sidebar State Restorer
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector(".sidebar");
+            const toggleBtn = document.getElementById("sidebarToggle");
             
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
-            sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
-        });
-        
-        // Save state before form submissions
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            // Add hidden input if not already present
-            if (!form.querySelector('input[name="sidebar"]')) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'sidebar';
-                form.appendChild(input);
+            if (!sidebar || !toggleBtn) return;
+            
+            // RESTORE STATE
+            const urlParams = new URLSearchParams(window.location.search);
+            const sidebarParam = urlParams.get('sidebar');
+            
+            if (sidebarParam === 'collapsed') {
+                sidebar.classList.add('close');
+            } else if (sidebarParam === 'expanded') {
+                sidebar.classList.remove('close');
+            } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
+                sidebar.classList.add('close');
+            } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                sidebar.classList.add('close');
             }
             
-            form.addEventListener('submit', () => {
+            // SAVE STATE on toggle
+            toggleBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("close");
                 const isCollapsed = sidebar.classList.contains('close');
+                
                 localStorage.setItem('sidebarCollapsed', isCollapsed);
                 sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
             });
+            
+            // Save state before form submissions
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                if (!form.querySelector('input[name="sidebar"]')) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'sidebar';
+                    form.appendChild(input);
+                }
+                
+                form.addEventListener('submit', () => {
+                    const isCollapsed = sidebar.classList.contains('close');
+                    localStorage.setItem('sidebarCollapsed', isCollapsed);
+                    sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+                });
+            });
         });
-    });
-</script>
-
-   
+    </script>
 
     <script>
         // Set current date
         const currentDate = new Date();
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('en-US', options);
-
-     
-
-    tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Remove active class from all tabs and panes
-            tabs.forEach(t => t.classList.remove('active'));
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-
-            // Add active class to clicked tab and corresponding pane
-            tab.classList.add('active');
-            document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
-        });
-    });
-    
+        if (document.getElementById('currentDate')) {
+            document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('en-US', options);
+        }
     </script>
 
     <script>
         // Tabs functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const tabs = document.querySelectorAll('.tab');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-    
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            // Get the tab name from clicked tab
-            const tabName = this.getAttribute('data-tab');
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabPanes = document.querySelectorAll('.tab-pane');
             
-            // Remove active class from all tabs and panes
-            tabs.forEach(t => t.classList.remove('active'));
-            tabPanes.forEach(pane => pane.classList.remove('active'));
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabPanes.forEach(pane => pane.classList.remove('active'));
 
-            // Add active class to clicked tab
-            this.classList.add('active');
+                    this.classList.add('active');
+                    
+                    const targetPane = document.getElementById(tabName);
+                    if (targetPane) {
+                        targetPane.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // WebSocket Notification System
+        let stompClient = null;
+        let patientEmail = null;
+        let notificationCount = 0;
+        const MAX_NOTIFICATIONS = 5;
+
+        async function fetchCurrentUser() {
+            try {
+                const response = await fetch('/patient/current', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    console.log("Fetched user:", userData);
+                    patientEmail = userData.email || userData.username;
+                    return userData;
+                } else if (response.status === 401) {
+                    console.log("Not authenticated, using default user");
+                    patientEmail = 'patient@example.com'; // Fallback
+                    return { email: patientEmail };
+                } else {
+                    throw new Error('Failed to fetch user');
+                }
+
+            } catch (error) {
+                console.error("User fetch error:", error);
+                // Use patient email from Thymeleaf if available
+                const patientElement = document.querySelector('.profile-name');
+                if (patientElement) {
+                    patientEmail = patientElement.textContent.trim() + '@example.com';
+                } else {
+                    patientEmail = 'patient@example.com';
+                }
+                return { email: patientEmail };
+            }
+        }
+
+        function connectWebSocket() {
+            try {
+                const socket = new SockJS('/ws');
+                stompClient = Stomp.over(socket);
+
+                stompClient.debug = str => console.log("STOMP:", str);
+
+                stompClient.connect({}, function (frame) {
+                    console.log("Connected to WebSocket:", frame);
+                    updateStatus(true);
+
+                    // Subscribe to personal notifications
+                    stompClient.subscribe('/user/queue/notifications', function (msg) {
+                        const body = JSON.parse(msg.body);
+                        console.log("Personal notification:", body);
+                        showNotification(body, "Personal");
+                    });
+
+                    // Subscribe to global notifications
+                    stompClient.subscribe('/topic/all', function (msg) {
+                        const body = JSON.parse(msg.body);
+                        console.log("Global notification:", body);
+                        showNotification(body, "Global");
+                    });
+
+                    // Test subscription for debugging
+                    stompClient.subscribe('/topic/test', function (msg) {
+                        console.log("Test notification:", msg.body);
+                    });
+
+                }, function (error) {
+                    console.error("WebSocket Connection Error:", error);
+                    updateStatus(false);
+                    setTimeout(connectWebSocket, 5000);
+                });
+            } catch (error) {
+                console.error("WebSocket Initialization Error:", error);
+                updateStatus(false);
+                setTimeout(connectWebSocket, 5000);
+            }
+        }
+
+        function showNotification(notification, type) {
+            const container = document.getElementById("notificationContainer");
+            if (!container) {
+                console.error("Notification container not found");
+                return;
+            }
+
+            // Remove oldest notification if we have too many
+            if (notificationCount >= MAX_NOTIFICATIONS) {
+                const oldest = container.querySelector('.notification');
+                if (oldest) {
+                    oldest.classList.add('removing');
+                    setTimeout(() => oldest.remove(), 400);
+                    notificationCount--;
+                }
+            }
+
+            const notificationId = 'notification-' + Date.now();
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = `notification ${type.toLowerCase()}`;
+            notificationDiv.id = notificationId;
+
+            // Format notification content
+            let title = notification.title || 'New Notification';
+            let message = notification.message || JSON.stringify(notification, null, 2);
+            let timestamp = notification.timestamp || new Date().toISOString();
+
+            notificationDiv.innerHTML = `
+                <div class="notification-header">
+                    <div class="notification-title">
+                        <div class="notification-icon">
+                            <i class='bx ${type === 'Personal' ? 'bx-user' : 'bx-globe'}'></i>
+                        </div>
+                        <span>${title}</span>
+                    </div>
+                    <button class="notification-close" onclick="removeNotification('${notificationId}')">
+                        <i class='bx bx-x'></i>
+                    </button>
+                </div>
+                <div class="notification-time">${formatTime(timestamp)}</div>
+                <div class="notification-body">${message}</div>
+                <div class="notification-footer">
+                    <button class="notification-action" onclick="handleNotificationAction('${notificationId}')">
+                        View
+                    </button>
+                    <button class="notification-action" onclick="removeNotification('${notificationId}')">
+                        Dismiss
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(notificationDiv);
+            notificationCount++;
+
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (document.getElementById(notificationId)) {
+                    removeNotification(notificationId);
+                }
+            }, 10000);
+
+            // Play notification sound if available
+            playNotificationSound();
+        }
+
+        function removeNotification(id) {
+            const notification = document.getElementById(id);
+            if (notification) {
+                notification.classList.add('removing');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                        notificationCount--;
+                    }
+                }, 400);
+            }
+        }
+
+        function handleNotificationAction(notificationId) {
+            const notification = document.getElementById(notificationId);
+            if (notification) {
+                console.log("Viewing notification:", notificationId);
+                // Add your action logic here
+                removeNotification(notificationId);
+            }
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minutes ago`;
+            if (diffMins < 1440) return `${Math.floor(diffMins / 60)} hours ago`;
+            return date.toLocaleDateString();
+        }
+
+        function updateStatus(isConnected) {
+            const indicator = document.getElementById("statusIndicator");
+            const statusText = document.getElementById("statusText");
             
-            // Add active class to corresponding pane
-            const targetPane = document.getElementById(tabName);
-            if (targetPane) {
-                targetPane.classList.add('active');
+            if (indicator && statusText) {
+                if (isConnected) {
+                    indicator.className = "status-indicator status-connected";
+                    statusText.textContent = "Connected ✓";
+                } else {
+                    indicator.className = "status-indicator status-disconnected";
+                    statusText.textContent = "Disconnected ✗";
+                }
+            }
+        }
+
+        function playNotificationSound() {
+            // You can add a notification sound here if needed
+            // Example: new Audio('/notification.mp3').play();
+        }
+
+        async function initializeWebSocket() {
+            try {
+                await fetchCurrentUser();
+                connectWebSocket();
+            } catch (error) {
+                console.error("Initialization error:", error);
+                // Show demo notification
+                setTimeout(() => {
+                    showNotification({
+                        title: 'Welcome to CloudCare',
+                        message: 'Real-time notifications will appear here',
+                        timestamp: new Date().toISOString()
+                    }, 'Global');
+                }, 1000);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeWebSocket);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
             }
         });
-    });
-});
     </script>
 </body>
 </html>

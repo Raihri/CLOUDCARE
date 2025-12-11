@@ -142,7 +142,7 @@ public class DocUpdatesPatientController {
             Doctor doctor = userDetails.getDoctor();
             notification notify = new notification("Blood And Bio Chemistry Updated by Dr. " +doctor.getName(), LocalDateTime.now(),patient);
             notificationService.sendToSpecific(patient.getUser().getEmail(), notify);
-            notificationService.sendToAll(notify);
+            // notificationService.sendToAll(notify);
 
             patientService.addNotification(patient,notify);
 

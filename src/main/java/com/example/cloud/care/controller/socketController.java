@@ -1,6 +1,8 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.model.notification;
+import com.example.cloud.care.service.notificationService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -12,10 +14,8 @@ public class socketController {
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
-    @MessageMapping("/application")   // message to -> app/application
-    @SendTo("/all")
-    public notification sendToAll(final notification notification) throws Exception
-    {
-        return notification;
-    }
+    // @MessageMapping("/sendToUser")
+    // public void sendToSpecificUser(notification message) {
+    //     notificationService.sendToSpecific(message.get, new notification(message.getMessage()));
+    // }
 }

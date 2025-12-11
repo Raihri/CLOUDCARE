@@ -181,4 +181,18 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+@Bean
+@Order(99)
+public SecurityFilterChain publicPages(HttpSecurity http) throws Exception {
+    http
+            .securityMatcher("/**") // global match for last priority
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/", "/landing", "/css/**", "/js/**", "/image/**","/video/**").permitAll()
+                    .anyRequest().permitAll() // final fallback
+            )
+            .csrf(csrf -> csrf.disable());
+
+    return http.build();
+}
 }

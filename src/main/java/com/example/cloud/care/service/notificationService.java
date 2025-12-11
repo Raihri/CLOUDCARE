@@ -23,7 +23,7 @@ public class notificationService {
 
         try
         {
-            messagingTemplate.convertAndSendToUser(email, "/specific",notification);
+            messagingTemplate.convertAndSendToUser(email, "/queue/notifications",notification);
             System.out.println("Raima-------------------DONE");
         }
 
