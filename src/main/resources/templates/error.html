@@ -4,20 +4,22 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Error</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
   <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
-  <main class="container" role="main" aria-labelledby="err-title">
-    <header class="header">
-      <h1 id="err-title">Something went wrong</h1>
-      <div class="sub">We couldn't complete that request. Try again or contact support.</div>
-    </header>
+  <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
 
-    <section style="margin-top:16px;">
-      <p th:text="${error}" style="color:var(--muted);">An unexpected error occurred.</p>
-      <div style="margin-top:18px;" class="actions">
-        
-    </section>
-  </main>
+  <section class="home-section">
+    <div class="quiz-container">
+      <header class="header">
+        <h1>Something went wrong</h1>
+        <div class="sub">We couldn't complete that request. Try again or contact support.</div>
+      </header>
+      <section style="margin-top:16px;">
+        <p th:text="${error}" style="color:var(--muted);">An unexpected error occurred.</p>
+      </section>
+    </div>
+  </section>
 </body>
 </html>
