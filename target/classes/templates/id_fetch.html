@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${doctor.name} + ' — Profile'">Doctor Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome --> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ================= CSS VARIABLES ================= */
+        :root {
+            --sidebar: #0f172a;       /* Sidebar base color */
+            --accent: #0ea5e9;        /* Accent color for badges, highlights */
+            --soft: #f8fafc;          /* Soft background color */
+            --muted: #94a3b8;         /* Muted text color */
+        }
+
+        /* ================= CSS RESET ================= */
+        * {
+            box-sizing: border-box;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ================= BASE STYLES ================= */
+        body {
+            margin: 0;
+            background: linear-gradient(180deg, #f8fbff, #eef6ff);
+            color: #0f172a;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        h1, h2, h3 {
+            margin: 0;
+        }
+
+        /* ================= LAYOUT CONTAINER ================= */
+        .wrap {
+            display: flex;
+            min-height: 100vh;
+            gap: 20px;
+        }
+
+        /* ================= ORIGINAL DARK SIDEBAR ================= */
+        .sidebar {
+            width: 270px;
+            background: linear-gradient(180deg, var(--sidebar), #071024);
+            color: #fff;
+            padding: 22px;
+            border-radius: 18px;
+            margin: 22px 0 22px 22px;
+            box-shadow: 0 20px 40px rgba(2, 6, 23, 0.12);
+            display: flex;
+            position: fixed;
+            height: calc(100vh - 44px);
+            flex-direction: column;
+            gap: 18px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        /* Logo */
+        .logo-details {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .logo-details img {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .logo_name {
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 0.2px;
+            font-size: 22px;
+        }
+
+        /* Navigation Links */
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin-top: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .nav-links a {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            padding: 18px 22px;
+            border-radius: 10px;
+            color: #cfe9ff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: white;
+        }
+
+        /* Sidebar Profile at Bottom */
+        .sidebar .profile-details {
+            margin-top: auto;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), transparent);
+            padding: 10px;
+            border-radius: 12px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            transition: 0.3s;
+        }
+        
+        .sidebar .profile-details:hover {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent);
+        }
+
+        .profile-details img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .profile_name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .job {
+            font-size: 13px;
+            color: #cfe9ff;
+        }
+
+        /* ================= MAIN CONTENT ================= */
+        main {
+            flex: 1;
+            padding: 40px 30px;
+            margin-left: 310px; /* 270px sidebar + 22px margin + 18px gap */
+            transition: margin-left 0.3s ease;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1b3e72;
+            margin-bottom: 30px;
+        }
+
+        /* ================= PROFILE CONTAINER ================= */
+        .profile-container {
+            display: flex;
+            gap: 35px;
+            flex-wrap: wrap;
+        }
+
+        .profile-left {
+            flex: 1;
+            min-width: 300px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-left:hover {
+            transform: translateY(-5px);
+        }
+
+        .profile-left img {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #4A90E2;
+            box-shadow: 0 0 20px rgba(74, 144, 226, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .profile-left h2 {
+            font-size: 24px;
+            color: #1b3e72;
+            margin: 15px 0 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #4A90E2;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            margin: 10px 0;
+        }
+
+        .profile-left p {
+            font-size: 15px;
+            margin: 8px 0;
+            color: #555;
+            text-align: left;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-left p strong {
+            color: #224f8a;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        /* ================= PROFILE RIGHT ================= */
+        .profile-right {
+            flex: 2;
+            min-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+
+        .section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid #4A90E2;
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section h3 {
+            color: #1b3e72;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 18px;
+        }
+
+        .info-grid div {
+            background: #f4f7fa;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid #d8e8ff;
+            transition: background 0.2s ease;
+        }
+
+        .info-grid div:hover {
+            background: #e6f1ff;
+        }
+
+        .info-grid strong {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+            color: #224f8a;
+        }
+
+        .info-grid span {
+            font-size: 15px;
+            color: #444;
+            word-break: break-word;
+        }
+
+        .info-grid a {
+            color: #4A90E2;
+            font-weight: 600;
+        }
+
+        .info-grid a:hover {
+            text-decoration: underline;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ================= MOBILE TOGGLE BUTTON ================= */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--accent);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            z-index: 1100;
+            box-shadow: 0 5px 15px rgba(2, 6, 23, 0.2);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* ================= RESPONSIVE BREAKPOINTS ================= */
+        
+        /* Large tablets and small laptops */
+        @media (max-width: 1200px) {
+            .profile-right {
+                min-width: 400px;
+            }
+            
+            .info-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+        }
+
+        /* Tablets */
+        @media (max-width: 992px) {
+            .wrap {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                margin: 0;
+                border-radius: 0 0 18px 18px;
+                max-height: 80px;
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                box-shadow: 0 10px 30px rgba(2, 6, 23, 0.15);
+            }
+            
+            .sidebar.active {
+                max-height: 500px;
+            }
+            
+            .logo-details {
+                padding: 15px;
+            }
+            
+            .nav-links {
+                padding: 15px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+                margin-top: 0;
+            }
+            
+            .nav-links li {
+                flex: 1;
+                min-width: 180px;
+            }
+            
+            .nav-links a {
+                justify-content: center;
+                padding: 15px 20px;
+                background: rgba(255, 255, 255, 0.03);
+                margin: 0;
+            }
+            
+            .nav-links a:hover {
+                background: rgba(255, 255, 255, 0.06);
+            }
+            
+            main {
+                margin-left: 0;
+                padding: 30px 20px;
+            }
+            
+            .mobile-toggle {
+                display: flex;
+            }
+            
+            .sidebar .profile-details {
+                justify-content: center;
+                padding: 15px;
+                margin: 15px;
+            }
+            
+            .profile-right {
+                min-width: 100%;
+                max-height: none;
+            }
+        }
+
+        /* Small tablets and large phones */
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+                gap: 25px;
+            }
+            
+            .profile-left, .profile-right {
+                min-width: 100%;
+            }
+            
+            .info-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+            
+            .header h1 {
+                font-size: 26px;
+                margin-bottom: 25px;
+            }
+            
+            .profile-left img {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links li {
+                width: 100%;
+            }
+            
+            .profile-left p {
+                display: flex;
+                justify-content: space-between;
+            }
+            
+            .profile-left p strong {
+                min-width: auto;
+            }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 576px) {
+            main {
+                padding: 25px 15px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-left img {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .profile-left h2 {
+                font-size: 22px;
+            }
+            
+            .badge {
+                font-size: 12px;
+                padding: 5px 12px;
+            }
+            
+            .section h3 {
+                font-size: 18px;
+            }
+            
+            .nav-links {
+                padding: 10px;
+            }
+            
+            .nav-links a {
+                padding: 15px;
+            }
+            
+            .mobile-toggle {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+                margin-top: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .profile-left p {
+                flex-direction: column;
+                text-align: center;
+                gap: 5px;
+                padding: 12px 0;
+            }
+            
+            .logo_name {
+                font-size: 20px;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 400px) {
+            .profile-left {
+                padding: 25px 15px;
+            }
+            
+            .profile-left img {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .section {
+                padding: 20px 15px;
+            }
+            
+            .info-grid div {
+                padding: 12px 15px;
+            }
+            
+            .logo_name {
+                font-size: 18px;
+            }
+            
+            .profile_name {
+                font-size: 14px;
+            }
+            
+            .job {
+                font-size: 12px;
+            }
+        }
+
+        /* ================= ANIMATIONS ================= */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-left, .section {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .section:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .section:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .section:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        /* Fix for name-job class to match profile_name and job */
+        .name-job {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .name-job span:first-child {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .name-job span:last-child {
+            font-size: 13px;
+            color: #cfe9ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="wrap"> 
+        <!-- SIDEBAR - DARK THEME RESTORED -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-details">
+                <img th:src="@{/images/logo.png}" alt="CloudCare Logo">
+                <div class="logo_name">CloudCare</div>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/doctor/update"><i class="fa-solid fa-user-doctor"></i> Edit Profile</a></li>
+                    <li><a href="/doctor/new"><i class="fa-solid fa-user-plus"></i> Add Doctor</a></li>
+                    <li><a href="/doctor/saveAvailability"><i class="fa-solid fa-file-lines"></i> Availability</a></li>
+                    <li><a th:href="@{/doctor/{doctorId}/appointments(doctorId=${doctor.id})}"><i class="fa-solid fa-gear"></i> Appointments</a></li>
+                    <li><a href="/doctor/patientID"><i class="fa-solid fa-file-lines"></i> Availability</a></li>
+                </ul>
+            </nav>
+            <div class="profile-details">
+                <img th:if="${doctor.profileImage != null and doctor.profileImage != ''}" th:src="${doctor.profileImage}" alt="profile">
+                <div class="name-job">
+                    <span class="profile_name" th:text="${doctor.name}">Dr Name</span>
+                    <span class="job" th:text="${doctor.specialization}">Specialization</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main>
+            <div class="header">
+                <h1>Patient Profile</h1>
+            </div>
+
+            <div class="profile-container">
+                <form action="/doctor/patientData" method="get" onsubmit="return goToPatient();">
+    <label for="patientId">Enter Patient ID:</label>
+    <input type="text" id="patientId" name="id" required>
+
+    <button type="submit">Go</button>
+</form>
+              </div>
+
+              <script>
+    function goToPatient() {
+        const id = document.getElementById("patientId").value.trim();
+        if (!id) return false;
+
+        // Redirect manually
+        window.location.href = "/doctor/patientData/" + id;
+        return false; // prevent normal form submit
+    }
+</script>
+
+</body>
+</html>

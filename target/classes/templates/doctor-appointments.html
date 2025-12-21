@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Appointments</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(160deg, #e0f0ff, #f9fbff);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1b3e72;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        th {
+            background: linear-gradient(90deg, #1d8cf8, #4EA685);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        tr:nth-child(even) {
+            background: #f4f9ff;
+        }
+
+        tr:hover {
+            background: #e6f4ff;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        .PENDING { background: #fbbf24; }
+        .CONFIRMED { background: #4ea685; }
+        .CANCELLED { background: #dc2626; }
+        .COMPLETED { background: #1d4ed8; }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #fff;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-confirm { background: #4ea685; }
+        .btn-cancel { background: #dc2626; }
+        .btn-join { background: #1d8cf8; }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+        @media(max-width: 900px) {
+            th, td {
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Appointments</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Patient Name</th>
+                <th>Date</th>
+                <th>Time Slot</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="appt : ${appointments}">
+                <td th:text="${appt.patient.user.name}">Patient Name</td>
+                <td th:text="${#dates.format(appt.appointmentDate, 'dd MMM yyyy')}">2025-12-06</td>
+                <td th:text="${appt.timeSlot}">09:00-10:00</td>
+                <td th:text="${appt.type}">TELEMEDICINE</td>
+                <td>
+                    <span th:text="${appt.status}" th:classappend="${appt.status}" class="status">PENDING</span>
+                </td>
+                <td>
+                    <form th:action="@{'/doctor/' + ${appt.doctor.id} + '/appointments/' + ${appt.id} + '/confirm'}" method="post" th:if="${appt.status.name() == 'PENDING'}" style="display:inline-block">
+                        <button type="submit" class="btn btn-confirm">Confirm</button>
+                    </form>
+                    <form th:action="@{'/doctor/' + ${appt.doctor.id} + '/appointments/' + ${appt.id} + '/cancel'}" method="post" th:if="${appt.status.name() != 'CANCELLED'}" style="display:inline-block">
+                        <button type="submit" class="btn btn-cancel">Cancel</button>
+                    </form>
+                    <a th:href="${appt.telemedicineLink}" th:if="${appt.telemedicineLink != null}" target="_blank" class="btn btn-join">Join Call</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

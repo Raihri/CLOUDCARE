@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudCare | Your Health Companion</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+      /* Replace the body background with video */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Video Background Container */
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.video-background video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    filter: brightness(0.5) saturate(1.2);
+}
+
+/* Optional: Color overlay on video */
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+/* Keep your existing bg-bubbles but make them positioned above video */
+.bg-bubbles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Changed from 1 to 2 to be above video */
+    overflow: hidden;
+}
+
+/* Update glass container to have higher z-index */
+.glass-container {
+    position: relative;
+    z-index: 3; /* Higher than bubbles and video */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+       
+        /* Glass Effect Container */
+        .glass-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Header Styles */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease;
+        }
+
+        .logo {
+            width: 180px;
+            height: 180px;
+            margin-bottom: 25px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+            animation: pulse 3s infinite alternate;
+            position: fixed;
+            top:20px;
+            left : 20px;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.05);
+            }
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .title {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #ffffff, #a8dadc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+            margin-top : 35px;
+           
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 25px;
+            border-radius: 50px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Cards Container */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        /* Glass Card Styles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border-radius: 25px;
+            padding: 40px 30px;
+            width: 350px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.4), 
+                transparent
+            );
+        }
+
+        .glass-card:hover {
+            transform: translateY(-15px) scale(1.03);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-card.patient:hover {
+            border-color: rgba(168, 218, 220, 0.5);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(168, 218, 220, 0.3);
+        }
+
+        .glass-card.doctor:hover {
+            border-color: rgba(233, 196, 106, 0.5);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(233, 196, 106, 0.3);
+        }
+
+        /* Card Icon */
+        .card-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.2),
+                inset 0 4px 8px rgba(255, 255, 255, 0.1);
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .glass-card:hover .card-icon {
+            transform: scale(1.1) rotate(5deg);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .card-icon i {
+            font-size: 60px;
+            color: white;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .patient .card-icon {
+            background: linear-gradient(135deg, rgba(29, 209, 161, 0.2), rgba(29, 209, 161, 0.4));
+        }
+
+        .doctor .card-icon {
+            background: linear-gradient(135deg, rgba(233, 196, 106, 0.2), rgba(233, 196, 106, 0.4));
+        }
+
+        /* Card Content */
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #ffffff, #f1faee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* Button Styles */
+        .card-btn {
+            display: inline-block;
+            padding: 16px 35px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            letter-spacing: 0.5px;
+        }
+
+        .card-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s ease;
+            z-index: -1;
+        }
+
+        .card-btn:hover::before {
+            left: 100%;
+        }
+
+        .card-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .patient .card-btn:hover {
+            background: rgba(29, 209, 161, 0.3);
+            border-color: rgba(29, 209, 161, 0.5);
+        }
+
+        .doctor .card-btn:hover {
+            background: rgba(233, 196, 106, 0.3);
+            border-color: rgba(233, 196, 106, 0.5);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            animation: fadeIn 1s ease 0.6s both;
+        }
+
+        .footer p {
+            margin: 10px 0;
+        }
+
+        /* Animations
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        } */
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .cards-container {
+                gap: 30px;
+            }
+            
+            .glass-card {
+                width: 320px;
+            }
+            
+            .title {
+                font-size: 3.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .glass-container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .glass-card {
+                width: 100%;
+                max-width: 400px;
+            }
+            
+            .cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .logo {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .card-title {
+                font-size: 1.8rem;
+            }
+            
+            .glass-card {
+                padding: 30px 20px;
+            }
+            
+            .card-icon {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .card-icon i {
+                font-size: 50px;
+            }
+        }
+
+        /* Particle Effect on Hover */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glass-card:hover .particles {
+            opacity: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: particle-float 3s infinite linear;
+        }
+
+        @keyframes particle-float {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        /* Add some particle positions */
+        .particle:nth-child(1) { left: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 50%; animation-delay: 0.5s; }
+        .particle:nth-child(3) { left: 80%; animation-delay: 1s; }
+        .particle:nth-child(4) { left: 30%; animation-delay: 1.5s; }
+        .particle:nth-child(5) { left: 70%; animation-delay: 2s; }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Bubbles -->
+
+    <div class="video-background">
+    <video autoplay muted loop playsinline>
+        <!-- You can add multiple video sources for better browser compatibility -->
+        <source th:src="@{/video/bg.mp4}" type="video/mp4">
+    
+        <!-- Fallback image if video doesn't load -->
+        <!-- <img src="../static/image/default.jpg" alt="Background Fallback"> -->
+    </video>
+    <div class="video-overlay"></div>
+</div>
+   
+    <!-- Main Content Container -->
+    <div class="glass-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="logo">
+<img th:src="@{/image/logo.png}" alt="CloudCare Logo">            </div>
+            <h1 class="title">CloudCare</h1>
+           
+        </div>
+
+        <!-- Cards Section -->
+        <div class="cards-container">
+            <!-- Patient Card -->
+            <div class="glass-card patient" onclick="redirectTo('/patient/')">
+                <div class="particles">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+                <div class="card-icon">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <h2 class="card-title">Patient</h2>
+                <p class="card-description">Access your health records, schedule appointments, connect with doctors, and manage your wellness journey in one secure platform.</p>
+                <a href="/patient/" class="card-btn" onclick="event.stopPropagation(); redirectTo('/patient/')">
+                    Enter as Patient <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                </a>
+            </div>
+
+            <!-- Doctor Card -->
+            <div class="glass-card doctor" onclick="redirectTo('/doctor/login')">
+                <div class="particles">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+                <div class="card-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h2 class="card-title">Doctor</h2>
+                <p class="card-description">Manage patient records, schedule consultations, provide telemedicine services, and collaborate with healthcare teams.</p>
+                <a href="/doctor/login" class="card-btn" onclick="event.stopPropagation(); redirectTo('/doctor/login')">
+                    Doctor Login <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 CloudCare Healthcare Platform. All rights reserved.</p>
+            <p>Secure • Reliable • Patient-Centric</p>
+        </div>
+    </div>
+
+    <script>
+        // Function to handle redirection
+        function redirectTo(url) {
+            // Add a smooth transition effect
+            document.body.style.opacity = '0.8';
+            document.body.style.transition = 'opacity 0.3s ease';
+            
+            setTimeout(() => {
+                window.location.href = url;
+            }, 300);
+        }
+
+        // Add click animation to cards
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+
+        // Add floating particles on hover
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                const particles = this.querySelector('.particles');
+                if (particles) {
+                    // Create additional particles
+                    for (let i = 0; i < 3; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.left = Math.random() * 100 + '%';
+                        particle.style.animationDelay = Math.random() * 2 + 's';
+                        particles.appendChild(particle);
+                        
+                        // Remove after animation
+                        setTimeout(() => {
+                            if (particle.parentNode) {
+                                particle.remove();
+                            }
+                        }, 3000);
+                    }
+                }
+            });
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '1' || e.key === 'p' || e.key === 'P') {
+                redirectTo('/patient/');
+            } else if (e.key === '2' || e.key === 'd' || e.key === 'D') {
+                redirectTo('/doctor/login');
+            }
+        });
+
+        // Add loading animation
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|${doctor.name} — Update Profile|">Doctor Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3a86ff;
+            --primary-light: #8bb8ff;
+            --primary-dark: #2667cc;
+            --secondary: #8338ec;
+            --light-bg: #f8fafc;
+            --white: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --radius: 12px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 40px rgba(58, 134, 255, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 30px;
+        }
+
+        .main-content {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .profile-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-img-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 20px;
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--white);
+            box-shadow: 0 10px 30px rgba(58, 134, 255, 0.2);
+            transition: var(--transition);
+        }
+
+        .profile-img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 40px rgba(58, 134, 255, 0.3);
+        }
+
+        .profile-img-upload {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(58, 134, 255, 0.3);
+            transition: var(--transition);
+        }
+
+        .profile-img-upload:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        .doctor-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+
+        .doctor-id {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text);
+            background: var(--white);
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
+        }
+
+        textarea {
+            padding: 15px;
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* File upload styling from signup form */
+        .file-upload-container {
+            margin-bottom: 20px;
+        }
+
+        .file-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .file-info {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .certificate-info {
+            margin-top: 8px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .current-file {
+            margin-top: 10px;
+        }
+
+        .current-file a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.95rem;
+        }
+
+        .current-file a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            box-shadow: 0 10px 20px rgba(58, 134, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(58, 134, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-bg);
+            border-color: var(--primary-light);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--success);
+            color: white;
+            padding: 18px 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            font-size: 1.3rem;
+        }
+
+        @media (max-width: 992px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .container {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Animation for form sections */
+        .form-section {
+            animation: fadeInUp 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Update Your Profile</h1>
+            <p>Keep your information up to date to provide the best care for your patients</p>
+        </div>
+
+        <form th:action="@{/doctor/update}" th:object="${doctor}" method="post" enctype="multipart/form-data">
+            <div class="form-container">
+                <!-- Sidebar with profile info -->
+                <div class="sidebar">
+                    <div class="profile-section">
+                        <!-- Profile Image Upload - Same as signup form -->
+                        <div class="profile-img-container">
+                            <img id="previewImage" 
+                                 th:src="${doctor.profileImage != null ? doctor.profileImage : 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'}"
+                                 alt="Doctor Photo"
+                                 class="profile-img">
+                            <div class="profile-img-upload">
+                                <i class="fas fa-camera"></i>
+                                <input type="file" id="profileImageFile" name="profileImageFile" accept="image/*" 
+                                       style="display: none;" onchange="handleProfileImageUpload(event)">
+                            </div>
+                        </div>
+                        
+                        <h2 class="doctor-name" th:text="${doctor.name}">Dr. Alex Morgan</h2>
+                        <p class="doctor-id"><strong>BMDC:</strong> <span th:text="${doctor.bmdcRegNo}">123456</span></p>
+                        
+                        <!-- BMDC Validation (optional for update) -->
+                        <div class="form-group">
+                            <label>BMDC Registration No.</label>
+                            <input type="text" th:field="*{bmdcRegNo}" id="bmdcRegNo" 
+                                   placeholder="e.g. A-123456" pattern="^[A-Za-z]-\d{6}$"
+                                   title="Format: A-123456 (single letter, dash, 6 digits)" />
+                            <div id="bmdcHint" style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">
+                                Format example: <strong>A-123456</strong>
+                            </div>
+                            <div id="bmdcError" class="error-message">Please enter a valid BMDC number (e.g. A-123456)</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <div class="input-container">
+                                <i class="fas fa-venus-mars input-icon"></i>
+                                <select th:field="*{gender}">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <div class="input-container">
+                                <i class="fas fa-calendar-alt input-icon"></i>
+                                <input type="date" th:field="*{dob}">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Blood Group</label>
+                            <div class="input-container">
+                                <i class="fas fa-tint input-icon"></i>
+                                <select th:field="*{bloodGroup}">
+                                    <option value="">Select Blood Group</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-secondary" style="width:100%; margin-top:20px;" 
+                                th:onclick="|window.location.href='@{/doctor/dashboard}'|">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Main content with form sections -->
+                <div class="main-content">
+                    <!-- Contact Information -->
+                    <div class="form-section" style="animation-delay: 0.1s">
+                        <h3 class="section-title">Contact Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Email Address *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-envelope input-icon"></i>
+                                    <input type="email" th:field="*{email}" id="email" required>
+                                </div>
+                                <div id="emailError" class="error-message"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Phone Number *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-phone input-icon"></i>
+                                    <input type="text" th:field="*{phoneNumber}" maxlength="11" pattern="\d{11}"
+                                           title="Phone must be 11 digits" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Alternate Phone</label>
+                                <div class="input-container">
+                                    <i class="fas fa-phone-alt input-icon"></i>
+                                    <input type="text" th:field="*{altPhone}" maxlength="11" pattern="\d{11}"
+                                           title="Phone must be 11 digits">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Emergency Contact *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-exclamation-triangle input-icon"></i>
+                                    <input type="text" th:field="*{emergencyContact}" maxlength="11" pattern="\d{11}"
+                                           title="Emergency contact must be 11 digits" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Address *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-home input-icon"></i>
+                                    <input type="text" th:field="*{address}" placeholder="Street Address" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Division *</label>
+                                <select th:field="*{division}" required>
+                                    <option value="">Select Division</option>
+                                    <option value="Dhaka">Dhaka</option>
+                                    <option value="Chattogram">Chattogram</option>
+                                    <option value="Khulna">Khulna</option>
+                                    <option value="Barishal">Barishal</option>
+                                    <option value="Sylhet">Sylhet</option>
+                                    <option value="Rajshahi">Rajshahi</option>
+                                    <option value="Rangpur">Rangpur</option>
+                                    <option value="Mymensingh">Mymensingh</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>District *</label>
+                                <select th:field="*{zilla}" required>
+                                    <option value="">Select District</option>
+                                    <option value="Dhaka">Dhaka</option>
+                                    <option value="Gazipur">Gazipur</option>
+                                    <option value="Chattogram">Chattogram</option>
+                                    <option value="Khulna">Khulna</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Postal Code *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-mail-bulk input-icon"></i>
+                                    <input type="text" th:field="*{postalCode}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Professional Information -->
+                    <div class="form-section" style="animation-delay: 0.2s">
+                        <h3 class="section-title">Professional Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Degrees *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-graduation-cap input-icon"></i>
+                                    <input type="text" th:field="*{degrees}" placeholder="MBBS, MD, etc." required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Specialization *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-stethoscope input-icon"></i>
+                                    <input type="text" th:field="*{specialization}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Experience (Years) *</label>
+                                <div class="input-container">
+                                    <i class="fas fa-briefcase-medical input-icon"></i>
+                                    <input type="number" th:field="*{experienceYears}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Consultation Fee</label>
+                                <div class="input-container">
+                                    <i class="fas fa-money-bill-wave input-icon"></i>
+                                    <input type="text" th:field="*{consultationFee}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Education *</label>
+                                <input type="text" th:field="*{education}" placeholder="Medical colleges, universities" required>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Medical College *</label>
+                                <input type="text" th:field="*{medicalCollege}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Hospital Name *</label>
+                                <input type="text" th:field="*{hospitalName}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Languages *</label>
+                                <input type="text" th:field="*{languages}" placeholder="English, Bengali, Hindi" required>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Hospital Address *</label>
+                                <input type="text" th:field="*{hospitalAddress}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Working Days</label>
+                                <input type="text" th:field="*{workingDays}" placeholder="Mon-Fri">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Working Hours</label>
+                                <input type="text" th:field="*{workingHours}" placeholder="9:00 AM - 5:00 PM">
+                            </div>
+                            
+                            <!-- Certificate PDF Upload - Same as signup form -->
+                            <div class="form-group full-width">
+                                <label>Certificate (PDF)</label>
+                                <div class="file-upload-container">
+                                    <div class="file-input-container">
+                                        <input type="file" id="certificateFile" name="certificateFile" accept="application/pdf" 
+                                               style="padding: 8px 6px; border-radius: 8px;">
+                                        <div id="certificateInfo" class="certificate-info">No file selected</div>
+                                    </div>
+                                    <div class="current-file" th:if="${doctor.certifications != null}">
+                                        <a th:href="${doctor.certifications}" target="_blank">
+                                            <i class="fas fa-eye"></i> View Current Certificate
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Description</label>
+                                <textarea th:field="*{description}" placeholder="Tell patients about your approach and expertise..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Information -->
+                    <div class="form-section" style="animation-delay: 0.3s">
+                        <h3 class="section-title">Additional Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Website</label>
+                                <div class="input-container">
+                                    <i class="fas fa-globe input-icon"></i>
+                                    <input type="text" th:field="*{website}" placeholder="https://">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>LinkedIn</label>
+                                <div class="input-container">
+                                    <i class="fab fa-linkedin input-icon"></i>
+                                    <input type="text" th:field="*{linkedin}">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Special Interests</label>
+                                <input type="text" th:field="*{specialInterests}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Awards & Recognitions</label>
+                                <input type="text" th:field="*{awards}">
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Publications</label>
+                                <textarea th:field="*{publications}" placeholder="List your notable publications..."></textarea>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label>Notes</label>
+                                <textarea th:field="*{notes}" placeholder="Any additional notes..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-pen-to-square"></i> Update Profile
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/doctor/dashboard'">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span>Profile updated successfully!</span>
+    </div>
+
+    <script>
+        // ===== Elements =====
+        const profileInput = document.getElementById('profileImageFile');
+        const preview = document.getElementById('previewImage');
+        const certInput = document.getElementById('certificateFile');
+        const certInfo = document.getElementById('certificateInfo');
+        const bmdcInput = document.getElementById('bmdcRegNo');
+        const bmdcError = document.getElementById('bmdcError');
+        const emailInput = document.getElementById('email');
+        const emailError = document.getElementById('emailError');
+        const cameraIcon = document.querySelector('.profile-img-upload');
+
+        // ===== Email Validation =====
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        function checkEmailExists(email) {
+            return fetch(`/doctor/check-email?email=${encodeURIComponent(email)}`)
+                .then(res => res.json())
+                .catch(err => {
+                    console.error("Error checking email:", err);
+                    return false;
+                });
+        }
+
+        emailInput.addEventListener('input', () => {
+            const value = emailInput.value.trim();
+            if (!value) {
+                emailError.textContent = '';
+                emailError.style.display = 'none';
+                return;
+            }
+
+            if (!emailRegex.test(value)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailError.style.display = 'block';
+            } else {
+                emailError.textContent = '';
+                emailError.style.display = 'none';
+            }
+        });
+
+        emailInput.addEventListener('blur', async () => {
+            const email = emailInput.value.trim();
+            if (!email) return;
+
+            if (!emailRegex.test(email)) return;
+
+            const exists = await checkEmailExists(email);
+            if (exists) {
+                emailError.textContent = "Email already exists!";
+                emailError.style.display = "block";
+            } else {
+                emailError.textContent = "";
+                emailError.style.display = "none";
+            }
+        });
+
+        // ===== BMDC Validation =====
+        const bmdcPattern = /^[A-Za-z]-\d{6}$/;
+        if (bmdcInput) {
+            bmdcInput.addEventListener('input', () => {
+                if (!bmdcInput.value) {
+                    bmdcError.style.display = 'none';
+                    return;
+                }
+                bmdcError.style.display = bmdcPattern.test(bmdcInput.value) ? 'none' : 'block';
+            });
+        }
+
+        // ===== Profile Image Upload - SAME AS SIGNUP FORM =====
+        function handleProfileImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+            const ext = file.name.split('.').pop().toLowerCase();
+
+            if (!allowedTypes.includes(file.type) && !['jpg', 'jpeg', 'png', 'gif'].includes(ext)) {
+                alert('Please select a valid image file (jpg, jpeg, png, gif)');
+                profileInput.value = '';
+                preview.src = 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (ev) => { 
+                preview.src = ev.target.result;
+                preview.style.transform = "scale(0.95)";
+                setTimeout(() => preview.style.transform = "scale(1)", 200);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Trigger file input when clicking camera icon
+        if (cameraIcon) {
+            cameraIcon.addEventListener('click', () => {
+                profileInput.click();
+            });
+        }
+
+        // ===== Certificate File Upload - SAME AS SIGNUP FORM =====
+        if (certInput && certInfo) {
+            certInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    certInfo.textContent = 'No file selected';
+                    return;
+                }
+                if (file.type !== 'application/pdf') {
+                    alert('Please select a PDF file');
+                    certInput.value = '';
+                    certInfo.textContent = 'No file selected';
+                    return;
+                }
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                certInfo.textContent = `${file.name} — ${sizeMB} MB`;
+            });
+        }
+
+        // ===== BMDC Server Check =====
+        if (bmdcInput) {
+            bmdcInput.addEventListener('blur', () => {
+                const bmdc = bmdcInput.value;
+                if (!bmdc) return;
+
+                fetch(`/doctor/check-bmdc?bmdc=${encodeURIComponent(bmdc)}`)
+                    .then(res => res.json())
+                    .then(exists => {
+                        if (exists) {
+                            bmdcError.textContent = "BMDC Registration No. already exists!";
+                            bmdcError.style.display = "block";
+                        } else {
+                            bmdcError.style.display = "none";
+                        }
+                    });
+            });
+        }
+
+        // ===== Form Submission Validation =====
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', (ev) => {
+                if (bmdcInput && bmdcInput.value && !bmdcPattern.test(bmdcInput.value)) {
+                    ev.preventDefault();
+                    bmdcError.style.display = 'block';
+                    bmdcInput.focus();
+                    return;
+                }
+
+                if (emailError.style.display === 'block') {
+                    ev.preventDefault();
+                    emailInput.focus();
+                    return;
+                }
+            });
+        }
+
+        // ===== Toast Notification =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('updated') === 'true') {
+                const toast = document.getElementById("toast");
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+            
+            // Animate form sections sequentially
+            const formSections = document.querySelectorAll('.form-section');
+            formSections.forEach((section, index) => {
+                section.style.animationDelay = `${0.1 + (index * 0.1)}s`;
+                section.style.opacity = 1;
+            });
+            
+            // Add focus effects to inputs
+            const inputs = document.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

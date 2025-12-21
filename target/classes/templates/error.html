@@ -1,0 +1,25 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Error</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+  <th:block th:replace="~{fragments/sidebar :: sidebar}"></th:block>
+
+  <section class="home-section">
+    <div class="quiz-container">
+      <header class="header">
+        <h1>Something went wrong</h1>
+        <div class="sub">We couldn't complete that request. Try again or contact support.</div>
+      </header>
+      <section style="margin-top:16px;">
+        <p th:text="${error}" style="color:var(--muted);">An unexpected error occurred.</p>
+      </section>
+    </div>
+  </section>
+</body>
+</html>

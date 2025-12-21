@@ -1,0 +1,161 @@
+<!-- src/main/resources/templates/fragments/sidebar.html -->
+<div th:fragment="sidebar">
+    <div class="sidebar sidebar-static">
+
+        <!-- Logo Section -->
+        <div class="logo-details">
+            <img th:src="@{/image/logo.png}" alt="CloudCare Logo">
+            <span class="logo_name">CloudCare</span>
+        </div>
+
+        <!-- Navigation Links -->
+        <ul class="nav-links">
+
+            <li>
+                <a th:href="@{/patient/dashboard}">
+                    <i class="bx bxs-user"></i>
+                    <span class="link_name">Patient Profile</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/patient/dataEntry}">
+                    <i class="bx bxs-edit"></i>
+                    <span class="link_name">Edit Profile</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/patient/doctor_list}">
+                    <i class="bx bx-list-ul"></i>
+                    <span class="link_name">Doctors List</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/patient/donor}">
+                    <i class="bx bxs-droplet"></i>
+                    <span class="link_name">Find Donor</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/patient/aichat}">
+                    <i class='bx bxs-chat'></i>
+                    <span class="link_name">CloudCare AI</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/patient/quiz_index1}">
+                    <i class='bx bxs-brain'></i>
+                    <span class="link_name">Mental Health Quiz</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/tasks}">
+                    <i class='bx bxs-check-square'></i>
+                    <span class="link_name">Daily To-Do</span>
+                </a>
+            </li>
+
+            <li>
+                <a th:href="@{/patient/appointments}">
+                    <i class='bx bxs-calendar-check'></i>
+                    <span class="link_name">Appointments</span>
+                </a>
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- Client-Side Scripts (Active State + Sidebar Toggle Persistence) -->
+    <!-- ============================================= -->
+    <script>
+        th:inline="javascript">
+        /*<![CDATA[*/
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.sidebar .nav-links li');
+
+            // Reset active state
+            navItems.forEach(li => li.classList.remove('active'));
+
+            // Highlight "Find Donor" on any /patient/donor* route
+            if (currentPath.includes('/patient/donor')) {
+                const donorLink = Array.from(navItems).find(li =>
+                    li.querySelector('a')?.getAttribute('href') === '/patient/donor'
+                );
+                if (donorLink) donorLink.classList.add('active');
+            }
+
+            // Highlight "Daily To-Do" on any /tasks* route
+            if (currentPath.startsWith('/tasks')) {
+                const todoLink = Array.from(navItems).find(li =>
+                    li.querySelector('a')?.getAttribute('href') === '/tasks'
+                );
+                if (todoLink) todoLink.classList.add('active');
+            }
+        });
+
+        // ——————————————————————————————————————
+        // Sidebar Collapse / Expand State Persistence
+        // ——————————————————————————————————————
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.querySelector(".sidebar");
+            const toggleBtn = document.getElementById("sidebarToggle");
+
+            if (!sidebar || !toggleBtn) return;
+
+            // Helper: apply saved state
+            const applySavedState = () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const paramState = urlParams.get('sidebar');
+
+                if (paramState === 'collapsed') {
+                    sidebar.classList.add('close');
+                } else if (paramState === 'expanded') {
+                    sidebar.classList.remove('close');
+                } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
+                    sidebar.classList.add('close');
+                } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                    sidebar.classList.add('close');
+                }
+            };
+
+            applySavedState();
+
+            // Toggle button click
+            toggleBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("close");
+                const isCollapsed = sidebar.classList.contains('close');
+
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+                sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+            });
+
+            // Preserve state on form submissions (adds hidden input automatically
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                // Add hidden field only once
+                if (!form.querySelector('input[name="sidebar"]')) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'sidebar';
+                    form.appendChild(input);
+                }
+
+                form.addEventListener('submit', () => {
+                    const isCollapsed = sidebar.classList.contains('close');
+                    localStorage.setItem('sidebarCollapsed', isCollapsed);
+                    sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+                });
+            });
+        });
+
+        /*]]>*/
+    </script>
+</div>

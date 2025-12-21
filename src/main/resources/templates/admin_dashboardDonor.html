@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CloudCare | Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { min-height: 100vh; background: linear-gradient(135deg, #fff6f6 0%, #ffe3e3 100%); color: #333; }
+        
+        /* Sidebar layout */
+        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 99vh; background: #23282d; z-index: 100; box-shadow: 2px 0 8px rgba(0,0,0,0.06); }
+        .home-section { margin-left: 0%; }
+        
+        /* Top header */
+        .home-header { background: #fff; padding: 15px 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 20px; }
+        .home-header i { font-size: 24px; cursor: pointer; color: #666; }
+        .home-header h1 { color: #b71c1c; font-size: 24px; margin: 0; flex: 1; }
+        
+        /* Top navigation tabs */
+        .top-nav { display: flex; justify-content: center; background: #fff; box-shadow: 0 4px 12px rgba(211,47,47,0.12); position: sticky; top: 0; z-index: 10; }
+        .top-nav button { margin: 0 18px; padding: 14px 28px; border: none; background: none; cursor: pointer; font-weight: 600; color: #666; font-size: 15px; position: relative; transition: all 0.3s; letter-spacing: 0.3px; }
+        .top-nav button:hover { color: #d32f2f; }
+        .top-nav button.active { color: #d32f2f; font-weight: 700; }
+        .top-nav button.active::after { content:""; position: absolute; bottom: 0px; left: 0; right: 0; height: 3px; background: linear-gradient(to right, #c62828, #ef5350); border-radius: 3px 3px 0 0; }
+        
+        /* Content */
+        .content { padding: 30px 20px; max-width: 1300px; margin: auto; }
+        .page { max-width:1200px; margin: 0 auto; }
+        
+        .cards { display:grid; grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:18px; }
+        .card { background:#fff; padding:18px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+        .card .label { color:#666; font-weight:600; font-size:13px; }
+        .card .value { font-size:28px; font-weight:700; color:#d32f2f; margin-top:6px; }
+        .row { display:flex; gap:16px; }
+        .col { flex:1; }
+        .placeholder { height:220px; background:#fff; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.04); padding:12px; }
+        .small { font-size:13px; color:#666; }
+        
+        h2 { text-align: center; color: #b71c1c; margin-bottom: 25px; letter-spacing: 0.5px; font-size: 26px; }
+        
+        @media (max-width:900px) { .cards { grid-template-columns: repeat(2,1fr); } .row { flex-direction:column; } }
+    </style>
+</head>
+<body>
+<!-- SIDEBAR: include shared fragment for consistent navigation -->
+<div th:replace="fragments/sidebar :: sidebar"></div>
+
+<!-- MAIN CONTENT -->
+<section class="home-section">
+    <div class="home-header">
+        <i class='bx bx-menu'></i>
+        <h1>💉 Blood Donor & Request Dashboard</h1>
+    </div>
+
+    <div class="top-nav">
+        <button data-section="donors">Blood Donor</button>
+        <button data-section="requests">Request Blood</button>
+        <button data-section="admin" class="active">Admin Dashboard</button>
+    </div>
+
+    <div class="content">
+        <!-- Admin Section -->
+        <section id="admin" class="section active">
+            <h2>📊 Admin Dashboard</h2>
+            <p class="small" style="text-align:center; margin-bottom:20px;">Quick operational summary</p>
+
+    <div class="cards">
+        <div class="card">
+            <div class="label">Total Donors</div>
+            <div id="totalDonors" class="value">—</div>
+            <div class="small">All registered donor profiles</div>
+        </div>
+        <div class="card">
+            <div class="label">Eligible Donors</div>
+            <div id="eligibleDonors" class="value">—</div>
+            <div class="small">Donors currently eligible to donate</div>
+        </div>
+        <div class="card">
+            <div class="label">Pending Requests</div>
+            <div id="pendingRequests" class="value">—</div>
+            <div class="small">Requests awaiting matching</div>
+        </div>
+        <div class="card">
+            <div class="label">Matched Requests</div>
+            <div id="matchedRequests" class="value">—</div>
+            <div class="small">Requests already matched</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col placeholder" id="chartArea">
+            <h3 style="margin-top:0;color:#b71c1c;">Trends</h3>
+            <canvas id="trendChart" width="400" height="220"></canvas>
+        </div>
+        <div class="col placeholder" id="shortageArea">
+            <h3 style="margin-top:0;color:#b71c1c;">By Blood Group</h3>
+            <div id="bloodList" class="small">Loading…</div>
+            <hr>
+            <h4 style="margin:8px 0 6px 0;color:#b71c1c;">Urgent Requests</h4>
+            <div id="urgentContainer" style="max-height:260px; overflow:auto;">
+                <table id="urgentTable" style="width:100%;border-collapse:collapse;font-size:13px;">
+                    <thead>
+                        <tr style="text-align:left;border-bottom:1px solid #eee;"><th>Req ID</th><th>Name</th><th>Blood</th><th>Required</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="urgentBody"><tr><td colspan="5" class="small">Loading…</td></tr></tbody>
+                </table>
+            </div>
+            </div>
+        </section>
+    </div>
+</section>
+
+<script>
+    const navButtons = document.querySelectorAll('.top-nav button');
+    const sections = document.querySelectorAll('.section');
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            navButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            sections.forEach(s => s.classList.remove('active'));
+            document.getElementById(btn.dataset.section).classList.add('active');
+        });
+    });
+
+    let trendChart = null;
+
+    async function loadSummary(){
+        try{
+            const res = await fetch('/donor-admin/api/summary');
+            const json = await res.json();
+            if(json && json.success){
+                document.getElementById('totalDonors').textContent = json.totalDonors;
+                document.getElementById('eligibleDonors').textContent = json.eligibleDonors;
+                document.getElementById('pendingRequests').textContent = json.pendingRequests;
+                document.getElementById('matchedRequests').textContent = json.matchedRequests;
+
+                const by = json.byBloodGroup || {};
+                const container = document.getElementById('bloodList');
+                container.innerHTML = '';
+                Object.keys(by).sort().forEach(k=>{
+                    const el = document.createElement('div');
+                    el.innerHTML = `<strong>${k}</strong>: ${by[k]}`;
+                    container.appendChild(el);
+                });
+                // also refresh urgent list and trends
+                loadUrgentRequests();
+                loadTrends();
+            } else {
+                console.warn('Summary API returned error', json);
+            }
+        }catch(e){ console.error('Failed to load admin summary', e); }
+    }
+    loadSummary();
+    // refresh every 60s
+    setInterval(loadSummary, 60000);
+
+    // Trends
+    async function loadTrends(){
+        try{
+            const res = await fetch('/donor-admin/api/summary/trends');
+            const json = await res.json();
+            if(!json || !json.success) return;
+            const labels = json.labels || [];
+            const donors = json.donors || [];
+            const requests = json.requests || [];
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            if(trendChart){
+                trendChart.data.labels = labels;
+                trendChart.data.datasets[0].data = donors;
+                trendChart.data.datasets[1].data = requests;
+                trendChart.update();
+                return;
+            }
+            // load Chart.js from CDN
+            if(typeof Chart === 'undefined'){
+                await new Promise((resolve, reject)=>{
+                    const s = document.createElement('script');
+                    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+                    s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+                });
+            }
+
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Donors', borderColor: '#1976d2', backgroundColor: 'rgba(25,118,210,0.08)', data: donors, tension: 0.3 },
+                        { label: 'Requests', borderColor: '#d32f2f', backgroundColor: 'rgba(211,47,47,0.08)', data: requests, tension: 0.3 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { x: { display: true }, y: { beginAtZero: true } }
+                }
+            });
+        }catch(e){ console.error('Failed to load trends', e); }
+    }
+
+    // Urgent requests
+    async function loadUrgentRequests(){
+        try{
+            const res = await fetch('/donor-admin/api/requests/urgent');
+            const json = await res.json();
+            const tbody = document.getElementById('urgentBody');
+            tbody.innerHTML = '';
+            if(!json || !json.success){ tbody.innerHTML = '<tr><td colspan="5" class="small">No data</td></tr>'; return; }
+            const data = json.data || [];
+            if(data.length === 0){ tbody.innerHTML = '<tr><td colspan="5" class="small">No urgent requests</td></tr>'; return; }
+            data.forEach(r=>{
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid #f3f3f3';
+                const idTd = `<td>${r.id}</td>`;
+                const nameTd = `<td>${r.name || ''}</td>`;
+                const bloodTd = `<td>${r.bloodGroup || ''}</td>`;
+                const reqDate = r.requiredDate ? r.requiredDate : '';
+                const dateTd = `<td>${reqDate}</td>`;
+                const actionTd = `<td><button onclick="markMatched(${r.id})" style="background:#d32f2f;color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer;">Mark Matched</button></td>`;
+                tr.innerHTML = idTd + nameTd + bloodTd + dateTd + actionTd;
+                tbody.appendChild(tr);
+            });
+        }catch(e){ console.error('Failed to load urgent requests', e); }
+    }
+
+    async function markMatched(id){
+        if(!confirm('Mark request '+id+' as Matched?')) return;
+        try{
+            const res = await fetch('/donor-admin/api/request/'+id+'/mark-matched', { method:'POST' });
+            const json = await res.json();
+            if(json && json.success){
+                loadSummary();
+                alert('Request marked matched');
+            } else {
+                alert('Failed: '+(json && json.message ? json.message : 'unknown'));
+            }
+        }catch(e){ alert('Error marking matched: '+e.message); }
+    }
+</script>
+
+<script>
+    const sidebarBtn = document.querySelector(".bx-menu");
+    const sidebar = document.querySelector(".sidebar");
+    if (sidebarBtn) {
+        sidebarBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        });
+    }
+</script>
+</body>
+</html>

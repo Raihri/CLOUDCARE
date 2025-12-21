@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Availability</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(160deg, #e0f0ff, #f9fbff);
+            color: #333;
+        }
+
+        .wrap {
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1b3e72;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .add-slot, .availability-list {
+            flex: 1.2;
+            background: linear-gradient(145deg, #ffffff, #f4faff);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .add-slot h2, .availability-list h2 {
+            color: #1b3e72;
+            margin-bottom: 20px;
+        }
+
+        .add-slot label {
+            font-weight: 600;
+            color: #1b3e72;
+            display: block;
+            margin-top: 12px;
+        }
+
+        .add-slot input[type="time"], .add-slot select {
+            width: 100%;
+            padding: 12px 14px;
+            margin-top: 6px;
+            border-radius: 8px;
+            border: 1px solid #d0e4ff;
+            font-size: 16px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            border-radius: 26px;
+            transition: 0.4s;
+        }
+
+        .slider::before {
+            position: absolute;
+            content: "";
+            height: 20px; width: 20px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+        .toggle-switch input:checked + .slider {
+            background-color: #4A90E2;
+        }
+
+        .toggle-switch input:checked + .slider::before {
+            transform: translateX(24px);
+        }
+
+        .booking-btn {
+            display: inline-block;
+            background: #4A90E2;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+            font-size: 16px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .booking-btn:hover {
+            background: #3570c1;
+        }
+
+        .availability-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .slot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(145deg, #ffffff, #d9edff);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: 0.3s;
+        }
+
+        .slot:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .slot-info span {
+            margin-right: 14px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        @media(max-width: 900px){
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="main-content">
+        <h1>Manage Availability</h1>
+        <div class="container">
+
+            <!-- LEFT COLUMN: Add Slot Form -->
+<div class="add-slot">
+    <h2>Add New Slot</h2>
+    <form th:action="@{/doctor/addAvailabilitySlot}" method="post">
+        <!-- Hidden field for doctor id -->
+        <input type="hidden" name="doctorId" th:value="${doctor.id}">
+
+        <!-- Date picker -->
+        <label for="date">Date:</label>
+        <input type="date" name="date" id="date" required
+       th:value="${today}"
+       th:attr="min=${today}">
+        <!-- Start time -->
+        <label for="startTime">Start Time:</label>
+        <input type="time" name="startTime" id="startTime" required>
+
+        <!-- End time -->
+        <label for="endTime">End Time:</label>
+        <input type="time" name="endTime" id="endTime" required>
+
+        <!-- Telemedicine toggle -->
+        <label>Telemedicine:</label>
+        <label class="toggle-switch">
+            <input type="checkbox" name="telemedicine" id="telemedicine">
+            <span class="slider"></span>
+        </label>
+
+        <!-- Submit button -->
+        <button type="submit" class="booking-btn">Add Slot</button>
+    </form>
+</div>
+
+            <!-- RIGHT COLUMN: Existing Slots -->
+            <div class="availability-list">
+                <h2>Existing Slots</h2>
+                <div th:each="slot : ${doctor.availability}" class="slot">
+    <div class="slot-info">
+        <span th:text="${slot.date}"></span>
+        <span th:text="${slot.startTime}"></span>
+        <span th:text="${slot.endTime}"></span>
+        <span th:text="${slot.telemedicineAvailable} ? 'Telemedicine' : 'Physical Counselling'"></span>
+    </div>
+    <!-- Remove slot button -->
+    <form th:action="@{/doctor/removeAvailabilitySlot}" method="post" style="margin:0;">
+        <input type="hidden" name="slotId" th:value="${slot.id}">
+       <button type="submit" class="booking-btn" style="background:#e74c3c;" 
+        onclick="return confirm('Are you sure you want to remove this slot?');">Remove</button>
+    </form>
+</div>
+                <a th:href="@{/doctor/dashboard(doctorId=${doctor.id})}" class="booking-btn">Back to Dashboard</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

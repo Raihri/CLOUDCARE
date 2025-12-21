@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CloudCare — Admin Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Main container */
+        .login-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.05),
+                0 2px 6px rgba(0, 0, 0, 0.02);
+            width: 420px;
+            text-align: center;
+        }
+
+        /* Header */
+        .logo {
+            margin-bottom: 30px;
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        h2 {
+            margin-bottom: 40px;
+            color: #2d3748;
+            font-weight: 500;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        /* Form */
+        .form-group {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 16px 20px 16px 48px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            font-size: 15px;
+            color: #2d3748;
+            transition: all 0.3s ease;
+            outline: none;
+            background: #f8fafc;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #2575fc;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.1);
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        input[type="text"]:focus + i, input[type="password"]:focus + i {
+            color: #2575fc;
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: #2575fc;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #1d64e0;
+        }
+
+        /* Error message */
+        .error {
+            color: #ef4444;
+            margin-bottom: 25px;
+            padding: 14px;
+            border-radius: 10px;
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .error i {
+            font-size: 16px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            font-size: 13px;
+            color: #94a3b8;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .cloudcare {
+            color: #2d3748;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login container -->
+    <div class="login-container">
+        <div class="logo">
+            <!-- <span>CloudCare</span> -->
+            <img th:src="@{/image/logo.png}" alt="CloudCare Logo" style="width: 190px;">
+        </div>
+        
+        <h2>Admin Login</h2>
+        
+        <div th:if="${param.error}" class="error">
+            <i class="fas fa-exclamation-circle"></i>
+            Invalid username or password
+        </div>
+        
+        <form th:action="@{/admin/login}" method="post" id="loginForm">
+            <div class="form-group">
+                <input type="text" name="username" id="username" placeholder="Username" required autocomplete="off">
+                <i class="fas fa-user"></i>
+            </div>
+            
+            <div class="form-group">
+                <input type="password" name="password" id="password" placeholder="Password" required>
+                <i class="fas fa-lock"></i>
+            </div>
+            
+            <button type="submit" id="loginBtn">
+                Sign In
+            </button>
+        </form>
+        
+        <div class="footer">
+            <span class="cloudcare">CloudCare</span> &copy; 2025 • Secure Admin Portal
+        </div>
+    </div>
+
+    <!-- No JavaScript needed - form will submit directly -->
+</body>
+</html>
