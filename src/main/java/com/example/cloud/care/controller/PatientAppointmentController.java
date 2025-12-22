@@ -39,6 +39,7 @@ public class PatientAppointmentController {
         List<Appointment> appointments = appointmentService.getPatientAppointments(patient.getId());
 
         model.addAttribute("appointments", appointments);
+        model.addAttribute("patient", patient);
 
         return "shitpatient"; // Thymeleaf template name
     }

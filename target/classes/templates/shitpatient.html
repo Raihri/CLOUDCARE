@@ -1,138 +1,524 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
-    <title>My Appointments | CloudCare</title>
+    <title>CloudCare | Doctors List</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-        /* =========== RESET =========== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: linear-gradient(135deg, #e3f2fd, #f8fafc);
-            font-family: "Inter", sans-serif;
-            color: #333;
-        }
-
-        /* =========== PAGE CONTAINER =========== */
-        .dashboard {
-            max-width: 1200px;
-            margin: 50px auto;
-            padding: 0 20px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            font-weight: 700;
-            font-size: 2.2rem;
-            color: #1e3a8a;
-        }
-
-        /* =========== APPOINTMENT CARDS GRID =========== */
-        .appointments {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-            gap: 25px;
-        }
 
         /* =========== CARD DESIGN =========== */
-        .card {
-            background: rgba(255, 255, 255, 0.70);
-            backdrop-filter: blur(10px);
-            border-radius: 18px;
-            padding: 25px;
-            position: relative;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            transition: 0.35s ease;
-        }
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+    margin: 20px 0;
+    overflow: hidden;
+}
 
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 34px rgba(34, 102, 255, 0.2);
-        }
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2563eb, #3b82f6, #8b5cf6);
+    border-radius: 24px 24px 0 0;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
 
-        .card h3 {
-            color: #2563eb;
-            margin-bottom: 10px;
-            font-size: 1.3rem;
-            font-weight: 600;
-        }
+.card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+    border-color: rgba(37, 99, 235, 0.2);
+}
 
-        .card p {
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
+.card:hover::before {
+    opacity: 1;
+}
 
-        /* =========== STATUS LABELS =========== */
-        .status {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 6px 14px;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 0.75rem;
-            color: white;
-            text-transform: uppercase;
-        }
+.card h3 {
+    color: #1e40af;
+    margin-bottom: 16px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
 
-        .PENDING { background: #f59e0b; }
-        .CONFIRMED { background: #10b981; }
-        .CANCELLED { background: #ef4444; }
-        .COMPLETED { background: #3b82f6; }
+.card p {
+    margin-bottom: 12px;
+    font-size: 1rem;
+    color: #4b5563;
+    font-weight: 500;
+    line-height: 1.5;
+}
 
-        /* =========== BUTTONS =========== */
-        .btn {
-            display: inline-block;
-            margin-top: 12px;
-            padding: 12px 18px;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            transition: 0.3s ease;
-        }
+.card p strong {
+    color: #1f2937;
+    font-weight: 600;
+}
 
-        .btn-tele {
-            background: linear-gradient(135deg, #6366f1, #3b82f6);
-        }
+/* =========== STATUS LABELS =========== */
+.status {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
 
-        .btn-tele:hover {
-            background: linear-gradient(135deg, #4f46e5, #1d4ed8);
-            transform: translateY(-2px);
-        }
+.status:hover {
+    transform: scale(1.05);
+}
 
-        .no-appt {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 1.2rem;
-            color: #555;
-        }
+.PENDING { 
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
 
-        @media (max-width: 500px) {
-            h1 { font-size: 1.6rem; }
-        }
+.CONFIRMED { 
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.CANCELLED { 
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.COMPLETED { 
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* =========== BUTTONS =========== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-tele {
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+}
+
+.btn-tele:hover {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-icon {
+    font-size: 1.1rem;
+}
+
+/* =========== INFO ROWS =========== */
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.info-icon {
+    color: #2563eb;
+    font-size: 1.1rem;
+    min-width: 24px;
+}
+
+.info-text {
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.info-text strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+/* =========== TIME BADGE =========== */
+.time-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* =========== NO APPOINTMENTS =========== */
+.no-appt {
+    text-align: center;
+    padding: 60px 20px;
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.no-appt-icon {
+    font-size: 3.5rem;
+    color: #9ca3af;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.no-appt h3 {
+    color: #6b7280;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.no-appt p {
+    color: #9ca3af;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* =========== CARD GRID LAYOUT =========== */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 24px;
+    padding: 20px 0;
+}
+
+@media (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .card {
+        padding: 24px;
+        margin: 0;
+    }
+    
+    .card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .status {
+        position: relative;
+        top: 0;
+        right: 0;
+        display: inline-block;
+        margin-bottom: 16px;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 20px;
+        border-radius: 20px;
+    }
+    
+    .card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .no-appt {
+        padding: 40px 15px;
+    }
+    
+    .no-appt-icon {
+        font-size: 2.5rem;
+    }
+    
+    .no-appt h3 {
+        font-size: 1.3rem;
+    }
+}
+
+/* =========== ANIMATIONS =========== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.2s; }
+.card:nth-child(4) { animation-delay: 0.3s; }
+
+/* =========== URGENT CARD VARIANT =========== */
+.card.urgent {
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, rgba(254, 226, 226, 0.95), rgba(255, 255, 255, 0.95));
+}
+
+.card.urgent::before {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+    opacity: 1;
+}
+
+/* =========== COMPLETED CARD VARIANT =========== */
+.card.completed {
+    opacity: 0.9;
+}
+
+.card.completed:hover {
+    opacity: 1;
+}
+
+/* =========== CARD HEADER =========== */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.card-title {
+    flex: 1;
+    min-width: 200px;
+}
+
+.card-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* =========== DOCTOR INFO =========== */
+.doctor-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(37, 99, 235, 0.05);
+    border-radius: 12px;
+    margin: 16px 0;
+}
+
+.doctor-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-details h4 {
+    margin: 0;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+.doctor-details p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
     </style>
 </head>
 
 <body>
 
-<div class="dashboard">
-    <a href="/patient/doctor_list" class="back" style="padding:15px; margin:15px;">
-    <i class="fa fa-arrow-left"></i> Back to Doctor List
-</a>
-    <h1>My Appointments</h1>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="logo-details">
+        <img th:src="@{/image/logo.png}" alt="CloudCare Logo"/>
+
+        <span class="logo_name">CloudCare</span>
+    </div>
+    <ul class="nav-links">
+        
+        <li>
+            <a th:href="@{/patient/dashboard}">
+                <i class="bx bxs-user"></i>
+                <span class="link_name">Patient Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Patient Profile</a></li>
+            </ul>
+        </li>
+
+          <li>
+            <a th:href="@{/patient/dataEntry}">
+                <i class="bx bxs-edit"></i>
+                <span class="link_name">Edit Profile</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Edit Profile</a></li>
+            </ul>
+        </li>
+
+         <li>
+            <a th:href="@{/patient/doctor_list}">
+                <i class="bx bx-menu"></i>
+                <span class="link_name">Doctors List</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="patient">Doctors List</a></li>
+            </ul>
+        </li>
+
+
+        <li>
+            <a th:href="@{/patient/donor}">
+                <i class='bx bxs-droplet'></i>
+                <span class="link_name">Find Donor</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="donor">Find Donor</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a th:href="@{/patient/aichat}">
+                <i class='bx bxs-chat'></i>
+                <span class="link_name">CloudCare AI</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
+            </ul>
+        </li>
+        <li>
+            <a th:href="@{/patient/quiz_index1}">
+                <i class='bx bxs-brain'></i>
+                <span class="link_name">Mental Health Quiz</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/quiz_index1">Mental Health Quiz</a></li>
+            </ul>
+        </li>
+         <li class="active">
+            <a th:href="@{/patient/appointments}">
+                <i class='bx bx-phone'></i>
+                <span class="link_name">Appointments</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="appointments">Appointments</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <a th:href="@{/patient/tasks}">
+                <i class='bx bx-run'></i>
+                <span class="link_name">Daily Tasks</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/tasks">Daily Tasks</a></li>
+            </ul>
+        </li>
+      
+
+       
+        <li>
+            <!-- Patient Content Here -->
+            <div class="profile-details" th:if="${patient != null}">
+                <a th:href="@{/patient/dashboard}"
+                   style="display: flex; align-items: center; text-decoration: none; width: 100%;">
+                    <div class="profile-content">
+                        <!-- show patient image -->
+                        <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
+                             th:src="${patient.user.photoUrl}"
+                             alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+                        <img th:if="${patient.user == null or patient.user.photoUrl == null}"
+                             src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
+                             alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
+
+                        <div class="name-job">
+                            <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
+                            <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </li>
+    </ul>
+</div>
+<!-- MAIN SECTION -->
+<section class="home-section" style="padding:50px;">
+
+    <div class="home-header">
+        <i class='bx bx-menu' id="sidebarToggle"></i>
+        <h1>My Appointments</h1>
+    </div>
+
+    <div class="dashboard">
+    
+   
 
     <div class="appointments">
         <!-- Loop -->
@@ -181,6 +567,79 @@
     </div>
 
 </div>
+</section>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<script>
+    // Minimal Sidebar State Restorer
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.querySelector(".sidebar");
+        const toggleBtn = document.getElementById("sidebarToggle");
+        
+        if (!sidebar || !toggleBtn) return;
+        
+        // RESTORE STATE
+        // Check multiple sources for sidebar state
+        const urlParams = new URLSearchParams(window.location.search);
+        const sidebarParam = urlParams.get('sidebar');
+        
+        if (sidebarParam === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (sidebarParam === 'expanded') {
+            sidebar.classList.remove('close');
+        } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
+            sidebar.classList.add('close');
+        } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('close');
+        }
+        
+        // SAVE STATE on toggle
+        toggleBtn.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+            const isCollapsed = sidebar.classList.contains('close');
+            
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+            sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+        });
+        
+        // Save state before form submissions
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            // Add hidden input if not already present
+            if (!form.querySelector('input[name="sidebar"]')) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'sidebar';
+                form.appendChild(input);
+            }
+            
+            form.addEventListener('submit', () => {
+                const isCollapsed = sidebar.classList.contains('close');
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+                sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+            });
+        });
+    });
+</script>
+
+<script>
+
+   
+
+    // Search Filter
+    function searchTable() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const rows = document.querySelectorAll("#doctorsTable tbody tr");
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+
+</script>
 
 </body>
 </html>
