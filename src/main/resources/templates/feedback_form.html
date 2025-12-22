@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Feedback | CloudCare</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style-feedback.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+<div th:replace="fragments/sidebar :: sidebar"></div>
+
+<section class="home-section">
+    <div class="home-header">
+        <i class='bx bx-menu'></i>
+        <h1>Submit Feedback</h1>
+    </div>
+
+    <div class="feedback-container">
+        
+        <a href="/patient/feedbacks" class="back-btn" style="margin-bottom:20px;">
+            <i class='bx bx-arrow-back'></i> Back
+        </a>
+
+        <div class="feedback-form-card">
+            <h3>We Value Your Opinion</h3>
+
+            <form action="/patient/feedbacks/save" method="post">
+
+                <label>Name</label>
+                <input type="text" name="name" required>
+
+                <label>Email</label>
+                <input type="email" name="email" required>
+
+                <label>Category</label>
+                <select name="category" required>
+                    <option value="">Select</option>
+                    <option value="App">App</option>
+                    <option value="Service">Service</option>
+                    <option value="Doctor">Doctor</option>
+                    <option value="Other">Other</option>
+                </select>
+
+                <label>Rating</label>
+                <select name="rating" required>
+                    <option value="">Choose</option>
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="1">⭐</option>
+                </select>
+
+                <label>Comments</label>
+                <textarea name="comments"
+                          rows="10"
+                          maxlength="5000"
+                          placeholder="Share your experience (max 5000 characters)"
+                          required>
+                </textarea>
+
+                <button type="submit" class="submit-btn">Submit Feedback</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
