@@ -1,22 +1,19 @@
-let arrow = document.querySelectorAll(".arrow");
-for (var i = 0; i < arrow.length; i++) {
-  arrow[i].addEventListener("click", (e) => {
-    let arrowParent = e.target.parentElement.parentElement;//selecting main parent of arrow
-    arrowParent.classList.toggle("showMenu");
+document.addEventListener("DOMContentLoaded", () => {
+
+  document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", e => e.stopPropagation());
   });
-}
 
-let sidebar = document.querySelector(".sidebar");
-let sidebarBtn = document.querySelector(".bx-menu");
+  let sidebar = document.querySelector(".sidebar");
+  let sidebarBtn = document.querySelector(".bx-menu");
 
-// Ensure sidebar is open by default
-if (sidebar && sidebar.classList.contains("close")) {
-  sidebar.classList.remove("close");
-}
+  if (sidebar && sidebar.classList.contains("close")) {
+    sidebar.classList.remove("close");
+  }
 
-console.log(sidebarBtn);
-if (sidebarBtn) {
-  sidebarBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("close");
-  });
-}
+  if (sidebarBtn) {
+    sidebarBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("close");
+    });
+  }
+});
