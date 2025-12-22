@@ -9,13 +9,9 @@
 </head>
 <body>
 
-<div th:replace="fragments/sidebar :: sidebar"></div>
 
-<section class="home-section">
-    <div class="home-header">
-        <i class='bx bx-menu'></i>
-        <h1>Submit Feedback</h1>
-    </div>
+<section class="home" style="padding: 50px; align-items: center; align-content: center;">
+    
 
     <div class="feedback-container">
         
@@ -29,10 +25,25 @@
             <form action="/patient/feedbacks/save" method="post">
 
                 <label>Name</label>
-                <input type="text" name="name" required>
+                     <input
+    id="name"
+    name="name"
+    type="text"
+    th:value="${patient.user.name}"
+    readonly
+    aria-describedby="name-help"
+/>
 
                 <label>Email</label>
-                <input type="email" name="email" required>
+                     <input
+    id="email"
+    name="email"
+    type="text"
+    th:value="${patient.user.email}"
+    readonly
+    aria-describedby="name-help"
+    required
+/>
 
                 <label>Category</label>
                 <select name="category" required>

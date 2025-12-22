@@ -46,8 +46,11 @@ public class PatientDashboardController {
     @Autowired
     private com.example.cloud.care.service.RequestService requestService;
 
+   
+
     @GetMapping("/aichat")
-    public String home() {
+    public String home(Model model) {
+        model.addAttribute("patient", logger.logger());
         return "aichat";
     }
 
@@ -56,6 +59,8 @@ public class PatientDashboardController {
         String response = chatService.getChatResponse(message);
         model.addAttribute("userMessage", message);
         model.addAttribute("botResponse", response);
+        model.addAttribute("patient", logger.logger());
+
         return "aichat";
     }
 
@@ -80,18 +85,6 @@ public class PatientDashboardController {
         Patient patient = logger.logger();
 
         model.addAttribute("patient", patient);
-
-
-        System.out.println("---------------HELLO--------------------");
-
-        System.out.println("Patient Data: ");
-        System.out.println(patient.getAnxietyScore());
-        System.out.println("Patient Name is:   --------------------");
-        System.out.println(patient.getUser().getName());
-        System.out.println("Photo URL ---------------");
-        System.out.println(patient.getUser().getPhotoUrl());
-
-        ;
         return "patient_dashboard";
     }
 

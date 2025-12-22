@@ -89,15 +89,14 @@
         </li>
 
         <li>
-            <a th:href="@{/patient/tasks}">
-                <i class='bx bx-run'></i>
-                <span class="link_name">Daily Tasks</span>
+            <a th:href="@{/patient/feedbacks}">
+                <i class='bx bxs-star'></i>
+                <span class="link_name">Feedback</span>
             </a>
             <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/tasks">Daily Tasks</a></li>
+                <li><a class="link_name" href="/patient/feedbacks">Feedback</a></li>
             </ul>
         </li>
-      
 
        
         <li>
@@ -135,8 +134,15 @@
         <h2 style="font-size:1.05rem; color:var(--primary-700); margin-bottom:8px;">Get started</h2>
         <p style="color:var(--muted); margin-bottom:14px;">Enter a name and click start. Results are for personal use only.</p>
         <form th:action="@{/patient/quiz}" method="get" aria-label="Start quiz form">
-          <label for="name">Your name</label>
-          <input id="name" name="name" type="text" placeholder="e.g. Ayesha" aria-describedby="name-help"/>
+          <label for="name">Name</label>
+          <input
+    id="name"
+    name="name"
+    type="text"
+    th:value="${patient.user.name}"
+    readonly
+    aria-describedby="name-help"
+/>
           <div style="height:6px"></div>
           <button type="submit" class="btn" aria-label="Start quiz">Start Quiz</button>
         </form>

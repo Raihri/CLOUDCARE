@@ -1,8 +1,13 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.model.QuizResult;
+import com.example.cloud.care.service.loggedInUserFind;
+
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
+import org.hibernate.engine.jdbc.env.internal.LobCreationLogging_.logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,12 +24,17 @@ import java.util.regex.Pattern;
 @RequestMapping("/patient")
 public class QuizController {
 
+    @Autowired
+    loggedInUserFind logger;
+
     private static final String[] OPTIONS = {"Not at all", "Several days", "More than half the days", "Nearly every day"};
     private static final int[] SCORES = {0, 1, 2, 3};
     private static final Pattern QUESTION_KEY = Pattern.compile("^q(\\d+)$");
 
     @GetMapping({ "/quiz_index1"})
-    public String index1() {
+    public String index1(Model model) {
+
+        model.addAttribute("patient", logger.logger());
         return "index1";
     }
 
@@ -41,6 +51,8 @@ public class QuizController {
         model.addAttribute("name", (name == null || name.isEmpty()) ? "Anonymous" : name);
         model.addAttribute("questions", questions);
         model.addAttribute("options", OPTIONS);
+        model.addAttribute("patient", logger.logger());
+
         return "quiz";
     }
 
