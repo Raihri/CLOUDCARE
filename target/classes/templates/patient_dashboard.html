@@ -696,7 +696,7 @@
         </li>
         <li>
             <a th:href="@{/patient/quiz_index1}">
-                <i class='bx bxs-chat'></i>
+                <i class='bx bxs-brain'></i>
                 <span class="link_name">Mental Health Quiz</span>
             </a>
             <ul class="sub-menu blank">
@@ -705,7 +705,7 @@
         </li>
          <li>
             <a th:href="@{/patient/appointments}">
-                <i class='bx bxs-droplet'></i>
+                <i class='bx bx-phone'></i>
                 <span class="link_name">Appointments</span>
             </a>
             <ul class="sub-menu blank">
@@ -715,7 +715,7 @@
 
         <li>
             <a th:href="@{/patient/tasks}">
-                <i class='bx bxs-edit'></i>
+                <i class='bx bx-run'></i>
                 <span class="link_name">Daily Tasks</span>
             </a>
             <ul class="sub-menu blank">
@@ -1081,29 +1081,24 @@ onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
                     </div>
                    <div class="actions-grid">
     <!-- Replace # with your actual links later -->
-    <a href="#" class="action-link">
+    <a href="/patient/doctor_list" class="action-link">
         <div class="action-icon">
             <i class='bx bx-calendar'></i>
         </div>
         <div class="action-label">Book Appointment</div>
     </a>
-    <a href="#" class="action-link">
-        <div class="action-icon">
-            <i class='bx bx-file'></i>
-        </div>
-        <div class="action-label">View Reports</div>
-    </a>
-    <a href="#" class="action-link">
+    
+    <a href="/patient/dataEntry" class="action-link">
         <div class="action-icon">
             <i class='bx bx-refresh'></i>
         </div>
         <div class="action-label">Update Health Data</div>
     </a>
-    <a href="#" class="action-link">
+    <a href="/patient/aichat" class="action-link">
         <div class="action-icon">
             <i class='bx bx-chat'></i>
         </div>
-        <div class="action-label">Message Doctor</div>
+        <div class="action-label">Chat with CloudCare AI</div>
     </a>
 </div>
                 </div>
@@ -1119,7 +1114,7 @@ onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
                 </div>
 
                 <!-- Health Tips Card -->
-                <div class="card">
+                <!-- <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Health Tips</h3>
                     </div>
@@ -1148,7 +1143,7 @@ onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
                                 <div class="tip-text">Get 7-8 hours of sleep nightly</div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
