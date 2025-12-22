@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Patient Feedback | CloudCare</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style-feedback.css}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+<div th:replace="fragments/sidebar :: sidebar"></div>
+
+<section class="home-section">
+    <div class="home-header">
+        <i class='bx bx-menu'></i>
+        <h1>Patient Feedback</h1>
+    </div>
+
+    <div class="feedback-container">
+
+        <div class="feedback-top">
+
+            <a href="/patient/feedbacks/new" class="give-feedback-btn">
+                <i class='bx bxs-edit'></i> Give Feedback
+            </a>
+        </div>
+
+        <div th:if="${feedbacks.isEmpty()}" class="empty-message">
+            No feedback submitted yet.
+        </div>
+
+        <div th:each="f : ${feedbacks}" class="feedback-card">
+            <div class="feedback-header">
+                <strong th:text="${f.name}">Name</strong>
+                <div class="rating">
+                    <span th:text="${#strings.repeat('⭐', f.rating)}"></span>
+                    <span class="rating-text">([[${f.rating}]]/5)</span>
+                </div>
+            </div>
+
+            <div class="category">
+                Category: <strong th:text="${f.category}"></strong>
+            </div>
+
+            <div class="feedback-meta">
+                Submitted on <span th:text="${f.createdDay}"></span>,
+                <span th:text="${#temporals.format(f.createdDate, 'dd MMM yyyy')}"></span>
+            </div>
+
+            <div class="feedback-text" th:text="${f.comments}"></div>
+        </div>
+    </div>
+</section>
+
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
