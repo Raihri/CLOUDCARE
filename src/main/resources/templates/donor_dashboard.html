@@ -375,7 +375,7 @@
 
 <section class="home-section">
     <div class="home-header">
-        <i class='bx bx-menu'></i>
+        <i class='bx bx-menu' id="sidebarToggle"></i>
         <h1>Blood Donor & Request Dashboard</h1>
     </div>
 
@@ -660,55 +660,61 @@
             </form>
         </div>
     </div>
-    <script>
-    // Minimal Sidebar State Restorer
+
+<script>
+    // Fixed Tab Switching Functionality
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.querySelector(".sidebar");
         const toggleBtn = document.getElementById("sidebarToggle");
         
-        if (!sidebar || !toggleBtn) return;
-        
-        // RESTORE STATE
-        // Check multiple sources for sidebar state
-        const urlParams = new URLSearchParams(window.location.search);
-        const sidebarParam = urlParams.get('sidebar');
-        
-        if (sidebarParam === 'collapsed') {
-            sidebar.classList.add('close');
-        } else if (sidebarParam === 'expanded') {
-            sidebar.classList.remove('close');
-        } else if (sessionStorage.getItem('sidebarState') === 'collapsed') {
-            sidebar.classList.add('close');
-        } else if (localStorage.getItem('sidebarCollapsed') === 'true') {
-            sidebar.classList.add('close');
-        }
-        
-        // SAVE STATE on toggle
-        toggleBtn.addEventListener("click", () => {
-            sidebar.classList.toggle("close");
-            const isCollapsed = sidebar.classList.contains('close');
-            
-            localStorage.setItem('sidebarCollapsed', isCollapsed);
-            sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
-        });
-        
-        // Save state before form submissions
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            // Add hidden input if not already present
-            if (!form.querySelector('input[name="sidebar"]')) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'sidebar';
-                form.appendChild(input);
+        // Sidebar toggle
+        if (sidebar && toggleBtn) {
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                sidebar.classList.add('close');
             }
             
-            form.addEventListener('submit', () => {
-                const isCollapsed = sidebar.classList.contains('close');
-                localStorage.setItem('sidebarCollapsed', isCollapsed);
-                sessionStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+            toggleBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("close");
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('close'));
+            });
+        }
+        
+        // Tab switching functionality - FIXED
+        function switchTab(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.top-nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Find and activate the corresponding button
+            const targetButton = document.querySelector(`.top-nav button[data-section="${sectionId}"]`);
+            if (targetButton) {
+                targetButton.classList.add('active');
+            }
+        }
+        
+        // Add click event listeners to tab buttons
+        document.querySelectorAll('.top-nav button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = button.getAttribute('data-section');
+                switchTab(sectionId);
             });
         });
+        
+        // Initialize with first tab active
+        switchTab('donors');
     });
 </script>
 
@@ -723,11 +729,12 @@
             row.style.display = text.includes(input) ? "" : "none";
         });
     }
-
 </script>
 
     <script>
-       
+        // API endpoints
+        const donorAPI = '/api/donor';
+        const requestAPI = '/api/request';
 
         const diseaseModal = document.getElementById('diseaseModal');
         const diseaseList = document.getElementById('diseaseList');
@@ -1359,7 +1366,5 @@
         }
     </script>
 </section>
-
-
 </body>
 </html>
