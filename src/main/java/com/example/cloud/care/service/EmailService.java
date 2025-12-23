@@ -2,10 +2,13 @@ package com.example.cloud.care.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+
+
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.regex.Pattern;
@@ -13,20 +16,42 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.NamingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.*;
+
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-    private final JavaMailSender mailSender;
+    
+    @Value("${brevo.api.key}")
+    private String apiKey;
+
+    @Value("${brevo.sender.email}")
+    private String senderEmail;
+
+    @Value("${brevo.sender.name}")
+    private String senderName;
+
+    private static final String BREVO_URL =
+            "https://api.brevo.com/v3/smtp/email";
+
+    private final RestTemplate restTemplate = new RestTemplate();
 
     // Email regex pattern for validation
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+    
 
     /**
      * Validates if the email address is in a valid format.
@@ -126,44 +151,50 @@ public class EmailService {
      */
     @Async
     public void sendVerificationEmail(String to, String code) {
-        logger.info("Preparing verification email for: {} (using provided code)", to);
-        if (to == null || to.isEmpty() || code == null || code.isEmpty()) {
-            String warningMsg = "⚠️ WARNING: Recipient email or code is null/empty. Email: " + to + ", Code present: "
-                    + (code != null && !code.isEmpty());
-            System.out.println(warningMsg);
-            logger.warn(warningMsg);
-            return;
-        }
 
-        // Validate email format before sending
-        if (!isValidEmail(to)) {
-            String warningMsg = "⚠️ WARNING: Invalid email format provided: " + to;
-            System.out.println(warningMsg);
-            logger.warn(warningMsg);
+        if (to == null || to.isBlank() || code == null || code.isBlank()) {
+            logger.warn("Email or code missing");
             return;
         }
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            String sender = ((org.springframework.mail.javamail.JavaMailSenderImpl) mailSender).getUsername();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
 
-            message.setFrom(sender);
-            message.setTo(to);
-            message.setSubject("CloudCare Email Verification Code");
-            message.setText("Welcome to CloudCare!\n\n"
-                    + "Your verification code is: " + code + "\n\n"
-                    + "Please enter this code on the verification page to activate your account.\n\n"
-                    + "If you didn't sign up, you can safely ignore this email.\n\n"
-                    + "Best regards,\nCloudCare Team");
+            Map<String, Object> body = new HashMap<>();
+            body.put("sender", Map.of(
+                    "email", senderEmail,
+                    "name", senderName
+            ));
+            body.put("to", List.of(
+                    Map.of("email", to)
+            ));
+            body.put("subject", "CloudCare Email Verification Code");
 
-            mailSender.send(message);
-            logger.info("Verification code {} sent to {}", code, to);
-        } catch (MailException e) {
-            logger.error("MailException sending to {}: {}", to, e.getMessage());
-            System.out.println("Failed to send email: " + e.getMessage());
+            body.put("textContent",
+                    "Welcome to CloudCare!\n\n" +
+                    "Your verification code is: " + code + "\n\n" +
+                    "If you didn’t request this, please ignore.\n\n" +
+                    "— CloudCare Team"
+            );
+
+            HttpEntity<Map<String, Object>> request =
+                    new HttpEntity<>(body, headers);
+
+            ResponseEntity<String> response =
+                    restTemplate.postForEntity(BREVO_URL, request, String.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Verification email sent to {}", to);
+            } else {
+                logger.error("Brevo error {} - {}",
+                        response.getStatusCode(),
+                        response.getBody());
+            }
+
         } catch (Exception e) {
-            logger.error("Unexpected error sending to {}: {}", to, e.getMessage());
-            System.out.println("Unexpected error: " + e.getMessage());
+            logger.error("Failed to send email via Brevo: {}", e.getMessage());
         }
     }
 }

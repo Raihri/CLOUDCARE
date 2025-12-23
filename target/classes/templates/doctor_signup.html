@@ -409,7 +409,7 @@
 
             <div>
               <label>BMDC Registration No.</label>
-              <input class="form-input" type="text" name="bmdcRegNo" th:value="${doctor.bmdcRegNo}"
+              <input class="form-input" type="text" id="bmdcRegNo" name="bmdcRegNo" th:value="${doctor.bmdcRegNo}"
                 placeholder="e.g. A-123456" pattern="^[A-Za-z]-\d{6}$"
                 title="Format: A-123456 (single letter, dash, 6 digits)" />
               <div id="bmdcHint" class="muted-small">Format example: <strong>A-123456</strong></div>
@@ -483,73 +483,187 @@
   const preview = document.getElementById('previewImage');
   const certInput = document.getElementById('certificateFile');
   const certInfo = document.getElementById('certificateInfo');
-  const bmdcInput = document.querySelector('input[name="bmdcRegNo"]');
-  const bmdcError = document.getElementById('bmdcError');
-
+  
+  // Email validation elements
   const emailInput = document.getElementById('email');
-const emailError = document.getElementById('emailError');
+  const emailError = document.getElementById('emailError');
+  
+  // Password validation elements
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirmPassword');
+  const strengthBar = document.getElementById('passwordStrength');
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordError = document.getElementById('passwordError');
+  const confirmError = document.getElementById('confirmPasswordError');
+  
+  // BMDC validation elements
+  const bmdcInput = document.getElementById('bmdcRegNo');
+  const bmdcError = document.getElementById('bmdcError');
+  
+  // ===== Regex Patterns =====
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const bmdcPattern = /^[A-Z]-\d{1,12}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#.,;:(){}[\]<>~]).{8,}$/;
 
-// Regex for email format validation
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-// Function to check email via server
-function checkEmailExists(email) {
-  return fetch(`/doctor/check-email?email=${encodeURIComponent(email)}`)
-    .then(res => res.json())
-    .catch(err => {
-      console.error("Error checking email:", err);
-      return false; // assume not exists on error
-    });
-}
-
-// Live validation on input
-emailInput.addEventListener('input', () => {
-  const value = emailInput.value.trim();
-
-  if (!value) {
-    emailError.textContent = '';
-    emailError.style.display = 'none';
-    return;
+  // ===== Email Validation =====
+  // Function to check email via server
+  function checkEmailExists(email) {
+    return fetch(`/doctor/check-email?email=${encodeURIComponent(email)}`)
+      .then(res => res.json())
+      .catch(err => {
+        console.error("Error checking email:", err);
+        return false; // assume not exists on error
+      });
   }
 
-  // Check format first
-  if (!emailRegex.test(value)) {
-    emailError.textContent = 'Please enter a valid email address';
-    emailError.style.display = 'block';
-  } else {
-    emailError.textContent = '';
-    emailError.style.display = 'none';
-  }
-});
+  // Live validation on input
+  emailInput.addEventListener('input', () => {
+    const value = emailInput.value.trim();
 
-// Check server for duplicate when user leaves the field
-emailInput.addEventListener('blur', async () => {
-  const email = emailInput.value.trim();
-  if (!email) return;
+    if (!value) {
+      emailError.textContent = '';
+      emailError.style.display = 'none';
+      return;
+    }
 
-  if (!emailRegex.test(email)) {
-    // Skip server check if format is invalid
-    return;
-  }
+    // Check format first
+    if (!emailRegex.test(value)) {
+      emailError.textContent = 'Please enter a valid email address';
+      emailError.style.display = 'block';
+    } else {
+      emailError.textContent = '';
+      emailError.style.display = 'none';
+    }
+  });
 
-  const exists = await checkEmailExists(email);
-  if (exists) {
-    emailError.textContent = "Email already exists!";
-    emailError.style.display = "block";
-  } else {
-    emailError.textContent = "";
-    emailError.style.display = "none";
-  }
-});
+  // Check server for duplicate when user leaves the field
+  emailInput.addEventListener('blur', async () => {
+    const email = emailInput.value.trim();
+    if (!email) return;
+
+    if (!emailRegex.test(email)) {
+      // Skip server check if format is invalid
+      return;
+    }
+
+    const exists = await checkEmailExists(email);
+    if (exists) {
+      emailError.textContent = "Email already exists!";
+      emailError.style.display = "block";
+    } else {
+      emailError.textContent = "";
+      emailError.style.display = "none";
+    }
+  });
+
   // ===== BMDC Validation =====
-  const bmdcPattern = /^[A-Za-z]-\d{6}$/;
   if (bmdcInput) {
+    // Format validation on input
     bmdcInput.addEventListener('input', () => {
-      if (!bmdcInput.value) {
+      const value = bmdcInput.value.trim();
+      if (!value) {
         bmdcError.style.display = 'none';
+        bmdcError.textContent = '';
         return;
       }
-      bmdcError.style.display = bmdcPattern.test(bmdcInput.value) ? 'none' : 'block';
+      
+      if (!bmdcPattern.test(value)) {
+        bmdcError.textContent = 'Please enter a valid BMDC number (e.g. A-123456)';
+        bmdcError.style.display = 'block';
+      } else {
+        bmdcError.textContent = '';
+        bmdcError.style.display = 'none';
+      }
+    });
+
+    // Check for duplicate on blur
+    bmdcInput.addEventListener('blur', () => {
+      const bmdc = bmdcInput.value.trim();
+      if (!bmdc || !bmdcPattern.test(bmdc)) return;
+
+      fetch(`/doctor/check-bmdc?bmdc=${encodeURIComponent(bmdc)}`)
+        .then(res => res.json())
+        .then(exists => {
+          if (exists) {
+            bmdcError.textContent = "BMDC Registration No. already exists!";
+            bmdcError.style.display = "block";
+          } else {
+            bmdcError.style.display = "none";
+            bmdcError.textContent = '';
+          }
+        })
+        .catch(err => {
+          console.error("Error checking BMDC:", err);
+        });
+    });
+  }
+
+  // ===== Password Validation =====
+  // Compute strength based on points
+  function getPasswordStrength(pwd) {
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[a-z]/.test(pwd)) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/\d/.test(pwd)) score++;
+    if (/[@$!%*?&^#.,;:(){}[\]<>~]/.test(pwd)) score++;
+
+    if (score <= 2) return 'weak';
+    if (score === 3 || score === 4) return 'medium';
+    if (score === 5) return 'strong';
+  }
+
+  // Update strength bar visually
+  function updateStrengthBar(pwd) {
+    const strength = getPasswordStrength(pwd);
+    if (strength === 'weak') {
+      strengthBar.style.background = 'red';
+      strengthBar.style.width = '33%';
+    } else if (strength === 'medium') {
+      strengthBar.style.background = 'orange';
+      strengthBar.style.width = '66%';
+    } else if (strength === 'strong') {
+      strengthBar.style.background = 'green';
+      strengthBar.style.width = '100%';
+    } else {
+      strengthBar.style.background = '#eee';
+      strengthBar.style.width = '0%';
+    }
+  }
+
+  // Password input event
+  passwordInput.addEventListener('input', () => {
+    const val = passwordInput.value;
+    updateStrengthBar(val);
+
+    if (!passwordRegex.test(val)) {
+      passwordError.textContent = "Password must have uppercase, lowercase, number, special char & 8+ chars";
+    } else {
+      passwordError.textContent = "";
+    }
+
+    // Confirm password live check
+    if (confirmPasswordInput.value && confirmPasswordInput.value !== val) {
+      confirmError.textContent = "Passwords do not match!";
+    } else {
+      confirmError.textContent = "";
+    }
+  });
+
+  // Confirm password input
+  confirmPasswordInput.addEventListener('input', () => {
+    if (confirmPasswordInput.value !== passwordInput.value) {
+      confirmError.textContent = "Passwords do not match!";
+    } else {
+      confirmError.textContent = "";
+    }
+  });
+
+  // Show/hide password toggle
+  if (togglePassword) {
+    togglePassword.addEventListener('click', () => {
+      passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+      togglePassword.textContent = passwordInput.type === "password" ? "👁️" : "🙈";
     });
   }
 
@@ -593,127 +707,56 @@ emailInput.addEventListener('blur', async () => {
       certInfo.textContent = `${file.name} — ${sizeMB} MB`;
     });
   }
-const password = document.getElementById('password');
-const confirmPassword = document.getElementById('confirmPassword');
-const strengthBar = document.getElementById('passwordStrength');
-const togglePassword = document.getElementById('togglePassword');
-const passwordError = document.getElementById('passwordError');
-const confirmError = document.getElementById('confirmPasswordError');
 
-// Regex for validation
-const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^#.,;:(){}[\]<>~]).{8,}$/;
-
-// Compute strength based on points
-function getPasswordStrength(pwd) {
-  let score = 0;
-  if (pwd.length >= 8) score++;
-  if (/[a-z]/.test(pwd)) score++;
-  if (/[A-Z]/.test(pwd)) score++;
-  if (/\d/.test(pwd)) score++;
-  if (/[@$!%*?&^#.,;:(){}[\]<>~]/.test(pwd)) score++;
-
-  if (score <= 2) return 'weak';
-  if (score === 3 || score === 4) return 'medium';
-  if (score === 5) return 'strong';
-}
-
-// Update strength bar visually
-function updateStrengthBar(pwd) {
-  const strength = getPasswordStrength(pwd);
-  if (strength === 'weak') {
-    strengthBar.style.background = 'red';
-    strengthBar.style.width = '33%';
-  } else if (strength === 'medium') {
-    strengthBar.style.background = 'orange';
-    strengthBar.style.width = '66%';
-  } else if (strength === 'strong') {
-    strengthBar.style.background = 'green';
-    strengthBar.style.width = '100%';
-  } else {
-    strengthBar.style.background = '#eee';
-    strengthBar.style.width = '0%';
-  }
-}
-
-// Password input event
-password.addEventListener('input', () => {
-  const val = password.value;
-  updateStrengthBar(val);
-
-  if (!regex.test(val)) {
-    passwordError.textContent = "Password must have uppercase, lowercase, number, special char & 8+ chars";
-  } else {
-    passwordError.textContent = "";
-  }
-
-  // Confirm password live check
-  if (confirmPassword.value && confirmPassword.value !== val) {
-    confirmError.textContent = "Passwords do not match!";
-  } else {
-    confirmError.textContent = "";
-  }
-});
-
-// Confirm password input
-confirmPassword.addEventListener('input', () => {
-  if (confirmPassword.value !== password.value) {
-    confirmError.textContent = "Passwords do not match!";
-  } else {
-    confirmError.textContent = "";
-  }
-});
-
-// Show/hide toggle
-togglePassword.addEventListener('click', () => {
-  password.type = password.type === "password" ? "text" : "password";
-  togglePassword.textContent = password.type === "password" ? "👁️" : "🙈";
-});
-  //Submission Check =====
+  // ===== Form Submission Check =====
   const form = document.querySelector('form');
   if (form) {
     form.addEventListener('submit', (ev) => {
+      let hasError = false;
+      
+      // Check BMDC format
       if (bmdcInput && bmdcInput.value && !bmdcPattern.test(bmdcInput.value)) {
-        ev.preventDefault();
+        bmdcError.textContent = 'Please enter a valid BMDC number (e.g. A-123456)';
         bmdcError.style.display = 'block';
         bmdcInput.focus();
-        return;
+        hasError = true;
       }
-      if (!regex.test(passwordInput.value)) {
-        ev.preventDefault();
-        passwordError.textContent = 'Password is not strong enough';
+      
+      // Check password strength
+      if (!passwordRegex.test(passwordInput.value)) {
+        passwordError.textContent = 'Password must have uppercase, lowercase, number, special char & 8+ chars';
+        passwordError.style.display = 'block';
         passwordInput.focus();
-        return;
+        hasError = true;
       }
+      
+      // Check password match
       if (passwordInput.value !== confirmPasswordInput.value) {
-        ev.preventDefault();
-        confirmPasswordError.textContent = 'Passwords do not match';
+        confirmError.textContent = 'Passwords do not match!';
+        confirmError.style.display = 'block';
         confirmPasswordInput.focus();
-        return;
+        hasError = true;
       }
+      
+      // Check email format
+      if (!emailRegex.test(emailInput.value)) {
+        emailError.textContent = 'Please enter a valid email address';
+        emailError.style.display = 'block';
+        emailInput.focus();
+        hasError = true;
+      }
+      
+      // Prevent submission if errors
+      if (hasError) {
+        ev.preventDefault();
+        return false;
+      }
+      
+      // If all validations pass, form will submit
+      return true;
     });
   }
-
 })();
-
-  
-  const bmdcInput = document.getElementById('bmdcRegNo');
-const bmdcError = document.getElementById('bmdcError');
-
-bmdcInput.addEventListener('blur', () => {
-    const bmdc = bmdcInput.value;
-    if (!bmdc) return;
-
-    fetch(`/doctor/check-bmdc?bmdc=${encodeURIComponent(bmdc)}`)
-        .then(res => res.json())
-        .then(exists => {
-            if (exists) {
-                bmdcError.textContent = "BMDC Registration No. already exists!";
-                bmdcError.style.display = "block";
-            } else {
-                bmdcError.style.display = "none";
-            }
-        });
-});
 </script>
       
       
