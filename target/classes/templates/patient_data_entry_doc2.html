@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title> CloudCare | Patient Profile</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Built-in CSS for Patient Profile -->
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #f8f9fa;
+            --border-color: #e0e0e0;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #eeeff2 0%, #eeebf1 100%);
+            min-height: 100vh;
+        }
+        
+        .patient-profile-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            min-height: 90vh;
+        }
+        
+        /* Left Sidebar Styles */
+        .patient-sidebar {
+            width: 350px;
+            background: linear-gradient(180deg, var(--secondary-color) 0%, #1a252f 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-y: auto;
+        }
+        
+        .patient-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .patient-photo-container {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .patient-photo {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid rgba(255,255,255,0.2);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .patient-id-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .patient-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: white;
+        }
+        
+        .patient-role {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .patient-info-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--primary-color);
+        }
+        
+        .info-item {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .info-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+        
+        .info-value {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-active { background: var(--success-color); }
+        .status-inactive { background: var(--warning-color); }
+        .status-critical { background: var(--accent-color); }
+        
+        /* Right Content Area Styles */
+        .patient-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            background: var(--light-bg);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        .content-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            position: relative;
+        }
+        
+        .content-title::after {
+            content: '';
+            position: absolute;
+            bottom: -22px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .last-updated {
+            color: var(--text-secondary);
+            font-size: 14px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* Edit Section Styles */
+        .edit-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .edit-section:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .edit-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .edit-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .edit-section-title i {
+            color: var(--primary-color);
+        }
+        
+        .save-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, #2980b9 0%, var(--primary-color) 100%);
+        }
+        
+        .save-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Form Grid Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: var(--transition);
+            background: white;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-control.disabled {
+            background: #f5f5f5;
+            color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+        
+        .range-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .range-value {
+            font-weight: 600;
+            color: var(--primary-color);
+            min-width: 40px;
+        }
+        
+        .range-bar {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .range-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--warning-color), var(--accent-color));
+            transition: width 0.3s ease;
+        }
+        
+        /* List Styles for Uploads */
+        .list-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .list-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .list-items {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+        
+        .list-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .item-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .item-icon {
+            color: var(--primary-color);
+        }
+        
+        .item-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .btn-icon:hover {
+            background: #f0f0f0;
+            color: var(--primary-color);
+        }
+        
+        /* Upload Area Styles */
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(52, 152, 219, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--success-color);
+            background: rgba(39, 174, 96, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .upload-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .upload-btn:hover {
+            background: #2980b9;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), #9b59b6);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        /* Message Styles */
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .message.success {
+            background: rgba(39, 174, 96, 0.1);
+            border: 2px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .message.error {
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .patient-profile-container {
+                flex-direction: column;
+                margin: 15px;
+            }
+            
+            .patient-sidebar {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .patient-content {
+                padding: 20px;
+            }
+            
+            .edit-section {
+                padding: 20px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+        
+        /* Animation for section loading */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .edit-section {
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="patient-profile-container">
+        <!-- Left Sidebar - Patient Info (Read-only) -->
+        <div class="patient-sidebar">
+            <div class="patient-header">
+                <div class="patient-photo-container">
+                    <img th:src="${patient?.user?.photoUrl ?: 'https://via.placeholder.com/150'}" 
+                         alt="Patient Photo" class="patient-photo">
+                    <div class="patient-id-badge">ID: <span th:text="${patient?.id}">0001</span></div>
+                </div>
+                <h2 class="patient-name" th:text="${patient?.user?.name ?: 'Patient Name'}">John Doe</h2>
+                <div class="patient-role">Patient Profile</div>
+            </div>
+            
+            <!-- Personal Information Section -->
+            <div class="patient-info-section">
+                <div class="section-title">
+                    <i class='bx bx-user'></i>
+                    Personal Information
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Age</span>
+                    <span class="info-value" th:text="${patient?.age ?: 'N/A'}">30</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value">
+                        <span th:if="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('M')}">Male</span>
+                        <span th:if="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('F')}">Female</span>
+                        <span th:if="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('O')}">Other</span>
+                        <span th:if="${#strings.trim(patient.gender.toString()).equalsIgnoreCase('U')}">Unknown</span>
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Blood Group</span>
+                    <span class="info-value" th:text="${patient?.bloodGroup ?: 'N/A'}">O+</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Location</span>
+                    <span class="info-value" th:text="${patient?.division + ', ' + patient?.zilla}">Dhaka, Dhaka</span>
+                </div>
+            </div>
+            
+            <!-- Contact Information Section -->
+            <div class="patient-info-section">
+                <div class="section-title">
+                    <i class='bx bx-phone'></i>
+                    Contact Information
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Emergency Contact</span>
+                    <span class="info-value" th:text="${patient?.emergencyContact ?: 'N/A'}">+8801XXXXXXXXX</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Father</span>
+                    <span class="info-value" th:text="${patient?.fatherName ?: 'N/A'}">John Doe Sr.</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Mother</span>
+                    <span class="info-value" th:text="${patient?.motherName ?: 'N/A'}">Jane Doe</span>
+                </div>
+            </div>
+            
+            <!-- Health Summary Section -->
+            <div class="patient-info-section">
+                <div class="section-title">
+                    <i class='bx bx-heart'></i>
+                    Health Summary
+                </div>
+                <div class="info-item">
+                    <span class="info-label">BMI</span>
+                    <span class="info-value" th:text="${patient?.bmi ?: 'N/A'}">22.5</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Blood Pressure</span>
+                    <span class="info-value" th:text="${patient?.bloodPressure ?: 'N/A'}">120/80</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">
+                        <span class="status-indicator status-active"></span>
+                        Stable
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="patient-info-section">
+                <div class="section-title">
+                    <i class='bx bx-stats'></i>
+                    Quick Stats
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Updated</span>
+                    <span class="info-value" th:text="${#dates.format(patient?.updatedAt, 'dd MMM yyyy')}">15 Dec 2024</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Appointments</span>
+                    <span class="info-value" th:text="${patient?.appointment?.size() ?: 0}">5</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Reports</span>
+                    <span class="info-value" th:text="${patient?.labReportFiles?.size() + patient?.radiologyReports?.size() ?: 0}">12</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Content Area - Editable Sections -->
+        <div class="patient-content">
+            <div class="content-header">
+                <h1 class="content-title">Medical Profile Editor</h1>
+                <div class="last-updated">
+                    <i class='bx bx-time'></i>
+                    Last updated: <span th:text="${#dates.format(patient?.updatedAt, 'dd MMM yyyy HH:mm')}">15 Dec 2024 14:30</span>
+                </div>
+            </div>
+            
+            <!-- Blood & Biochemistry Section -->
+            <form th:action="@{/doctor/patientData/update-biochemistry}" method="post" class="edit-section" id="biochemistrySection">
+                <input type="hidden" name="patientId" th:value="${patient?.id}">
+                <div class="edit-section-header">
+                    <h2 class="edit-section-title">
+                        <i class='bx bx-droplet'></i>
+                        Blood & Biochemistry
+                    </h2>
+                    <button type="submit" class="save-btn">
+                        <i class='bx bx-save'></i>
+                        Save Changes
+                    </button>
+                </div>
+                
+                <div class="form-grid">
+                    <!-- Row 1 -->
+                    <div class="form-group">
+                        <label class="form-label">RBC (million/μL)</label>
+                        <input type="number" step="0.01" class="form-control" name="rbc" 
+                               th:value="${patient?.rbc}" placeholder="Enter RBC count">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Platelet (×10⁹/L)</label>
+                        <input type="number" step="0.01" class="form-control" name="platelet" 
+                               th:value="${patient?.platelet}" placeholder="Enter platelet count">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Triglyceride (mg/dL)</label>
+                        <input type="number" step="0.01" class="form-control" name="triglyceride" 
+                               th:value="${patient?.triglyceride}" placeholder="Enter triglyceride">
+                    </div>
+                    
+                    <!-- Row 2 -->
+                    <div class="form-group">
+                        <label class="form-label">Hemoglobin (g/dL)</label>
+                        <input type="number" step="0.1" class="form-control" name="hb" 
+                               th:value="${patient?.hb}" placeholder="Enter hemoglobin">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">WBC (×10⁹/L)</label>
+                        <input type="number" step="0.01" class="form-control" name="wbc" 
+                               th:value="${patient?.wbc}" placeholder="Enter WBC count">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Sugar Level (mg/dL)</label>
+                        <input type="number" step="0.1" class="form-control" name="sugarLevel" 
+                               th:value="${patient?.sugarLevel}" placeholder="Enter sugar level">
+                    </div>
+                    
+                    <!-- Row 3 -->
+                    <div class="form-group">
+                        <label class="form-label">Rh Factor</label>
+                        <select class="form-control" name="rhFactor">
+                            <option value="">Select Rh Factor</option>
+                            <option th:selected="${patient?.rhFactor == 'Positive'}" value="Positive">Positive</option>
+                            <option th:selected="${patient?.rhFactor == 'Negative'}" value="Negative">Negative</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Total Cholesterol (mg/dL)</label>
+                        <input type="number" step="0.1" class="form-control" name="cholesterolTotal" 
+                               th:value="${patient?.cholesterolTotal}" placeholder="Enter total cholesterol">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Creatinine (mg/dL)</label>
+                        <input type="number" step="0.01" class="form-control" name="creatinine" 
+                               th:value="${patient?.creatinine}" placeholder="Enter creatinine">
+                    </div>
+                    
+                    <!-- Row 4 -->
+                    <div class="form-group">
+                        <label class="form-label">ALT (SGPT) U/L</label>
+                        <input type="number" step="0.1" class="form-control" name="alt" 
+                               th:value="${patient?.alt}" placeholder="Enter ALT level">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">AST (SGOT) U/L</label>
+                        <input type="number" step="0.1" class="form-control" name="ast" 
+                               th:value="${patient?.ast}" placeholder="Enter AST level">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Bilirubin (mg/dL)</label>
+                        <input type="number" step="0.01" class="form-control" name="bilirubin" 
+                               th:value="${patient?.bilirubin}" placeholder="Enter bilirubin">
+                    </div>
+                </div>
+                
+                <div class="message" id="biochemistryMessage"></div>
+            </form>
+            
+            <!-- Common Criterion Section -->
+            <form th:action="@{/doctor/patientData/update-criteria}" method="post" class="edit-section" id="criteriaSection">
+                <input type="hidden" name="patientId" th:value="${patient?.id}">
+                <div class="edit-section-header">
+                    <h2 class="edit-section-title">
+                        <i class='bx bx-clipboard'></i>
+                        Common Criterion
+                    </h2>
+                    <button type="submit" class="save-btn">
+                        <i class='bx bx-save'></i>
+                        Save Changes
+                    </button>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Blood Pressure</label>
+                        <input type="text" class="form-control" name="bloodPressure" 
+                               th:value="${patient?.bloodPressure}" placeholder="e.g., 120/80">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">BMI</label>
+                        <input type="number" step="0.1" class="form-control" name="bmi" 
+                               th:value="${patient?.bmi}" placeholder="Enter BMI">
+                        <div class="range-display">
+                            <span class="range-value" id="bmiValue" th:text="${patient?.bmi ?: '0.0'}">0.0</span>
+                            <div class="range-bar">
+                                <div class="range-fill" id="bmiFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">BMR</label>
+                        <input type="number" step="0.1" class="form-control" name="bmr" 
+                               th:value="${patient?.bmr}" placeholder="Enter BMR">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Cholesterol (mg/dL)</label>
+                        <input type="number" step="0.1" class="form-control" name="cholesterol" 
+                               th:value="${patient?.cholesterol}" placeholder="Enter cholesterol">
+                        <div class="range-display">
+                            <span class="range-value" id="cholValue" th:text="${patient?.cholesterol ?: '0.0'}">0.0</span>
+                            <div class="range-bar">
+                                <div class="range-fill" id="cholFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Blood Sugar (mg/dL)</label>
+                        <input type="number" step="0.1" class="form-control" name="bloodSugar" 
+                               th:value="${patient?.bloodSugar}" placeholder="Enter blood sugar">
+                        <div class="range-display">
+                            <span class="range-value" id="sugarValue" th:text="${patient?.bloodSugar ?: '0.0'}">0.0</span>
+                            <div class="range-bar">
+                                <div class="range-fill" id="sugarFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message" id="criteriaMessage"></div>
+            </form>
+            
+            <!-- Mental Health Section -->
+            <form th:action="@{/doctor/patientData/update-mental}" method="post" class="edit-section" id="mentalHealthSection">
+                <input type="hidden" name="patientId" th:value="${patient?.id}">
+                <div class="edit-section-header">
+                    <h2 class="edit-section-title">
+                        <i class='bx bx-brain'></i>
+                        Mental Health Assessment
+                    </h2>
+                    <button type="submit" class="save-btn">
+                        <i class='bx bx-save'></i>
+                        Save Changes
+                    </button>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Serotonin Level</label>
+                        <input type="number" step="0.01" class="form-control" name="serotonin" 
+                               th:value="${patient?.serotonin}" placeholder="Enter serotonin level">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Dopamine Level</label>
+                        <input type="number" step="0.01" class="form-control" name="dopamine" 
+                               th:value="${patient?.dopamine}" placeholder="Enter dopamine level">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Norepinephrine Level</label>
+                        <input type="number" step="0.01" class="form-control" name="norepinephrine" 
+                               th:value="${patient?.norepinephrine}" placeholder="Enter norepinephrine level">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Cortisol Level</label>
+                        <input type="number" step="0.01" class="form-control" name="cortisol" 
+                               th:value="${patient?.cortisol}" placeholder="Enter cortisol level">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">BDNF Level</label>
+                        <input type="number" step="0.01" class="form-control" name="bdnf" 
+                               th:value="${patient?.bdnf}" placeholder="Enter BDNF level">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Stress Level (1-10)</label>
+                        <input type="range" min="1" max="10" step="1" class="form-control" name="stressLevel" 
+                               th:value="${patient?.stressLevel ?: 1}" id="stressSlider">
+                        <div class="range-display">
+                            <span class="range-value" id="stressValue" th:text="${patient?.stressLevel ?: 1}">1</span>
+                            <div class="range-bar">
+                                <div class="range-fill" id="stressFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Anxiety Score (1-10)</label>
+                        <input type="range" min="1" max="10" step="1" class="form-control" name="anxietyScore" 
+                               th:value="${patient?.anxietyScore ?: 1}" id="anxietySlider">
+                        <div class="range-display">
+                            <span class="range-value" id="anxietyValue" th:text="${patient?.anxietyScore ?: 1}">1</span>
+                            <div class="range-bar">
+                                <div class="range-fill" id="anxietyFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mental Diseases List -->
+                <div class="list-section">
+                    <div class="list-title">
+                        <i class='bx bx-list-check'></i>
+                        Mental Diseases
+                    </div>
+                    <ul class="list-items" id="mentalDiseasesList">
+                        <li th:each="disease : ${patient?.mentalDiseases}" class="list-item">
+                            <div class="item-name">
+                                <i class='bx bx-plus-medical item-icon'></i>
+                                <span th:text="${disease}">Depression</span>
+                            </div>
+                            <div class="item-actions">
+                                <button type="button" class="btn-icon" onclick="removeMentalDisease(this)">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="newMentalDisease" placeholder="Add new mental disease">
+                        <button type="button" class="upload-btn" onclick="addMentalDisease()" style="margin-top: 10px;">
+                            <i class='bx bx-plus'></i> Add Disease
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="message" id="mentalHealthMessage"></div>
+            </form>
+            
+            <!-- Lists Section (Allergies, Diseases, Medications, etc.) -->
+            <div class="edit-section" id="listsSection">
+                <div class="edit-section-header">
+                    <h2 class="edit-section-title">
+                        <i class='bx bx-folder-plus'></i>
+                        Medical Lists & Uploads
+                    </h2>
+                </div>
+                
+                <!-- Allergies List -->
+                <form th:action="@{/doctor/patientData/update-lists}" method="post" class="list-section">
+                    <input type="hidden" name="patientId" th:value="${patient?.id}">
+                    <input type="hidden" name="listType" value="allergies">
+                    
+                    <div class="list-title">
+                        <i class='bx bx-allergy'></i>
+                        Allergies
+                    </div>
+                    <ul class="list-items" id="allergiesList">
+                        <li th:each="allergy : ${patient?.allergies}" class="list-item">
+                            <div class="item-name">
+                                <i class='bx bx-error item-icon'></i>
+                                <span th:text="${allergy}">Peanuts</span>
+                            </div>
+                            <div class="item-actions">
+                                <button type="button" class="btn-icon" onclick="removeListItem(this, 'allergies')">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="newItem" placeholder="Add new allergy">
+                        <button type="submit" class="upload-btn" style="margin-top: 10px;">
+                            <i class='bx bx-plus'></i> Add Allergy
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Diseases List -->
+                <form th:action="@{/doctor/patientData/update-lists}" method="post" class="list-section" style="margin-top: 20px;">
+                    <input type="hidden" name="patientId" th:value="${patient?.id}">
+                    <input type="hidden" name="listType" value="diseases">
+                    
+                    <div class="list-title">
+                        <i class='bx bx-plus-medical'></i>
+                        Diseases
+                    </div>
+                    <ul class="list-items" id="diseasesList">
+                        <li th:each="disease : ${patient?.diseases}" class="list-item">
+                            <div class="item-name">
+                                <i class='bx bx-heart item-icon'></i>
+                                <span th:text="${disease}">Hypertension</span>
+                            </div>
+                            <div class="item-actions">
+                                <button type="button" class="btn-icon" onclick="removeListItem(this, 'diseases')">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="newItem" placeholder="Add new disease">
+                        <button type="submit" class="upload-btn" style="margin-top: 10px;">
+                            <i class='bx bx-plus'></i> Add Disease
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- File Uploads -->
+                <div class="list-section" style="margin-top: 20px;">
+                    <div class="list-title">
+                        <i class='bx bx-cloud-upload'></i>
+                        Upload Medical Reports
+                    </div>
+                    
+                    <!-- Lab Reports Upload -->
+                        <form th:action="@{/doctor/patientData/upload-files}" method="post" enctype="multipart/form-data">                        <input type="hidden" name="patientId" th:value="${patient?.id}">
+                        <input type="hidden" name="fileType" value="labReport">
+                        
+                        <div class="upload-area" id="labUploadArea" onclick="triggerFileInput('labFile')">
+                            <i class='bx bx-file upload-icon'></i>
+                            <div class="upload-text">Drop lab reports here or click to upload</div>
+                            <div class="upload-text" style="font-size: 12px;">PDF, JPG, PNG (Max 10MB)</div>
+                            <button type="button" class="upload-btn">Choose Files</button>
+                            <input type="file" id="labFile" name="file" class="file-input" multiple accept=".pdf,.jpg,.png,.jpeg" 
+                                   onchange="handleFileSelect(this, 'labReport')">
+                        </div>
+                        
+                        <div class="progress-container" id="labProgress">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <div class="upload-text" style="font-size: 12px;">Uploading...</div>
+                        </div>
+                    </form>
+                    
+                    <!-- Existing Lab Reports -->
+                    <div style="margin-top: 20px;">
+                        <div class="list-title">
+                            <i class='bx bx-file'></i>
+                            Lab Reports
+                        </div>
+                        <ul class="list-items">
+                            <li th:each="report : ${patient?.labReportFiles}" class="list-item">
+                                <div class="item-name">
+                                    <i class='bx bx-file-pdf item-icon'></i>
+                                    <span th:text="${report}">Blood_Test_Report.pdf</span>
+                                </div>
+                                <div class="item-actions">
+                                    <button type="button" class="btn-icon" onclick="viewFile('${report}')">
+                                        <i class='bx bx-show'></i>
+                                    </button>
+                                    <button type="button" class="btn-icon" onclick="deleteFile('${report}', 'labReport')">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Medications List -->
+                <form th:action="@{/doctor/patientData/update-lists}" method="post" class="list-section" style="margin-top: 20px;">
+                    <input type="hidden" name="patientId" th:value="${patient?.id}">
+                    <input type="hidden" name="listType" value="medications">
+                    
+                    <div class="list-title">
+                        <i class='bx bx-capsule'></i>
+                        Medications
+                    </div>
+                    <ul class="list-items" id="medicationsList">
+                        <li th:each="med : ${patient?.medications}" class="list-item">
+                            <div class="item-name">
+                                <i class='bx bx-capsule item-icon'></i>
+                                <span th:text="${med}">Aspirin</span>
+                            </div>
+                            <div class="item-actions">
+                                <button type="button" class="btn-icon" onclick="removeListItem(this, 'medications')">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="newItem" placeholder="Add new medication">
+                        <button type="submit" class="upload-btn" style="margin-top: 10px;">
+                            <i class='bx bx-plus'></i> Add Medication
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Past Surgeries Section -->
+<form th:action="@{/doctor/patientData/update-lists}" method="post" class="edit-section" id="surgeriesSection">
+    <input type="hidden" name="patientId" th:value="${patient?.id}">
+    <input type="hidden" name="listType" value="surgeries">
+    
+    <div class="edit-section-header">
+        <h2 class="edit-section-title">
+            <i class='bx bx-plus-medical'></i>
+            Past Surgeries & Procedures
+        </h2>
+        <button type="submit" class="save-btn">
+            <i class='bx bx-save'></i>
+            Save Changes
+        </button>
+    </div>
+    
+    <div class="list-section">
+        <div class="list-title">
+            <i class='bx bx-scissors'></i>
+            Surgical History
+        </div>
+        <ul class="list-items" id="surgeriesList">
+            <li th:each="surgery : ${patient?.pastSurgeries}" class="list-item">
+                <div class="item-name">
+                    <i class='bx bx-plus-medical item-icon'></i>
+                    <span th:text="${surgery}">Appendectomy</span>
+                </div>
+                <div class="item-actions">
+                    <button type="button" class="btn-icon" onclick="removeListItem(this, 'surgeries')">
+                        <i class='bx bx-trash'></i>
+                    </button>
+                </div>
+            </li>
+        </ul>
+        <div class="form-group">
+            <input type="text" class="form-control" name="newItem" placeholder="Add past surgery or procedure (e.g., Knee Replacement 2023)">
+            <button type="submit" class="upload-btn" style="margin-top: 10px;">
+                <i class='bx bx-plus'></i> Add Surgery
+            </button>
+        </div>
+    </div>
+    
+    <!-- Surgery Details Form -->
+    <div class="form-grid" style="margin-top: 20px;">
+        <div class="form-group">
+            <label class="form-label">Surgery Date</label>
+            <input type="date" class="form-control" name="surgeryDate" placeholder="Select date">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Surgeon Name</label>
+            <input type="text" class="form-control" name="surgeonName" placeholder="Enter surgeon's name">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Hospital</label>
+            <input type="text" class="form-control" name="hospital" placeholder="Enter hospital name">
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="form-label">Surgery Notes</label>
+        <textarea class="form-control" name="surgeryNotes" rows="3" 
+                  placeholder="Add any additional notes about the surgery"></textarea>
+    </div>
+    
+    <div class="message" id="surgeriesMessage"></div>
+</form>
+                
+                <div class="message" id="listsMessage"></div>
+            </div>
+            
+            
+        </div>
+    </div>
+
+    <!-- Built-in JavaScript -->
+   
+    <script>
+    // ========== SCROLL POSITION MANAGEMENT ==========
+    // Save scroll position before page unload
+    let scrollPosition = 0;
+    const scrollKey = 'patientProfile_scrollPosition_' + (document.querySelector('input[name="patientId"]')?.value || 'default');
+    
+    // Function to save scroll position
+    function saveScrollPosition() {
+        scrollPosition = window.scrollY || document.documentElement.scrollTop;
+        sessionStorage.setItem(scrollKey, scrollPosition.toString());
+        console.log('Scroll position saved:', scrollPosition);
+    }
+    
+    // Function to restore scroll position
+    function restoreScrollPosition() {
+        const savedPosition = sessionStorage.getItem(scrollKey);
+        if (savedPosition) {
+            scrollPosition = parseInt(savedPosition);
+            console.log('Restoring scroll position:', scrollPosition);
+            
+            // Use setTimeout to ensure DOM is fully loaded
+            setTimeout(() => {
+                window.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'auto'
+                });
+                
+                // Clear the saved position after restoring
+                sessionStorage.removeItem(scrollKey);
+            }, 100);
+        }
+    }
+    
+    // Function to save position before form submission
+    function savePositionBeforeSubmit() {
+        saveScrollPosition();
+        return true; // Allow form submission to continue
+    }
+    
+    // ========== FORM SUBMISSION HANDLERS (UPDATED) ==========
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Save scroll position before submission
+            saveScrollPosition();
+            
+            const formData = new FormData(this);
+            const messageId = this.id.replace('Section', 'Message');
+            
+            console.log('Submitting form:', this.action, formData);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Form submission response:', data);
+                if (data.success) {
+                    showMessage(data.message || 'Changes saved successfully!', 'success', messageId);
+                    if (data.updatedAt) {
+                        const timestampElement = document.querySelector('.last-updated span');
+                        if (timestampElement) {
+                            timestampElement.textContent = new Date(data.updatedAt).toLocaleString();
+                        }
+                    }
+                    
+                    // Reload after successful save, preserving scroll
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showMessage(data.message || 'Error saving changes', 'error', messageId);
+                    // Don't reload on error
+                }
+            })
+            .catch(error => {
+                console.error('Form submission error:', error);
+                showMessage('Error: ' + error.message, 'error', messageId);
+            });
+        });
+    });
+    
+    // ========== PAGE LOAD INITIALIZATION ==========
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Page loaded, initializing...');
+        
+        // Debug: Check if patientId is available
+        const patientIdInput = document.querySelector('input[name="patientId"]');
+        console.log('Patient ID:', patientIdInput ? patientIdInput.value : 'Not found');
+        
+        // Initialize range displays
+        updateRangeDisplays();
+        
+        // Initialize drag and drop
+        initDragAndDrop();
+        
+        // Load existing data into range bars
+        updateRangeBars();
+        
+        // Restore scroll position
+        restoreScrollPosition();
+        
+        // Set up scroll position saving for all AJAX operations
+        setupScrollPreservation();
+    });
+    
+    // Set up scroll preservation for various actions
+    function setupScrollPreservation() {
+        // Save scroll position on page unload
+        window.addEventListener('beforeunload', saveScrollPosition);
+        
+        // Save scroll position when clicking save buttons
+        document.querySelectorAll('.save-btn').forEach(btn => {
+            btn.addEventListener('click', saveScrollPosition);
+        });
+        
+        // Save scroll position on range slider changes
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('change', saveScrollPosition);
+        });
+        
+        // Save scroll position on text input blur
+        document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(input => {
+            input.addEventListener('blur', saveScrollPosition);
+        });
+        
+        // Save scroll position on select changes
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', saveScrollPosition);
+        });
+        
+        // Monitor scroll position changes and save periodically
+        let scrollTimeout;
+        window.addEventListener('scroll', function() {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(saveScrollPosition, 1000); // Save 1 second after scrolling stops
+        });
+    }
+    
+    // ========== RANGE SLIDER FUNCTIONS ==========
+    // Range Slider Handlers
+    const stressSlider = document.getElementById('stressSlider');
+    const anxietySlider = document.getElementById('anxietySlider');
+    
+    if (stressSlider) {
+        stressSlider.addEventListener('input', function() {
+            document.getElementById('stressValue').textContent = this.value;
+            updateRangeBar('stressFill', this.value, 1, 10);
+            saveScrollPosition(); // Save on slider input
+        });
+    }
+    
+    if (anxietySlider) {
+        anxietySlider.addEventListener('input', function() {
+            document.getElementById('anxietyValue').textContent = this.value;
+            updateRangeBar('anxietyFill', this.value, 1, 10);
+            saveScrollPosition(); // Save on slider input
+        });
+    }
+    
+    // BMI, Cholesterol, Blood Sugar range updates
+    const bmiInput = document.querySelector('input[name="bmi"]');
+    const cholInput = document.querySelector('input[name="cholesterol"]');
+    const sugarInput = document.querySelector('input[name="bloodSugar"]');
+    
+    if (bmiInput) {
+        bmiInput.addEventListener('input', function() {
+            document.getElementById('bmiValue').textContent = this.value;
+            updateRangeBar('bmiFill', this.value, 15, 40);
+            saveScrollPosition(); // Save on input change
+        });
+    }
+    
+    if (cholInput) {
+        cholInput.addEventListener('input', function() {
+            document.getElementById('cholValue').textContent = this.value;
+            updateRangeBar('cholFill', this.value, 100, 300);
+            saveScrollPosition(); // Save on input change
+        });
+    }
+    
+    if (sugarInput) {
+        sugarInput.addEventListener('input', function() {
+            document.getElementById('sugarValue').textContent = this.value;
+            updateRangeBar('sugarFill', this.value, 70, 200);
+            saveScrollPosition(); // Save on input change
+        });
+    }
+    
+    // Update range bar visualization
+    function updateRangeBar(elementId, value, min, max) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            const percentage = ((value - min) / (max - min)) * 100;
+            element.style.width = Math.min(Math.max(percentage, 0), 100) + '%';
+        }
+    }
+    
+    // Initialize range bars with current values
+    function updateRangeBars() {
+        const patientData = {
+            bmi: bmiInput ? bmiInput.value : 0,
+            cholesterol: cholInput ? cholInput.value : 0,
+            bloodSugar: sugarInput ? sugarInput.value : 0,
+            stressLevel: stressSlider ? stressSlider.value : 1,
+            anxietyScore: anxietySlider ? anxietySlider.value : 1
+        };
+        
+        updateRangeBar('bmiFill', patientData.bmi, 15, 40);
+        updateRangeBar('cholFill', patientData.cholesterol, 100, 300);
+        updateRangeBar('sugarFill', patientData.bloodSugar, 70, 200);
+        updateRangeBar('stressFill', patientData.stressLevel, 1, 10);
+        updateRangeBar('anxietyFill', patientData.anxietyScore, 1, 10);
+    }
+    
+    // Update all range displays
+    function updateRangeDisplays() {
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            const valueDisplay = slider.nextElementSibling?.querySelector('.range-value');
+            if (valueDisplay) {
+                valueDisplay.textContent = slider.value;
+            }
+        });
+    }
+    
+    // ========== FILE UPLOAD FUNCTIONS ==========
+    // Drag and Drop File Upload
+    function initDragAndDrop() {
+        const uploadAreas = document.querySelectorAll('.upload-area');
+        
+        uploadAreas.forEach(area => {
+            area.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            area.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            area.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const fileInput = this.querySelector('.file-input');
+                    if (fileInput) {
+                        handleDroppedFiles(files, fileInput.name);
+                    }
+                }
+            });
+        });
+    }
+    
+    // Handle dropped files
+    function handleDroppedFiles(files, fileType) {
+        saveScrollPosition(); // Save position before file upload
+        
+        const patientIdInput = document.querySelector('input[name="patientId"]');
+        if (!patientIdInput || !patientIdInput.value) {
+            showMessage('Patient ID not found!', 'error', 'uploadMessage');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('patientId', patientIdInput.value);
+        formData.append('fileType', fileType);
+        
+        for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
+        
+        // Show progress bar
+        const progressContainer = document.getElementById(fileType + 'Progress');
+        if (progressContainer) {
+            progressContainer.style.display = 'block';
+            const progressFill = progressContainer.querySelector('.progress-fill');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    fetch('/doctor/patientData/upload-files', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showMessage('Files uploaded successfully!', 'success', 'uploadMessage');
+                            setTimeout(() => {
+                                saveScrollPosition(); // Save before reload
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            showMessage('Error uploading files: ' + data.message, 'error', 'uploadMessage');
+                        }
+                        progressContainer.style.display = 'none';
+                    })
+                    .catch(error => {
+                        showMessage('Error uploading files: ' + error, 'error', 'uploadMessage');
+                        progressContainer.style.display = 'none';
+                    });
+                }
+            }, 100);
+        }
+    }
+    
+    // Trigger file input
+    function triggerFileInput(inputId) {
+        saveScrollPosition(); // Save position before file selection
+        document.getElementById(inputId).click();
+    }
+    
+    // Handle file selection
+    function handleFileSelect(input, fileType) {
+        if (input.files.length > 0) {
+            handleDroppedFiles(input.files, fileType);
+        }
+    }
+    
+    // ========== LIST MANAGEMENT FUNCTIONS ==========
+    // Add mental disease
+    function addMentalDisease() {
+        saveScrollPosition(); // Save position before adding
+        
+        const input = document.getElementById('newMentalDisease');
+        const disease = input.value.trim();
+        
+        if (!disease) {
+            showMessage('Please enter a disease name', 'error', 'mentalHealthMessage');
+            return;
+        }
+        
+        const patientIdInput = document.querySelector('input[name="patientId"]');
+        if (!patientIdInput || !patientIdInput.value) {
+            showMessage('Patient ID not found!', 'error', 'mentalHealthMessage');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('patientId', patientIdInput.value);
+        formData.append('disease', disease);
+        
+        console.log('Adding mental disease:', { patientId: patientIdInput.value, disease: disease });
+        
+        fetch('/doctor/patientData/add-mental-disease', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server response:', data);
+            if (data.success) {
+                const list = document.getElementById('mentalDiseasesList');
+                const li = document.createElement('li');
+                li.className = 'list-item';
+                li.innerHTML = `
+                    <div class="item-name">
+                        <i class='bx bx-plus-medical item-icon'></i>
+                        <span>${disease}</span>
+                    </div>
+                    <div class="item-actions">
+                        <button type="button" class="btn-icon" onclick="removeMentalDisease(this)">
+                            <i class='bx bx-trash'></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(li);
+                input.value = '';
+                showMessage('Disease added successfully!', 'success', 'mentalHealthMessage');
+            } else {
+                showMessage('Error adding disease: ' + data.message, 'error', 'mentalHealthMessage');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showMessage('Error: ' + error.message, 'error', 'mentalHealthMessage');
+        });
+    }
+    
+    // Remove mental disease
+    function removeMentalDisease(button) {
+        saveScrollPosition(); // Save position before removing
+        
+        const li = button.closest('.list-item');
+        const disease = li.querySelector('span').textContent;
+        
+        const patientIdInput = document.querySelector('input[name="patientId"]');
+        if (!patientIdInput || !patientIdInput.value) {
+            showMessage('Patient ID not found!', 'error', 'mentalHealthMessage');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('patientId', patientIdInput.value);
+        formData.append('disease', disease);
+        
+        console.log('Removing mental disease:', { patientId: patientIdInput.value, disease: disease });
+        
+        fetch('/doctor/patientData/remove-mental-disease', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server response:', data);
+            if (data.success) {
+                li.remove();
+                showMessage('Disease removed successfully!', 'success', 'mentalHealthMessage');
+            } else {
+                showMessage('Error removing disease: ' + data.message, 'error', 'mentalHealthMessage');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showMessage('Error: ' + error.message, 'error', 'mentalHealthMessage');
+        });
+    }
+    
+    // Remove list item (allergies, diseases, medications, surgeries)
+    function removeListItem(button, listType) {
+        saveScrollPosition(); // Save position before removing
+        
+        const li = button.closest('.list-item');
+        const item = li.querySelector('span').textContent;
+        
+        const patientIdInput = document.querySelector('input[name="patientId"]');
+        if (!patientIdInput || !patientIdInput.value) {
+            showMessage('Patient ID not found!', 'error', 'listsMessage');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('patientId', patientIdInput.value);
+        formData.append('listType', listType);
+        formData.append('item', item);
+        
+        console.log('Removing list item:', { 
+            patientId: patientIdInput.value, 
+            listType: listType, 
+            item: item 
+        });
+        
+        fetch('/doctor/patientData/remove-list-item', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server response:', data);
+            if (data.success) {
+                li.remove();
+                showMessage('Item removed successfully!', 'success', 'listsMessage');
+            } else {
+                showMessage('Error removing item: ' + data.message, 'error', 'listsMessage');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showMessage('Error: ' + error.message, 'error', 'listsMessage');
+        });
+    }
+    
+    // ========== FILE MANAGEMENT FUNCTIONS ==========
+    // View file
+    function viewFile(filename) {
+        saveScrollPosition(); // Save position before viewing
+        const cleanFilename = filename.split('/').pop();
+        const fileUrl = '/uploads/' + encodeURIComponent(cleanFilename);
+        console.log('Opening file:', fileUrl);
+        window.open(fileUrl, '_blank');
+    }
+    
+    // Delete file
+    function deleteFile(filename, fileType) {
+        if (!confirm('Are you sure you want to delete this file?')) {
+            return;
+        }
+        
+        saveScrollPosition(); // Save position before deleting
+        
+        const patientIdInput = document.querySelector('input[name="patientId"]');
+        if (!patientIdInput || !patientIdInput.value) {
+            showMessage('Patient ID not found!', 'error', 'listsMessage');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('patientId', patientIdInput.value);
+        formData.append('fileType', fileType);
+        formData.append('filename', filename);
+        
+        console.log('Deleting file:', { 
+            patientId: patientIdInput.value, 
+            fileType: fileType, 
+            filename: filename 
+        });
+        
+        fetch('/doctor/patientData/delete-file', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server response:', data);
+            if (data.success) {
+                showMessage('File deleted successfully!', 'success', 'listsMessage');
+                setTimeout(() => {
+                    saveScrollPosition(); // Save before reload
+                    location.reload();
+                }, 1500);
+            } else {
+                showMessage('Error deleting file: ' + data.message, 'error', 'listsMessage');
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showMessage('Error: ' + error.message, 'error', 'listsMessage');
+        });
+    }
+    
+    // ========== UTILITY FUNCTIONS ==========
+    // Show message function
+    function showMessage(text, type, elementId) {
+        const messageDiv = document.getElementById(elementId);
+        if (messageDiv) {
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        } else {
+            // Fallback: create a temporary message
+            console.log(`${type.toUpperCase()}: ${text}`);
+            alert(`${type.toUpperCase()}: ${text}`);
+        }
+    }
+    
+    // ========== DEBUG FUNCTIONS ==========
+    // Test function to check if everything is working
+    window.testConnection = function() {
+        const patientIdInput = document.querySelector('input[name="patientId"]');
+        if (!patientIdInput || !patientIdInput.value) {
+            alert('No patient ID found!');
+            return;
+        }
+        
+        console.log('Testing connection with patient ID:', patientIdInput.value);
+        
+        fetch('/doctor/patientData/test')
+            .then(response => response.text())
+            .then(text => {
+                console.log('Test response:', text);
+                alert('Connection test: ' + text);
+            })
+            .catch(error => {
+                console.error('Test error:', error);
+                alert('Connection failed: ' + error.message);
+            });
+    };
+</script>
+</body>
+</html>

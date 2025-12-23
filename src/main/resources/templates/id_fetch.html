@@ -7,9 +7,9 @@
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome --> 
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         /* ================= CSS VARIABLES ================= */
         :root {
@@ -33,6 +33,7 @@
             background: linear-gradient(180deg, #f8fbff, #eef6ff);
             color: #0f172a;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         a {
@@ -80,14 +81,14 @@
             gap: 12px;
             align-items: center;
         }
-        
+
         .logo-details img {
             width: 42px;
             height: 42px;
             border-radius: 8px;
             object-fit: cover;
         }
-        
+
         .logo_name {
             font-weight: 800;
             color: #fff;
@@ -134,7 +135,7 @@
             align-items: center;
             transition: 0.3s;
         }
-        
+
         .sidebar .profile-details:hover {
             background: linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent);
         }
@@ -151,164 +152,297 @@
             font-weight: 700;
             font-size: 16px;
         }
-        
+
         .job {
             font-size: 13px;
             color: #cfe9ff;
         }
 
-        /* ================= MAIN CONTENT ================= */
+        /* ================= MAIN CONTENT ENHANCEMENTS ================= */
         main {
             flex: 1;
             padding: 40px 30px;
-            margin-left: 310px; /* 270px sidebar + 22px margin + 18px gap */
+            margin-left: 310px;
             transition: margin-left 0.3s ease;
             overflow-y: auto;
             max-height: 100vh;
+            position: relative;
+        }
+
+        /* Animated background pattern */
+        main::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: calc(100% - 310px);
+            height: 100%;
+            background:
+                radial-gradient(circle at 90% 10%, rgba(14, 165, 233, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(74, 144, 226, 0.02) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 65%, rgba(74, 144, 226, 0.01) 100%);
+            z-index: -1;
+            pointer-events: none;
         }
 
         .header h1 {
             font-size: 28px;
             color: #1b3e72;
             margin-bottom: 30px;
+            position: relative;
+            display: inline-block;
         }
 
-        /* ================= PROFILE CONTAINER ================= */
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #4A90E2, #0ea5e9);
+            border-radius: 2px;
+            animation: underlineSlide 1s ease;
+        }
+
+        /* ================= ENHANCED PROFILE CONTAINER ================= */
         .profile-container {
             display: flex;
             gap: 35px;
             flex-wrap: wrap;
+            position: relative;
         }
 
-        .profile-left {
-            flex: 1;
-            min-width: 300px;
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            padding: 30px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .profile-left:hover {
-            transform: translateY(-5px);
-        }
-
-        .profile-left img {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #4A90E2;
-            box-shadow: 0 0 20px rgba(74, 144, 226, 0.2);
-            margin-bottom: 15px;
-        }
-
-        .profile-left h2 {
-            font-size: 24px;
-            color: #1b3e72;
-            margin: 15px 0 5px;
-        }
-
-        .badge {
-            display: inline-block;
-            background: #4A90E2;
-            color: #fff;
-            padding: 6px 14px;
+        /* Search Form Styling */
+        form {
+            background: white;
             border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
-            margin: 10px 0;
+            padding: 40px;
+            box-shadow: 0 15px 40px rgba(74, 144, 226, 0.15);
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(74, 144, 226, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .profile-left p {
-            font-size: 15px;
-            margin: 8px 0;
-            color: #555;
-            text-align: left;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .profile-left p strong {
-            color: #224f8a;
-            display: inline-block;
-            min-width: 120px;
-        }
-
-        /* ================= PROFILE RIGHT ================= */
-        .profile-right {
-            flex: 2;
-            min-width: 500px;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-            overflow-y: auto;
-            max-height: calc(100vh - 120px);
-        }
-
-        .section {
-            background: #fff;
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid #4A90E2;
-            transition: transform 0.3s ease;
-        }
-
-        .section:hover {
+        form:hover {
             transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(74, 144, 226, 0.2);
         }
 
-        .section h3 {
+        form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4A90E2, #0ea5e9);
+        }
+
+        label {
+            display: block;
+            font-size: 18px;
+            font-weight: 600;
             color: #1b3e72;
             margin-bottom: 20px;
-            font-size: 20px;
+            padding-left: 8px;
+            border-left: 4px solid #4A90E2;
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 18px;
+        #patientId {
+            width: 100%;
+            padding: 20px 25px;
+            font-size: 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.04);
         }
 
-        .info-grid div {
-            background: #f4f7fa;
-            padding: 14px 16px;
-            border-radius: 10px;
-            border: 1px solid #d8e8ff;
-            transition: background 0.2s ease;
+        #patientId:focus {
+            outline: none;
+            border-color: #4A90E2;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
         }
 
-        .info-grid div:hover {
-            background: #e6f1ff;
+        #patientId::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
         }
 
-        .info-grid strong {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 700;
-            color: #224f8a;
-        }
-
-        .info-grid span {
-            font-size: 15px;
-            color: #444;
-            word-break: break-word;
-        }
-
-        .info-grid a {
-            color: #4A90E2;
+        button[type="submit"] {
+            background: linear-gradient(135deg, #4A90E2, #0ea5e9);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            font-size: 18px;
             font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(74, 144, 226, 0.3);
+            position: relative;
+            overflow: hidden;
         }
 
-        .info-grid a:hover {
-            text-decoration: underline;
+        button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
         }
 
-        .full-width {
-            grid-column: 1 / -1;
+        button[type="submit"]:hover::before {
+            left: 100%;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(74, 144, 226, 0.4);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+
+        /* Decorative Elements */
+        .decorative-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.1;
+            background-image:
+                linear-gradient(to right, #4A90E2 1px, transparent 1px),
+                linear-gradient(to bottom, #4A90E2 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .floating-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(74, 144, 226, 0.1);
+            font-size: 24px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-icon:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+        .floating-icon:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
+        .floating-icon:nth-child(3) { bottom: 30%; left: 15%; animation-delay: 2s; }
+        .floating-icon:nth-child(4) { bottom: 15%; right: 20%; animation-delay: 3s; }
+
+        /* Stats Display */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(74, 144, 226, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(74, 144, 226, 0.15);
+            border-color: rgba(74, 144, 226, 0.3);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4A90E2, #0ea5e9);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #4A90E2, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1b3e72;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Visual Guide */
+        .visual-guide {
+            margin-top: 50px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            border: 2px dashed rgba(74, 144, 226, 0.2);
+            text-align: center;
+            position: relative;
+        }
+
+        .guide-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #4A90E2, #0ea5e9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .guide-text {
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         /* ================= MOBILE TOGGLE BUTTON ================= */
@@ -331,234 +465,6 @@
             border: none;
         }
 
-        /* ================= RESPONSIVE BREAKPOINTS ================= */
-        
-        /* Large tablets and small laptops */
-        @media (max-width: 1200px) {
-            .profile-right {
-                min-width: 400px;
-            }
-            
-            .info-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            }
-        }
-
-        /* Tablets */
-        @media (max-width: 992px) {
-            .wrap {
-                flex-direction: column;
-                gap: 0;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                margin: 0;
-                border-radius: 0 0 18px 18px;
-                max-height: 80px;
-                overflow: hidden;
-                transition: max-height 0.4s ease;
-                box-shadow: 0 10px 30px rgba(2, 6, 23, 0.15);
-            }
-            
-            .sidebar.active {
-                max-height: 500px;
-            }
-            
-            .logo-details {
-                padding: 15px;
-            }
-            
-            .nav-links {
-                padding: 15px;
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
-                margin-top: 0;
-            }
-            
-            .nav-links li {
-                flex: 1;
-                min-width: 180px;
-            }
-            
-            .nav-links a {
-                justify-content: center;
-                padding: 15px 20px;
-                background: rgba(255, 255, 255, 0.03);
-                margin: 0;
-            }
-            
-            .nav-links a:hover {
-                background: rgba(255, 255, 255, 0.06);
-            }
-            
-            main {
-                margin-left: 0;
-                padding: 30px 20px;
-            }
-            
-            .mobile-toggle {
-                display: flex;
-            }
-            
-            .sidebar .profile-details {
-                justify-content: center;
-                padding: 15px;
-                margin: 15px;
-            }
-            
-            .profile-right {
-                min-width: 100%;
-                max-height: none;
-            }
-        }
-
-        /* Small tablets and large phones */
-        @media (max-width: 768px) {
-            .profile-container {
-                flex-direction: column;
-                gap: 25px;
-            }
-            
-            .profile-left, .profile-right {
-                min-width: 100%;
-            }
-            
-            .info-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            }
-            
-            .header h1 {
-                font-size: 26px;
-                margin-bottom: 25px;
-            }
-            
-            .profile-left img {
-                width: 160px;
-                height: 160px;
-            }
-            
-            .section {
-                padding: 20px;
-            }
-            
-            .nav-links {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .nav-links li {
-                width: 100%;
-            }
-            
-            .profile-left p {
-                display: flex;
-                justify-content: space-between;
-            }
-            
-            .profile-left p strong {
-                min-width: auto;
-            }
-        }
-
-        /* Mobile phones */
-        @media (max-width: 576px) {
-            main {
-                padding: 25px 15px;
-            }
-            
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .profile-left img {
-                width: 140px;
-                height: 140px;
-            }
-            
-            .profile-left h2 {
-                font-size: 22px;
-            }
-            
-            .badge {
-                font-size: 12px;
-                padding: 5px 12px;
-            }
-            
-            .section h3 {
-                font-size: 18px;
-            }
-            
-            .nav-links {
-                padding: 10px;
-            }
-            
-            .nav-links a {
-                padding: 15px;
-            }
-            
-            .mobile-toggle {
-                top: 15px;
-                left: 15px;
-                width: 45px;
-                height: 45px;
-                font-size: 20px;
-            }
-            
-            .header h1 {
-                font-size: 24px;
-                margin-top: 15px;
-                margin-bottom: 20px;
-            }
-            
-            .profile-left p {
-                flex-direction: column;
-                text-align: center;
-                gap: 5px;
-                padding: 12px 0;
-            }
-            
-            .logo_name {
-                font-size: 20px;
-            }
-        }
-
-        /* Very small phones */
-        @media (max-width: 400px) {
-            .profile-left {
-                padding: 25px 15px;
-            }
-            
-            .profile-left img {
-                width: 120px;
-                height: 120px;
-            }
-            
-            .section {
-                padding: 20px 15px;
-            }
-            
-            .info-grid div {
-                padding: 12px 15px;
-            }
-            
-            .logo_name {
-                font-size: 18px;
-            }
-            
-            .profile_name {
-                font-size: 14px;
-            }
-            
-            .job {
-                font-size: 12px;
-            }
-        }
-
         /* ================= ANIMATIONS ================= */
         @keyframes fadeIn {
             from {
@@ -571,21 +477,277 @@
             }
         }
 
-        .profile-left, .section {
-            animation: fadeIn 0.5s ease-out forwards;
+        @keyframes underlineSlide {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+            to {
+                width: 60px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        form {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .stat-card {
+            animation: fadeIn 0.6s ease-out forwards;
             opacity: 0;
         }
 
-        .section:nth-child(2) {
-            animation-delay: 0.1s;
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* ================= RESPONSIVE BREAKPOINTS ================= */
+
+        /* Large tablets and small laptops */
+        @media (max-width: 1200px) {
+            main::before {
+                width: calc(100% - 290px);
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        .section:nth-child(3) {
-            animation-delay: 0.2s;
+        /* Tablets */
+        @media (max-width: 992px) {
+            .wrap {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                margin: 0;
+                border-radius: 0 0 18px 18px;
+                max-height: 80px;
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                box-shadow: 0 10px 30px rgba(2, 6, 23, 0.15);
+            }
+
+            .sidebar.active {
+                max-height: 500px;
+            }
+
+            .logo-details {
+                padding: 15px;
+            }
+
+            .nav-links {
+                padding: 15px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+                margin-top: 0;
+            }
+
+            .nav-links li {
+                flex: 1;
+                min-width: 180px;
+            }
+
+            .nav-links a {
+                justify-content: center;
+                padding: 15px 20px;
+                background: rgba(255, 255, 255, 0.03);
+                margin: 0;
+            }
+
+            .nav-links a:hover {
+                background: rgba(255, 255, 255, 0.06);
+            }
+
+            main {
+                margin-left: 0;
+                padding: 30px 20px;
+            }
+
+            main::before {
+                width: 100%;
+            }
+
+            .mobile-toggle {
+                display: flex;
+            }
+
+            .sidebar .profile-details {
+                justify-content: center;
+                padding: 15px;
+                margin: 15px;
+            }
+
+            form {
+                padding: 30px 25px;
+            }
+
+            #patientId {
+                padding: 18px 22px;
+                font-size: 16px;
+            }
+
+            button[type="submit"] {
+                padding: 16px 30px;
+                font-size: 16px;
+            }
         }
 
-        .section:nth-child(4) {
-            animation-delay: 0.3s;
+        /* Small tablets and large phones */
+        @media (max-width: 768px) {
+            .profile-container {
+                flex-direction: column;
+                gap: 25px;
+            }
+
+            .header h1 {
+                font-size: 26px;
+                margin-bottom: 25px;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-number {
+                font-size: 32px;
+            }
+
+            .visual-guide {
+                padding: 25px 20px;
+                margin-top: 35px;
+            }
+
+            .guide-icon {
+                font-size: 40px;
+            }
+        }
+
+        /* Mobile phones */
+        @media (max-width: 576px) {
+            main {
+                padding: 25px 15px;
+            }
+
+            form {
+                padding: 25px 20px;
+                margin: 0 -5px;
+                width: calc(100% + 10px);
+            }
+
+            .header h1 {
+                font-size: 24px;
+                margin-top: 15px;
+                margin-bottom: 20px;
+            }
+
+            label {
+                font-size: 16px;
+                margin-bottom: 15px;
+            }
+
+            #patientId {
+                padding: 16px 20px;
+                font-size: 15px;
+                margin-bottom: 20px;
+            }
+
+            button[type="submit"] {
+                padding: 15px 25px;
+                font-size: 15px;
+            }
+
+            .stat-card {
+                padding: 18px 15px;
+            }
+
+            .stat-number {
+                font-size: 28px;
+            }
+
+            .stat-icon {
+                font-size: 28px;
+            }
+
+            .mobile-toggle {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+
+            .logo_name {
+                font-size: 20px;
+            }
+        }
+
+        /* Very small phones */
+        @media (max-width: 400px) {
+            main {
+                padding: 20px 10px;
+            }
+
+            form {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            #patientId {
+                padding: 14px 18px;
+                font-size: 14px;
+            }
+
+            button[type="submit"] {
+                padding: 14px 20px;
+                font-size: 14px;
+            }
+
+            .visual-guide {
+                padding: 20px 15px;
+            }
+
+            .guide-icon {
+                font-size: 36px;
+            }
+
+            .guide-text {
+                font-size: 14px;
+            }
         }
 
         /* Fix for name-job class to match profile_name and job */
@@ -593,12 +755,12 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .name-job span:first-child {
             font-weight: 700;
             font-size: 16px;
         }
-        
+
         .name-job span:last-child {
             font-size: 13px;
             color: #cfe9ff;
@@ -606,61 +768,105 @@
     </style>
 </head>
 <body>
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-toggle" id="menuToggle">
-        <i class="fas fa-bars"></i>
-    </button>
+<!-- Mobile Menu Toggle -->
+<button class="mobile-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+</button>
 
-    <div class="wrap"> 
-        <!-- SIDEBAR - DARK THEME RESTORED -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo-details">
-                <img th:src="@{/images/logo.png}" alt="CloudCare Logo">
-                <div class="logo_name">CloudCare</div>
+<div class="wrap">
+    <!-- SIDEBAR - DARK THEME RESTORED -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-details">
+            <img th:src="@{/image/logo.png}" alt="CloudCare Logo" style="width: 70px;">
+            <div class="logo_name">CloudCare</div>
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="/doctor/update"><i class="fa-solid fa-user-doctor"></i> Edit Profile</a></li>
+                <li><a href="/doctor/patient_id_fetch"><i class="fa-solid fa-user-plus"></i> search patient</a></li>
+                <li><a href="/doctor/saveAvailability"><i class="fa-solid fa-file-lines"></i> Availability</a></li>
+                <li><a th:href="@{/doctor/{doctorId}/appointments(doctorId=${doctor.id})}"><i class="fa-solid fa-gear"></i> Appointments</a></li>
+            </ul>
+        </nav>
+        <div class="profile-details">
+            <img th:if="${doctor.profileImage != null and doctor.profileImage != ''}" th:src="${doctor.profileImage}" alt="profile">
+            <div class="name-job">
+                <span class="profile_name" th:text="${doctor.name}">Dr Name</span>
+                <span class="job" th:text="${doctor.specialization}">Specialization</span>
             </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="/doctor/update"><i class="fa-solid fa-user-doctor"></i> Edit Profile</a></li>
-                    <li><a href="/doctor/new"><i class="fa-solid fa-user-plus"></i> Add Doctor</a></li>
-                    <li><a href="/doctor/saveAvailability"><i class="fa-solid fa-file-lines"></i> Availability</a></li>
-                    <li><a th:href="@{/doctor/{doctorId}/appointments(doctorId=${doctor.id})}"><i class="fa-solid fa-gear"></i> Appointments</a></li>
-                    <li><a href="/doctor/patientID"><i class="fa-solid fa-file-lines"></i> Availability</a></li>
-                </ul>
-            </nav>
-            <div class="profile-details">
-                <img th:if="${doctor.profileImage != null and doctor.profileImage != ''}" th:src="${doctor.profileImage}" alt="profile">
-                <div class="name-job">
-                    <span class="profile_name" th:text="${doctor.name}">Dr Name</span>
-                    <span class="job" th:text="${doctor.specialization}">Specialization</span>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <div class="header">
+            <h1>Patient Profile</h1>
+        </div>
+
+        <div class="profile-container">
+            <!-- Decorative Background Elements -->
+            <div class="decorative-grid"></div>
+            <div class="floating-icons">
+                <div class="floating-icon"><i class="fas fa-user-md"></i></div>
+                <div class="floating-icon"><i class="fas fa-heartbeat"></i></div>
+                <div class="floating-icon"><i class="fas fa-stethoscope"></i></div>
+                <div class="floating-icon"><i class="fas fa-file-medical"></i></div>
+            </div>
+
+            <!-- Enhanced Search Form -->
+            <form action="/doctor/patientData" method="get" onsubmit="return goToPatient();">
+                <label for="patientId">Enter Patient ID to Access Medical Records</label>
+                <input type="text" id="patientId" name="id" placeholder="e.g., PT-2024-001, PT-2024-002" required>
+
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                    Search Patient Record
+                </button>
+            </form>
+
+<!--            &lt;!&ndash; Stats Cards &ndash;&gt;-->
+<!--            <div class="stats-container">-->
+<!--                <div class="stat-card">-->
+<!--                    <div class="stat-icon">-->
+<!--                        <i class="fas fa-users"></i>-->
+<!--                    </div>-->
+<!--                    <span class="stat-number">1,247</span>-->
+<!--                    <span class="stat-label">Total Patients</span>-->
+<!--                </div>-->
+
+
+<!--            </div>-->
+
+            <!-- Visual Guide -->
+            <div class="visual-guide">
+                <div class="guide-icon">
+                    <i class="fas fa-search-plus"></i>
                 </div>
+                <p class="guide-text">
+                    Enter a valid Patient ID above to access complete medical history,
+                    prescriptions, lab results, and treatment plans.
+                </p>
             </div>
-        </aside>
+        </div>
 
-        <!-- MAIN CONTENT -->
-        <main>
-            <div class="header">
-                <h1>Patient Profile</h1>
-            </div>
+        <script>
+            function goToPatient() {
+                const id = document.getElementById("patientId").value.trim();
+                if (!id) return false;
 
-            <div class="profile-container">
-                <form action="/doctor/patientData" method="get" onsubmit="return goToPatient();">
-    <label for="patientId">Enter Patient ID:</label>
-    <input type="text" id="patientId" name="id" required>
+                // Redirect manually
+                window.location.href = "/doctor/patientData/" + id;
+                return false; // prevent normal form submit
+            }
 
-    <button type="submit">Go</button>
-</form>
-              </div>
-
-              <script>
-    function goToPatient() {
-        const id = document.getElementById("patientId").value.trim();
-        if (!id) return false;
-
-        // Redirect manually
-        window.location.href = "/doctor/patientData/" + id;
-        return false; // prevent normal form submit
-    }
-</script>
-
+            // Mobile menu toggle
+            document.getElementById('menuToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+                this.querySelector('i').classList.toggle('fa-bars');
+                this.querySelector('i').classList.toggle('fa-times');
+            });
+        </script>
+    </main>
+</div>
 </body>
 </html>

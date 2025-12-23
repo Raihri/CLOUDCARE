@@ -581,7 +581,14 @@
 <body>
     <div class="patient-profile-container">
         <!-- Left Sidebar - Patient Info (Read-only) -->
+
         <div class="patient-sidebar">
+            <a href="/doctor/patient_id_fetch"
+               style="position:absolute; top:30px; left:30px; color:white; text-decoration:none;">
+                <i class="fa fa-arrow-left" style="font-size:14px; color:white;"></i>
+                <span>Back</span>
+            </a>
+
             <div class="patient-header">
                 <div class="patient-photo-container">
                     <img th:src="${patient?.user?.photoUrl ?: 'https://via.placeholder.com/150'}" 
@@ -1055,6 +1062,7 @@
                             </div>
                             <div class="upload-text" style="font-size: 12px;">Uploading...</div>
                         </div>
+                        <button type="submit" style="margin:40px;"class="upload-btn"><i class='bx bx-cloud-upload'></i>Upload to Cloud</button>
                     </form>
                     
                     <!-- Existing Lab Reports -->
@@ -1067,15 +1075,17 @@
                             <li th:each="report : ${patient?.labReportFiles}" class="list-item">
                                 <div class="item-name">
                                     <i class='bx bx-file-pdf item-icon'></i>
-                                    <span th:text="${report}">Blood_Test_Report.pdf</span>
+                                   <span th:text="${#strings.substring(report, report.length() - 14)}">
+    .pdf
+</span>
                                 </div>
                                 <div class="item-actions">
-                                    <button type="button" class="btn-icon" onclick="viewFile('${report}')">
-                                        <i class='bx bx-show'></i>
+                                    <a th:href="${report}"> <i class='bx bx-show'></i>
+    
+</a>
+                                       
                                     </button>
-                                    <button type="button" class="btn-icon" onclick="deleteFile('${report}', 'labReport')">
-                                        <i class='bx bx-trash'></i>
-                                    </button>
+                                   
                                 </div>
                             </li>
                         </ul>

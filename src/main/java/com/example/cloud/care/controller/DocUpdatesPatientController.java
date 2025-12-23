@@ -1,5 +1,7 @@
 package com.example.cloud.care.controller;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.service.DoctorUserDetails;
@@ -30,7 +32,8 @@ public class DocUpdatesPatientController {
     @Autowired
     private notificationService notificationService;
 
-
+    @Autowired
+    private Cloudinary cloudinary;
 
         
 
@@ -450,8 +453,13 @@ public class DocUpdatesPatientController {
                 if (file.isEmpty())
                     continue;
 
-                // Example: save / upload
-                String fileUrl = "/uploads/" + file.getOriginalFilename();
+                Map uploadResult = cloudinary.uploader().upload(
+                        file.getBytes(),
+                        ObjectUtils.asMap(
+                                "folder", "patient_reports",
+                                "resource_type", "raw"));
+
+                String fileUrl = (String) uploadResult.get("secure_url");
 
                 if ("labReport".equals(fileType)) {
                     patient.getLabReportFiles().add(fileUrl);
@@ -471,7 +479,6 @@ public class DocUpdatesPatientController {
 
         return response;
     }
-
     // Remove mental disease
     @PostMapping("/remove-mental-disease")
     @ResponseBody
