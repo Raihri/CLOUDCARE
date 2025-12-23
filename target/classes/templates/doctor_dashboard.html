@@ -77,13 +77,12 @@
         /* Logo */
         .logo-details {
             display: flex;
-            gap: 12px;
+            gap: 5px;
             align-items: center;
         }
         
         .logo-details img {
-            width: 42px;
-            height: 42px;
+            
             border-radius: 8px;
             object-fit: cover;
         }
@@ -548,10 +547,13 @@
             
             .logo_name {
                 font-size: 18px;
+                margin-left: -5px;
+
             }
             
             .profile_name {
                 font-size: 14px;
+                
             }
             
             .job {
@@ -615,13 +617,13 @@
         <!-- SIDEBAR - DARK THEME RESTORED -->
         <aside class="sidebar" id="sidebar">
             <div class="logo-details">
-                <img th:src="@{/images/logo.png}" alt="CloudCare Logo">
+                <img th:src="@{/image/logo.png}" alt="CloudCare Logo" style="width: 70px;">
                 <div class="logo_name">CloudCare</div>
             </div>
             <nav>
                 <ul class="nav-links">
                     <li><a href="/doctor/update"><i class="fa-solid fa-user-doctor"></i> Edit Profile</a></li>
-                    <li><a href="/doctor/new"><i class="fa-solid fa-user-plus"></i> Add Doctor</a></li>
+                    <li><a href="/doctor/patient_id_fetch"><i class="fa-solid fa-user-plus"></i> search patient</a></li>
                     <li><a href="/doctor/saveAvailability"><i class="fa-solid fa-file-lines"></i> Availability</a></li>
                     <li><a th:href="@{/doctor/{doctorId}/appointments(doctorId=${doctor.id})}"><i class="fa-solid fa-gear"></i> Appointments</a></li>
                 </ul>

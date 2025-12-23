@@ -54,18 +54,15 @@ public class doctor_controller {
     @GetMapping("/patient_id_fetch")
     public String id_fetch(Model model)
     {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
+    Doctor doctor = userDetails.getDoctor();
+
+    model.addAttribute("doctor", doctor); // 🔥 REQUIRED
         return "id_fetch";
     }
 
-    @GetMapping("/doctor/patientData/{patientId}")
-    public String fetchPatient(
-            @PathVariable Long patientId,
-            Model model) {
-        System.out.println("Patient ID: " + patientId);
-
-        model.addAttribute("patient", patient_service.findById(patientId));
-        return "id_fetch";
-    }
+    
 
     // Show signup form
     @GetMapping("/signup")
