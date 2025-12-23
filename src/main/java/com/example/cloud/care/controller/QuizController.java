@@ -6,7 +6,6 @@ import com.example.cloud.care.service.loggedInUserFind;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-import org.hibernate.engine.jdbc.env.internal.LobCreationLogging_.logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;

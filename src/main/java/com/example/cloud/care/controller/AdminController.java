@@ -32,6 +32,13 @@ public class AdminController {
     public String showChangePassword() {
         return "admin_change_password"; // Thymeleaf page
     }
+    @GetMapping("/home")
+
+
+        
+    public String adminHome() {
+        return "admin_control"; // Thymeleaf page
+    }
 
     @PostMapping("/change-password")
     public String changePassword(@RequestParam String oldPassword,
