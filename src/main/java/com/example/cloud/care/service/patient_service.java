@@ -41,8 +41,8 @@ public class patient_service {
         }
     }
 
-    public Optional<Patient> findById(Long id) {
-        return Optional.ofNullable(patientRepository.findById(id).orElse(null));
+    public Optional<Patient> findById(Long patientId) {
+        return Optional.ofNullable(patientRepository.findById(patientId).orElse(null));
     }
 
     public Optional<Patient> findByEmail(String email) {

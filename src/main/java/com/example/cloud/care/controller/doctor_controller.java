@@ -1,6 +1,8 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.service.doctor_service;
+import com.example.cloud.care.service.loggedInUserFind;
+import com.example.cloud.care.service.patient_service;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.service.DoctorUserDetails;
 import com.example.cloud.care.service.EmailServiceD;
@@ -31,6 +33,7 @@ import java.util.UUID;
 public class doctor_controller {
 
     private final doctor_service doctorService;
+    private final patient_service patient_service;
     private final doctor_dao doctorRepository;
     private final com.cloudinary.Cloudinary cloudinary;
     @Autowired
@@ -38,11 +41,30 @@ public class doctor_controller {
     private  BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private EmailServiceD emailServiceD;
+ 
+
     @Autowired
-    public doctor_controller(doctor_service doctorService, doctor_dao doctorRepository, Cloudinary cloudinary) {
+    public doctor_controller(doctor_service doctorService, doctor_dao doctorRepository, Cloudinary cloudinary,patient_service patient_service) {
         this.doctorService = doctorService;
         this.doctorRepository = doctorRepository;
         this.cloudinary = cloudinary;
+        this.patient_service = patient_service;
+    }
+
+    @GetMapping("/patient_id_fetch")
+    public String id_fetch(Model model)
+    {
+        return "id_fetch";
+    }
+
+    @GetMapping("/doctor/patientData/{patientId}")
+    public String fetchPatient(
+            @PathVariable Long patientId,
+            Model model) {
+        System.out.println("Patient ID: " + patientId);
+
+        model.addAttribute("patient", patient_service.findById(patientId));
+        return "id_fetch";
     }
 
     // Show signup form
