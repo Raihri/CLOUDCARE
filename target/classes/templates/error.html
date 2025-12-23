@@ -17,7 +17,7 @@
     </div>
     <ul class="nav-links">
         
-        <li class="active">
+        <li>
             <a th:href="@{/patient/dashboard}">
                 <i class="bx bxs-user"></i>
                 <span class="link_name">Patient Profile</span>
@@ -95,6 +95,16 @@
                 <li><a class="link_name" href="/patient/feedbacks">Feedback</a></li>
             </ul>
         </li>
+
+        <li class="active">
+            <a th:href="@{/patient/error}">
+                <i class='bx bxs-star'></i>
+                <span class="link_name">ERROR</span>
+            </a>
+            <ul class="sub-menu blank">
+                <li><a class="link_name" href="/patient/error">ERROR</a></li>
+            </ul>
+        </li>
       
 
        
@@ -123,15 +133,12 @@
     </ul>
 </div>
 
-  <section class="home-section">
+  <section class="raima" style="padding:100px;">
     <div class="quiz-container">
       <header class="header">
-        <h1>Something went wrong</h1>
+        <h1>OOPS!</h1>
         <div class="sub">We couldn't complete that request. Try again or contact support.</div>
       </header>
-      <section style="margin-top:16px;">
-        <p th:text="${error}" style="color:var(--muted);">An unexpected error occurred.</p>
-      </section>
     </div>
   </section>
 </body>

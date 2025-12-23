@@ -432,13 +432,13 @@ public class DocUpdatesPatientController {
     public Map<String, Object> uploadFiles(
             @RequestParam Long patientId,
             @RequestParam String fileType,
-            @RequestParam("files") MultipartFile[] files) {
+            @RequestParam("file") MultipartFile[] files) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
             Optional<Patient> patientOptional = patientService.findById(patientId);
-            if (!patientOptional.isPresent()) {
+            if (patientOptional.isEmpty()) {
                 response.put("success", false);
                 response.put("message", "Patient not found");
                 return response;
@@ -447,36 +447,26 @@ public class DocUpdatesPatientController {
             Patient patient = patientOptional.get();
 
             for (MultipartFile file : files) {
-                // Upload to Cloudinary - you need to implement this
-                // String fileUrl = patientService.uploadFile(file);
+                if (file.isEmpty())
+                    continue;
+
+                // Example: save / upload
                 String fileUrl = "/uploads/" + file.getOriginalFilename();
 
-                // Add to appropriate list
-                switch (fileType) {
-                    case "labReport":
-                        patient.getLabReportFiles().add(fileUrl);
-                        break;
-                    case "radiologyReport":
-                        patient.getRadiologyReports().add(fileUrl);
-                        break;
+                if ("labReport".equals(fileType)) {
+                    patient.getLabReportFiles().add(fileUrl);
                 }
             }
 
             patient.setUpdatedAt(new Date());
             patientService.save(patient);
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            DoctorUserDetails userDetails = (DoctorUserDetails) auth.getPrincipal();
-            Doctor doctor = userDetails.getDoctor();
 
-
-            notification notify = new notification("Report Updated by Dr. " + doctor.getName(), LocalDateTime.now(),patient);
-            patientService.addNotification(patient,notify);
             response.put("success", true);
             response.put("message", "Files uploaded successfully");
 
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error uploading files: " + e.getMessage());
+            response.put("message", e.getMessage());
         }
 
         return response;
