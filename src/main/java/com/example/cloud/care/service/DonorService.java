@@ -135,25 +135,6 @@ public class DonorService {
         // Save donor to DB
         Donor saved = donorRepository.save(donor);
 
-        // Send email to donor
-        if (saved.getEmail() != null && !saved.getEmail().isBlank()) {
-            String eligibilityMsg = eligibilityStatus.equals("Eligible") ?
-                    "You are eligible to donate blood!" :
-                    "Status: " + eligibilityStatus;
-            String html = "<html><body>" +
-                    "<h2>Thank You for Registering as a Donor!</h2>" +
-                    "<p>Hello " + saved.getName() + ",</p>" +
-                    "<p>Your donor registration has been successfully saved.</p>" +
-                    "<p><strong>" + eligibilityMsg + "</strong></p>" +
-                    "<p>We appreciate your willingness to save lives ❤</p>" +
-                    "</body></html>";
-            emailServiceDonor.sendHtmlEmailAsync(
-                    saved.getEmail(),
-                    "Blood Donor Registration Successful",
-                    html
-            );
-        }
-
         return saved;
     }
 
