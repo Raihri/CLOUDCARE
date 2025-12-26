@@ -1,145 +1,41 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Error</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}" />
-  <link rel="stylesheet" th:href="@{/css/styles.css}" />
-   <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Error | CloudCare</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
 </head>
+
 <body>
-  <div class="sidebar">
-    <div class="logo-details">
-        <img th:src="@{/image/logo.png}" alt="CloudCare Logo"/>
 
-        <span class="logo_name">CloudCare</span>
-    </div>
-    <ul class="nav-links">
-        
-        <li>
-            <a th:href="@{/patient/dashboard}">
-                <i class="bx bxs-user"></i>
-                <span class="link_name">Patient Profile</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Patient Profile</a></li>
-            </ul>
-        </li>
+    <section class="raima" style="min-height:100vh; display:flex; justify-content:center; align-items:center;">
+        <div class="quiz-container" style="text-align:center;">
+            
+            <img th:src="@{/image/logo.png}" 
+                 alt="CloudCare Logo"
+                 style="width:120px; margin-bottom:20px;" />
 
-          <li >
-            <a th:href="@{/patient/dataEntry}">
-                <i class="bx bxs-edit"></i>
-                <span class="link_name">Edit Profile</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Edit Profile</a></li>
-            </ul>
-        </li>
+            <header class="header">
+                <h1>Oops!</h1>
+                <div class="sub">
+                    We couldn’t complete that request.<br>
+                    Please try again or contact support if the problem persists.
+                </div>
+            </header>
 
-         <li>
-            <a th:href="@{/patient/doctor_list}">
-                <i class="bx bx-menu"></i>
-                <span class="link_name">Doctors List</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Doctors List</a></li>
-            </ul>
-        </li>
-
-
-        <li>
-            <a th:href="@{/patient/donor}">
-                <i class='bx bxs-droplet'></i>
-                <span class="link_name">Find Donor</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="donor">Find Donor</a></li>
-            </ul>
-        </li>
-
-        <li>
-            <a th:href="@{/patient/aichat}">
-                <i class='bx bxs-chat'></i>
-                <span class="link_name">CloudCare AI</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
-            </ul>
-        </li>
-        <li>
-            <a th:href="@{/patient/quiz_index1}">
-                <i class='bx bxs-brain'></i>
-                <span class="link_name">Mental Health Quiz</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/quiz_index1">Mental Health Quiz</a></li>
-            </ul>
-        </li>
-         <li>
-            <a th:href="@{/patient/appointments}">
-                <i class='bx bx-phone'></i>
-                <span class="link_name">Appointments</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="appointments">Appointments</a></li>
-            </ul>
-        </li>
-
-        <li>
-            <a th:href="@{/patient/feedbacks}">
-                <i class='bx bxs-star'></i>
-                <span class="link_name">Feedback</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/feedbacks">Feedback</a></li>
-            </ul>
-        </li>
-
-        <li class="active">
-            <a th:href="@{/patient/error}">
-                <i class='bx bxs-star'></i>
-                <span class="link_name">ERROR</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/error">ERROR</a></li>
-            </ul>
-        </li>
-      
-
-       
-        <li>
-            <!-- Patient Content Here -->
-            <div class="profile-details" th:if="${patient != null}">
-                <a th:href="@{/patient/dashboard}"
-                   style="display: flex; align-items: center; text-decoration: none; width: 100%;">
-                    <div class="profile-content">
-                        <!-- show patient image -->
-                        <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
-                             th:src="${patient.user.photoUrl}"
-                             alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
-                        <img th:if="${patient.user == null or patient.user.photoUrl == null}"
-                             src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
-                             alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
-
-                        <div class="name-job">
-                            <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
-                            <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
-                        </div>
-                    </div>
+            <div style="margin-top:30px;">
+                <a th:href="@{/}" class="btn-primary" 
+                   style="padding:10px 24px; border-radius:8px; text-decoration:none;">
+                    Go to Home
                 </a>
             </div>
-        </li>
-    </ul>
-</div>
 
-  <section class="raima" style="padding:100px;">
-    <div class="quiz-container">
-      <header class="header">
-        <h1>OOPS!</h1>
-        <div class="sub">We couldn't complete that request. Try again or contact support.</div>
-      </header>
-    </div>
-  </section>
+        </div>
+    </section>
+
 </body>
 </html>

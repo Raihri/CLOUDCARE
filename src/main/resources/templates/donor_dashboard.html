@@ -381,7 +381,6 @@
     <div class="top-nav">
         <button data-section="donors" class="active">Blood Donor</button>
         <button data-section="requests">Request Blood</button>
-        <button data-section="admin">Dashboard</button>
     </div>
 
     <div class="content">
@@ -444,72 +443,7 @@
             </div>
         </section>
 
-        <!-- Admin Section -->
-        <section id="admin" class="section card">
-            <h2>📊 Dashboard</h2>
-            
-            <!-- Stats Cards -->
-            <div class="admin-stats">
-                <div class="stat-card">
-                    <div class="icon">💉</div>
-                    <h4>Total Donors</h4>
-                    <div class="number" id="adminTotalDonors">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">✅</div>
-                    <h4>Eligible Donors</h4>
-                    <div class="number" id="adminEligibleDonors">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">⏳</div>
-                    <h4>Pending Requests</h4>
-                    <div class="number" id="adminPendingRequests">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="icon">✓</div>
-                    <h4>Matched Requests</h4>
-                    <div class="number" id="adminMatchedRequests">0</div>
-                </div>
-            </div>
-
-            <!-- Chart Container -->
-            <div class="admin-chart-container">
-                <h3>📈 Trends Analysis (Last 14 Days)</h3>
-                <canvas id="trendChart" width="400" height="260" style="max-height: 260px;"></canvas>
-
-                <!-- Bottom Section: Urgent + Blood Group -->
-                <div class="admin-bottom">
-                    <!-- Urgent Requests -->
-                    <div class="admin-bottom-item">
-                        <h5>🚨 Urgent Requests (≤3 days)</h5>
-                        <div class="urgent-table-container" style="max-height: 280px; overflow-y: auto;">
-                            <table id="urgentTable" class="urgent-table">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 8%;">ID</th>
-                                        <th style="width: 35%;">Patient Name</th>
-                                        <th style="width: 15%;">Blood</th>
-                                        <th style="width: 25%;">Required Date</th>
-                                        <th style="width: 17%; text-align: center;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="urgentBody">
-                                    <tr>
-                                        <td colspan="5" style="text-align: center; color: #999; padding: 20px 8px; font-size: 12px;">📭 Loading…</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- By Blood Group -->
-                    <div class="admin-bottom-item">
-                        <h5>🩸 Donors by Blood Group</h5>
-                        <div id="adminBloodList" class="blood-group-list">Loading…</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Admin Section removed -->
     </div>
 
     <!-- Donor modal removed: use full-page donor form at /patient/donor-form -->
@@ -731,9 +665,9 @@
 </script>
 
     <script>
-        // API endpoints
-        const donorAPI = '/api/donor';
-        const requestAPI = '/api/request';
+        // API endpoints (backend controllers are under /patient/...)
+        const donorAPI = '/patient/donor/api';
+        const requestAPI = '/patient/request/api';
 
         const diseaseModal = document.getElementById('diseaseModal');
         const diseaseList = document.getElementById('diseaseList');
@@ -904,7 +838,6 @@
             });
 
             filterDonors();
-            updateAdminCounts();
         }
 
         const requestTableBody = document.querySelector('#requestTable tbody');
@@ -932,7 +865,6 @@
             });
 
             filterRequests();
-            updateAdminCounts();
         }
 
         // Donor modal submit handler removed; full-page donor form handles save
@@ -1189,13 +1121,6 @@
             });
         }
 
-        async function updateAdminCounts() {
-            const donors = await loadDonors();
-            const requests = await loadRequests();
-            document.getElementById('totalDonors').textContent = donors.length;
-            document.getElementById('totalRequests').textContent = requests.length;
-        }
-
         function applyPendingDonorUpdate() {
             try {
                 const updatedId = localStorage.getItem('donorUpdatedId');
@@ -1224,145 +1149,9 @@
             await renderDonors();
             await renderRequests();
             setTimeout(applyPendingDonorUpdate, 250);
-            loadAdminSummary();
         })();
 
-        // ===== ADMIN DASHBOARD FUNCTIONS =====
-        let trendChart = null;
-
-        async function loadAdminSummary() {
-            try {
-                const res = await fetch('/patient/donor-admin/api/summary');
-                const json = await res.json();
-                if (json && json.success) {
-                    document.getElementById('adminTotalDonors').textContent = json.totalDonors;
-                    document.getElementById('adminEligibleDonors').textContent = json.eligibleDonors;
-                    document.getElementById('adminPendingRequests').textContent = json.pendingRequests;
-                    document.getElementById('adminMatchedRequests').textContent = json.matchedRequests;
-
-                    const by = json.byBloodGroup || {};
-                    const container = document.getElementById('adminBloodList');
-                    container.innerHTML = '';
-                    Object.keys(by).sort().forEach(k => {
-                        const el = document.createElement('div');
-                        el.className = 'blood-group-item';
-                        el.innerHTML = `<strong>${k}</strong><span>${by[k]}</span>`;
-                        container.appendChild(el);
-                    });
-                    loadAdminTrends();
-                    loadUrgentRequests();
-                }
-            } catch (e) {
-                console.error('Failed to load admin summary', e);
-            }
-        }
-
-        async function loadAdminTrends() {
-            try {
-                const res = await fetch('/patient/donor-admin/api/summary/trends');
-                const json = await res.json();
-                if (!json || !json.success) return;
-                const labels = json.labels || [];
-                const donors = json.donors || [];
-                const requests = json.requests || [];
-
-                const ctx = document.getElementById('trendChart').getContext('2d');
-                if (trendChart) {
-                    trendChart.data.labels = labels;
-                    trendChart.data.datasets[0].data = donors;
-                    trendChart.data.datasets[1].data = requests;
-                    trendChart.update();
-                    return;
-                }
-                if (typeof Chart === 'undefined') {
-                    await new Promise((resolve, reject) => {
-                        const s = document.createElement('script');
-                        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-                        s.onload = resolve;
-                        s.onerror = reject;
-                        document.head.appendChild(s);
-                    });
-                }
-
-                trendChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Donors',
-                                data: donors,
-                                borderColor: '#d32f2f',
-                                backgroundColor: 'rgba(211,47,47,0.12)',
-                                tension: 0.3
-                            },
-                            {
-                                label: 'Requests',
-                                data: requests,
-                                borderColor: '#1976d2',
-                                backgroundColor: 'rgba(25,118,210,0.10)',
-                                tension: 0.3
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { display: true }
-                        },
-                        scales: { x: { display: true }, y: { beginAtZero: true } }
-                    }
-                });
-            } catch (e) {
-                console.error('Failed to load trends', e);
-            }
-        }
-
-        async function loadUrgentRequests() {
-            try {
-                const res = await fetch('/patient/donor-admin/api/requests/urgent');
-                const json = await res.json();
-                const tbody = document.getElementById('urgentBody');
-                tbody.innerHTML = '';
-                if (!json || !json.success) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 20px 8px; font-size: 12px;">⚠️ No data</td></tr>';
-                    return;
-                }
-                const data = json.data || [];
-                if (data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; padding: 20px 8px; font-size: 12px;">✓ No urgent requests</td></tr>';
-                    return;
-                }
-                data.forEach(r => {
-                    const tr = document.createElement('tr');
-                    const reqDate = r.requiredDate ? new Date(r.requiredDate).toLocaleDateString('en-US', {month: 'short', day: 'numeric'}) : '';
-                    tr.innerHTML = `<td class="urgent-req-id">${r.id}</td>
-                        <td class="urgent-req-name">${r.name || 'N/A'}</td>
-                        <td class="urgent-req-blood">${r.bloodGroup || 'N/A'}</td>
-                        <td class="urgent-req-date">${reqDate}</td>
-                        <td style="text-align: center;"><button onclick="markRequestMatched(${r.id})" class="urgent-req-btn">✓ Match</button></td>`;
-                    tbody.appendChild(tr);
-                });
-            } catch (e) {
-                console.error('Failed to load urgent requests', e);
-            }
-        }
-
-        async function markRequestMatched(id) {
-            if (!confirm('Mark request ' + id + ' as Matched?')) return;
-            try {
-                const res = await fetch('/patient/donor-admin/api/request/' + id + '/mark-matched', { method: 'POST' });
-                const json = await res.json();
-                if (json && json.success) {
-                    alert('Request marked matched');
-                    loadAdminSummary();
-                } else {
-                    alert('Failed: ' + (json && json.message ? json.message : 'unknown'));
-                }
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
-        }
+        // Admin dashboard JS removed
     </script>
 </section>
 </body>
