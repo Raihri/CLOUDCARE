@@ -127,7 +127,14 @@ public class patientDataController {
                 if (fatherName != null) patient.setFatherName(fatherName);
                 if (motherName != null) patient.setMotherName(motherName);
                 if (maritalStatus != null) patient.setMaritalStatus(maritalStatus);
-
+                if(height != null && weight != null && height > 0) {
+                    double heightInMeters = height / 100.0; // Convert cm to meters
+                    double bmi = weight / (heightInMeters * heightInMeters);
+                    patient.setBmi(bmi);
+                }
+                else {
+                    patient.setBmi(null);
+                }
                 // Parse dates
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 if (dateOfBirth != null && !dateOfBirth.isEmpty()) {
