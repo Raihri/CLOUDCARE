@@ -34,6 +34,28 @@ public class DonorService {
                 .toList();
     }
 
+    public List<Donor> findMatchingDonors(String bloodGroup, String district, String thana) {
+        List<Donor> donors = donorRepository.findByBloodGroup(bloodGroup);
+        if (district != null && !district.isBlank()) {
+            donors = donors.stream()
+                    .filter(d -> d.getDistrict() != null && d.getDistrict().equalsIgnoreCase(district))
+                    .toList();
+        }
+        if (thana != null && !thana.isBlank()) {
+            donors = donors.stream()
+                    .filter(d -> d.getThana() != null && d.getThana().equalsIgnoreCase(thana))
+                    .toList();
+        }
+        // filter by eligibility
+        donors = donors.stream()
+                .filter(d -> {
+                    Map<String, Object> result = checkEligibility(d);
+                    return (boolean) result.get("eligible");
+                })
+                .toList();
+        return donors;
+    }
+
     public List<Donor> getAllDonors() {
         return donorRepository.findAll().stream()
                 .distinct()
