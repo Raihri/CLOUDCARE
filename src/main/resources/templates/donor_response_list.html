@@ -126,6 +126,7 @@
         <!-- ACTION BUTTONS -->
         <div class="action-bar" id="actionBar" style="display: none;">
             <button class="btn btn-email-all" id="emailAllBtn">📧 Email All Eligible Donors</button>
+            <button class="btn btn-confirm" id="emailSelectedBtn" style="margin-left: 8px;" disabled>📧 Email Selected Donors</button>
             <span id="selectionStatus" style="margin-left: auto; font-size: 13px; color: #666;"></span>
         </div>
         
@@ -238,7 +239,7 @@
             
             // Display donors
             logDebug(`Displaying ${donors.length} donors...`);
-            displayDonors(donors, request);
+            displayDonors(donors, request, requestId);
             
             // Show action bar
             document.getElementById('infoBox').style.display = 'block';
@@ -259,42 +260,198 @@
         }
     });
     
-    function displayDonors(donors, request) {
+    function displayDonors(donors, request, requestId) {
         logDebug(`displayDonors() called with ${donors.length} donors`);
         const donorsList = document.getElementById('donorsList');
         donorsList.innerHTML = ''; // Clear
         
-        donors.forEach((donor, index) => {
-            logDebug(`Rendering donor #${index}: ${donor.name} (${donor.email})`);
-            const card = document.createElement('div');
-            card.className = 'donor-card';
-            card.innerHTML = `
-                <div style="display:flex; align-items:center; gap:12px; width:100%;">
-                    <div class="donor-info">
-                        <div class="donor-name">👤 ${donor.name || 'Unknown'}</div>
-                        <div class="donor-details">
-                            <strong>📧 Email:</strong> ${donor.email || 'N/A'} | 
-                            <strong>🎂 Age:</strong> ${donor.age || 'N/A'} | 
-                            <strong>⭕ Blood:</strong> ${donor.bloodGroup || 'N/A'}
+        // renderList: render given donor list into the UI
+        function renderList(list) {
+            donorsList.innerHTML = '';
+            list.forEach((donor, index) => {
+                logDebug(`Rendering donor #${index}: ${donor.name} (${donor.email})`);
+                const card = document.createElement('div');
+                card.className = 'donor-card';
+                card.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:12px; width:100%;">
+                        <div style="flex-shrink:0;">
+                            <input type="checkbox" class="donor-select" data-donor-index="${index}" data-donor-id="${donor.id || ''}" aria-label="Select donor ${donor.name || ''}" />
                         </div>
-                        <div class="donor-details" style="margin-top: 6px;">
-                            <strong>📍 Location:</strong> ${donor.location || 'N/A'} | 
-                            <strong>🩸 Last Donated:</strong> ${donor.lastDonated || donor.lastDonationDate || 'Never'}
+                        <div class="donor-info">
+                            <div class="donor-name">👤 ${donor.name || 'Unknown'}</div>
+                            <div class="donor-details">
+                                <strong>📧 Email:</strong> ${donor.email || 'N/A'} | 
+                                <strong>🎂 Age:</strong> ${donor.age || 'N/A'} | 
+                                <strong>⭕ Blood:</strong> ${donor.bloodGroup || 'N/A'}
+                            </div>
+                            <div class="donor-details" style="margin-top: 6px;">
+                                <strong>📍 Location:</strong> ${donor.location || donor.district ? (donor.district + (donor.thana ? (', ' + donor.thana) : '')) : 'N/A'} | 
+                                <strong>🩸 Last Donated:</strong> ${donor.lastDonated || donor.lastDonationDate || 'Never'}
+                            </div>
+                            <div class="donor-badge">✓ Eligible Donor</div>
                         </div>
-                        <div class="donor-badge">✓ Eligible Donor</div>
                     </div>
-                </div>
-            `;
-            donorsList.appendChild(card);
-        });
+                `;
+                donorsList.appendChild(card);
+
+                // wire up checkbox selection behavior
+                const checkbox = card.querySelector('.donor-select');
+                checkbox.addEventListener('change', function(e) {
+                    if (this.checked) card.classList.add('selected'); else card.classList.remove('selected');
+                    updateSelectionStatus();
+                });
+            });
+        }
+
+        // initial render
+        renderList(donors);
+
+        // update selection UI
+        function updateSelectionStatus() {
+            const selected = Array.from(document.querySelectorAll('.donor-select')).filter(cb => cb.checked);
+            const statusEl = document.getElementById('selectionStatus');
+            const emailSelectedBtn = document.getElementById('emailSelectedBtn');
+            if (selected.length === 0) {
+                statusEl.textContent = 'No donors selected';
+                emailSelectedBtn.disabled = true;
+            } else {
+                statusEl.textContent = `${selected.length} selected`;
+                emailSelectedBtn.disabled = false;
+            }
+        }
+
+        // District & Thana filters (no location filter)
+        try {
+            const actionBar = document.getElementById('actionBar');
+            if (actionBar) {
+                const existing = document.getElementById('locationFilters');
+                if (existing) existing.remove();
+
+                const filterWrap = document.createElement('div');
+                filterWrap.id = 'locationFilters';
+                filterWrap.style.display = 'flex';
+                filterWrap.style.gap = '8px';
+                filterWrap.style.alignItems = 'center';
+
+                // District select: show All + all donor districts
+                const districtSelect = document.createElement('select');
+                const dAll = document.createElement('option'); dAll.value = ''; dAll.text = 'All Districts'; districtSelect.appendChild(dAll);
+                const districts = Array.from(new Set(donors.map(d => (d.district || '').trim()).filter(Boolean))).sort();
+                districts.forEach(dd => { const o=document.createElement('option'); o.value=dd; o.text=dd; districtSelect.appendChild(o); });
+
+                // Thana select: will be scoped to district when chosen
+                const thanaSelect = document.createElement('select');
+                const tAll = document.createElement('option'); tAll.value=''; tAll.text='All Thanas'; thanaSelect.appendChild(tAll);
+                const allThanas = Array.from(new Set(donors.map(d => (d.thana || '').trim()).filter(Boolean))).sort();
+                allThanas.forEach(tt => { const o=document.createElement('option'); o.value=tt; o.text=tt; thanaSelect.appendChild(o); });
+
+                // wire filtering (district + thana only)
+                function filterAndRender() {
+                    const d = districtSelect.value;
+                    const t = thanaSelect.value;
+                    let filtered = donors;
+                    if (d) filtered = filtered.filter(x => x.district && x.district.toLowerCase() === d.toLowerCase());
+                    if (t) filtered = filtered.filter(x => x.thana && x.thana.toLowerCase() === t.toLowerCase());
+                    renderList(filtered);
+                    updateSelectionStatus();
+                }
+
+                districtSelect.addEventListener('change', async function(){
+                    const cur = this.value;
+                    thanaSelect.innerHTML = '';
+                    const optAll = document.createElement('option'); optAll.value=''; optAll.text='All Thanas'; thanaSelect.appendChild(optAll);
+                    if (!cur) {
+                        // if no district selected, populate thanas from donors
+                        const list = donors.map(d => (d.thana||'').trim());
+                        Array.from(new Set(list.filter(Boolean))).sort().forEach(tt => { const o=document.createElement('option'); o.value=tt; o.text=tt; thanaSelect.appendChild(o); });
+                        filterAndRender();
+                        return;
+                    }
+                    try {
+                        const res = await fetch('/api/locations/thanas?district=' + encodeURIComponent(cur));
+                        const data = await res.json();
+                        if (data && data.thanas) {
+                            data.thanas.forEach(tt => { const o=document.createElement('option'); o.value=tt; o.text=tt; thanaSelect.appendChild(o); });
+                        } else {
+                            // fallback to donors-derived thanas
+                            const list = donors.filter(x => x.district && x.district.toLowerCase() === cur.toLowerCase()).map(d => (d.thana||'').trim());
+                            Array.from(new Set(list.filter(Boolean))).sort().forEach(tt => { const o=document.createElement('option'); o.value=tt; o.text=tt; thanaSelect.appendChild(o); });
+                        }
+                    } catch (e) {
+                        const list = donors.filter(x => x.district && x.district.toLowerCase() === cur.toLowerCase()).map(d => (d.thana||'').trim());
+                        Array.from(new Set(list.filter(Boolean))).sort().forEach(tt => { const o=document.createElement('option'); o.value=tt; o.text=tt; thanaSelect.appendChild(o); });
+                    }
+                    filterAndRender();
+                });
+                thanaSelect.addEventListener('change', filterAndRender);
+
+                filterWrap.appendChild(districtSelect);
+                filterWrap.appendChild(thanaSelect);
+                actionBar.insertBefore(filterWrap, actionBar.firstChild);
+            }
+        } catch (err) {
+            logDebug('Filter setup failed: ' + err.message);
+        }
+
+        // wire Email Selected button (robust)
+        const emailSelectedBtn = document.getElementById('emailSelectedBtn');
+        // replace existing handler to avoid duplicate listeners
+        emailSelectedBtn.onclick = async function() {
+            try {
+                const selectedCheckboxes = Array.from(document.querySelectorAll('.donor-select')).filter(cb => cb.checked);
+                if (selectedCheckboxes.length === 0) {
+                    alert('Please select one or more donors to email.');
+                    return;
+                }
+
+                // build donor objects from selected by matching id against original donors array
+                let donorsToSend = selectedCheckboxes.map(cb => {
+                    const id = cb.getAttribute('data-donor-id');
+                    return donors.find(d => String(d.id) === String(id));
+                }).filter(Boolean);
+
+                // Only keep donors with an email
+                donorsToSend = donorsToSend.filter(d => d && d.email && d.email.trim() !== '');
+                if (donorsToSend.length === 0) {
+                    alert('Selected donors do not have email addresses. Please select donors with valid emails.');
+                    return;
+                }
+
+                if (!confirm(`Send detailed email to ${donorsToSend.length} selected donor(s)?`)) return;
+
+                // disable the button while sending
+                emailSelectedBtn.disabled = true;
+                emailSelectedBtn.textContent = 'Sending...';
+
+                await sendMatchingEmails(donorsToSend, request, requestId);
+            } catch (e) {
+                console.error('Error sending selected emails:', e);
+                showError('Failed to send selected emails: ' + (e.message || e));
+            } finally {
+                emailSelectedBtn.disabled = false;
+                emailSelectedBtn.textContent = '📧 Email Selected Donors';
+            }
+        };
     }
     
     async function sendMatchingEmails(donors, request, requestId) {
         logDebug(`sendMatchingEmails() called. Sending to ${donors.length} donors...`);
         
         try {
+            // ensure we have a requestId; fallback to request.id or URL param
+            let rid = requestId;
+            if (!rid && request && request.id) rid = request.id;
+            if (!rid) {
+                const qp = new URLSearchParams(window.location.search);
+                rid = qp.get('requestId');
+            }
+            if (!rid) {
+                showError('Request ID is missing. Cannot send emails.');
+                return;
+            }
+
             const payload = {
-                requestId: requestId,
+                requestId: rid,
                 donors: donors.map(d => ({ id: d.id, name: d.name, email: d.email }))
             };
             
