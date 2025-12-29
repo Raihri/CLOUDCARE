@@ -255,7 +255,7 @@ public String handleForgotPassword(@RequestParam String email, Model model) {
     doctorRepository.save(doctor);
 
     // Send reset email
-    String resetLink = "http://localhost:8080/doctor/reset-password?token=" + token;
+    String resetLink = "https://cloudcare-3.onrender.com/doctor/reset-password?token=" + token;
     String subject = "CloudCare Password Reset";
     String body = """
             Hello Dr. %s,
@@ -265,6 +265,10 @@ public String handleForgotPassword(@RequestParam String email, Model model) {
             %s
 
             If you didn't request this, please ignore this email.
+
+            Thank you,
+            CloudCare Support Team
+            
             """.formatted(doctor.getName(), resetLink);
 
     emailServiceD.sendEmail(doctor.getEmail(), subject, body);
