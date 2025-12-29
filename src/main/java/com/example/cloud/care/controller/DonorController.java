@@ -161,15 +161,23 @@ public class DonorController {
             java.util.List<com.example.cloud.care.model.Request> matched = new java.util.ArrayList<>();
             try {
                 boolean isEligible = eligibility.get("eligible") instanceof Boolean && (Boolean) eligibility.get("eligible");
-                if (isEligible && donor.getBloodGroup() != null && !donor.getBloodGroup().isEmpty()) {
+                    if (isEligible && donor.getBloodGroup() != null && !donor.getBloodGroup().isEmpty()) {
                     String donorBg = donor.getBloodGroup().trim();
                     java.util.List<com.example.cloud.care.model.Request> requests = requestService.getAllRequests();
                     for (com.example.cloud.care.model.Request req : requests) {
                         if (req == null) continue;
                         String reqStatus = req.getStatus();
                         String reqBg = req.getBloodGroup();
+                        // Match only if same blood group and same district+thana (if provided in request)
+                        boolean locationMatch = true;
+                        if (req.getDistrict() != null && !req.getDistrict().isBlank()) {
+                            locationMatch = donor.getDistrict() != null && donor.getDistrict().equalsIgnoreCase(req.getDistrict());
+                        }
+                        if (locationMatch && req.getThana() != null && !req.getThana().isBlank()) {
+                            locationMatch = donor.getThana() != null && donor.getThana().equalsIgnoreCase(req.getThana());
+                        }
                         if ((reqStatus == null || reqStatus.equalsIgnoreCase("Pending")) && reqBg != null
-                                && reqBg.equalsIgnoreCase(donorBg)) {
+                                && reqBg.equalsIgnoreCase(donorBg) && locationMatch) {
                             // build email to requester with donor details and contact link
                             String donorEmailLink = (donor.getEmail() != null && !donor.getEmail().isEmpty()) ?
                                     "<a href=\"mailto:" + donor.getEmail() + "\">" + donor.getEmail() + "</a>" : "(no email)";
@@ -248,6 +256,38 @@ public class DonorController {
         }
     }
 
+    @GetMapping("/api/search")
+    @ResponseBody
+    public ResponseEntity<?> searchDonors(@RequestParam(required = false) String bloodGroup,
+                                          @RequestParam(required = false) String name,
+                                          @RequestParam(required = false) String district,
+                                          @RequestParam(required = false) String thana,
+                                          @RequestParam(required = false) String status) {
+        try {
+            List<Donor> donors = donorService.getAllDonors();
+            if (bloodGroup != null && !bloodGroup.isBlank()) {
+                donors = donors.stream().filter(d -> bloodGroup.equalsIgnoreCase(d.getBloodGroup())).toList();
+            }
+            if (name != null && !name.isBlank()) {
+                String lower = name.toLowerCase();
+                donors = donors.stream().filter(d -> d.getName() != null && d.getName().toLowerCase().contains(lower)).toList();
+            }
+            if (district != null && !district.isBlank()) {
+                donors = donors.stream().filter(d -> d.getDistrict() != null && district.equalsIgnoreCase(d.getDistrict())).toList();
+            }
+            if (thana != null && !thana.isBlank()) {
+                donors = donors.stream().filter(d -> d.getThana() != null && thana.equalsIgnoreCase(d.getThana())).toList();
+            }
+            if (status != null && !status.isBlank()) {
+                donors = donors.stream().filter(d -> d.getStatus() != null && status.equalsIgnoreCase(d.getStatus())).toList();
+            }
+
+            return ResponseEntity.ok(Map.of("success", true, "donors", donors, "count", donors.size()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Error searching donors: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/api/list/{id}")
     @ResponseBody
     public ResponseEntity<?> getDonorById(@PathVariable Long id) {
@@ -300,6 +340,9 @@ public class DonorController {
             if (donorDetails.getEmail() != null && !donorDetails.getEmail().isEmpty()) donor.setEmail(donorDetails.getEmail());
             if (donorDetails.getDiseases() != null) donor.setDiseases(donorDetails.getDiseases());
             if (donorDetails.getStatus() != null && !donorDetails.getStatus().isEmpty()) donor.setStatus(donorDetails.getStatus());
+            if (donorDetails.getDistrict() != null && !donorDetails.getDistrict().isEmpty()) donor.setDistrict(donorDetails.getDistrict());
+            if (donorDetails.getThana() != null && !donorDetails.getThana().isEmpty()) donor.setThana(donorDetails.getThana());
+            if (donorDetails.getLocation() != null && !donorDetails.getLocation().isEmpty()) donor.setLocation(donorDetails.getLocation());
 
             Donor updatedDonor = donorService.saveDonor(donor);
             return ResponseEntity.ok(Map.of("success", true, "message", "Donor updated", "donor", updatedDonor));
