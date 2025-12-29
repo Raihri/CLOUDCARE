@@ -19,12 +19,14 @@ public class Donor {
     private String bloodGroup;
     private String contact;
     private String email;
-    private String confirmToken;
-    private java.time.Instant confirmTokenCreated;
+    // private String confirmToken;
+    // private java.time.Instant confirmTokenCreated;
     private String status;
     private LocalDate lastDonated;
     private LocalDate lastDonationDate;
     private String location;
+    private String district;
+    private String thana;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -56,13 +58,13 @@ public class Donor {
     public void setEmail(String email) { this.email = email; }
 
 
-    public String getConfirmToken() { return confirmToken; }
-    public void setConfirmToken(String confirmToken) { this.confirmToken = confirmToken; }
+    // public String getConfirmToken() { return confirmToken; }
+    // public void setConfirmToken(String confirmToken) { this.confirmToken = confirmToken; }
 
-    public java.time.Instant getConfirmTokenCreated() { return confirmTokenCreated; }
-    public void setConfirmTokenCreated(java.time.Instant confirmTokenCreated) {
-        this.confirmTokenCreated = confirmTokenCreated;
-    }
+    // public java.time.Instant getConfirmTokenCreated() { return confirmTokenCreated; }
+    // public void setConfirmTokenCreated(java.time.Instant confirmTokenCreated) {
+    //     this.confirmTokenCreated = confirmTokenCreated;
+    // }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
@@ -75,6 +77,12 @@ public class Donor {
 
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
+
+    public String getDistrict() { return district; }
+    public void setDistrict(String district) { this.district = district; }
+
+    public String getThana() { return thana; }
+    public void setThana(String thana) { this.thana = thana; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
