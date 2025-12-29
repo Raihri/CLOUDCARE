@@ -394,12 +394,16 @@
             <div class="filter-container">
                 <input type="text" placeholder="🔍 Filter by Name" id="donorFilterName" class="filter-input" oninput="renderDonors()">
                 <input type="text" placeholder="🔍 Filter by Blood Group" id="donorFilterBlood" class="filter-input" oninput="renderDonors()">
+                <select id="donorFilterDistrict" class="filter-input" onchange="onDonorDistrictChange()">
+                    <option value="">🏙️ All Districts</option>
+                </select>
+                <select id="donorFilterThana" class="filter-input" onchange="renderDonors()">
+                    <option value="">🔹 All Thanas</option>
+                </select>
                 <select id="donorFilterStatus" class="filter-input" onchange="renderDonors()">
                     <option value="">📊 All Status</option>
-                    <option>Cannot Donate
-                             (Disease)</option>
-                    <option>Cannot Donate
-                             (Recent)</option>
+                    <option>Cannot Donate (Disease)</option>
+                    <option>Cannot Donate (Recent)</option>
                     <option>Eligible</option>
                     <option>Non-Eligible</option>
                 </select>
@@ -408,8 +412,12 @@
                 <table id="donorTable">
                     <thead>
                         <tr>
-                            <th>👤 Name</th><th>✉️ Email</th><th>🎂 Age</th><th>⚧ Gender</th><th>🩸 Blood Group</th><th>📞 Contact</th>
-                            <th>📅 Last Donated</th><th>✨ Eligibility</th><th>⚙️ Actions</th>
+                            <th>👤 Name</th>
+                            <th>🩸 Blood Group</th>
+                            <th>📍 District</th>
+                            <th>📌 Thana</th>
+                            <th>✓ Status</th>
+                            <th>⚙️ Actions</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -423,20 +431,32 @@
             <a th:href="@{/patient/request-form}" class="add-button">
                 <i class='bx bxs-plus-circle'></i> Add New Request
             </a>
-            <div class="filter-container">
-                <input type="text" placeholder="🔍 Filter by Name" id="requestFilterName" class="filter-input" oninput="renderRequests()">
-                <input type="text" placeholder="🔍 Filter by Blood Group" id="requestFilterBlood" class="filter-input" oninput="renderRequests()">
-                <select id="requestFilterStatus" class="filter-input" onchange="renderRequests()">
-                    <option value="">📊 All Status</option>
-                    <option>Pending</option>
-                    <option>Matched</option>
-        
-                </select>
-            </div>
+                <div class="filter-container">
+                    <input type="text" placeholder="🔍 Filter by Name" id="requestFilterName" class="filter-input" oninput="renderRequests()">
+                    <input type="text" placeholder="🔍 Filter by Blood Group" id="requestFilterBlood" class="filter-input" oninput="renderRequests()">
+                    <select id="requestFilterDistrict" class="filter-input" onchange="onRequestDistrictChange()">
+                        <option value="">🏙️ All Districts</option>
+                    </select>
+                    <select id="requestFilterThana" class="filter-input" onchange="renderRequests()">
+                        <option value="">🔹 All Thanas</option>
+                    </select>
+                    <select id="requestFilterStatus" class="filter-input" onchange="renderRequests()">
+                        <option value="Pending">📊 Pending (default)</option>
+                        <option>Matched</option>
+                    </select>
+                </div>
             <div class="table-wrapper">
                 <table id="requestTable">
                     <thead>
-                        <tr><th>👤 Name</th><th>✉️ Email</th><th>🩸 Blood Group</th><th>📦 Units</th><th>✓ Status</th><th>⚙️ Actions</th></tr>
+                        <tr>
+                            <th>👤 Name</th>
+                            <th>🩸 Blood Group</th>
+                            <th>📦 Units</th>
+                            <th>📍 District</th>
+                            <th>📌 Thana</th>
+                            <th>✓ Status</th>
+                            <th>⚙️ Actions</th>
+                        </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
@@ -523,6 +543,25 @@
                     <input type="date" id="editDonorLastDonated">
                 </div>
 
+                <div class="form-group">
+                    <label>District</label>
+                    <select id="editDonorDistrict">
+                        <option value="">Select district</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Thana</label>
+                    <select id="editDonorThana">
+                        <option value="">Select thana</option>
+                    </select>
+                </div>
+
+                <!-- <div class="form-group">
+                    <label>Location (optional)</label>
+                    <input type="text" id="editDonorLocation" placeholder="Neighborhood / locality">
+                </div> -->
+
                 <div class="modal-buttons" style="margin-top:14px;">
                     <button type="button" class="cancel-btn" onclick="closeEditDonorModal()">Cancel</button>
                     <button type="button" class="save-btn" onclick="saveEditedDonor()">💾 Save Changes</button>
@@ -580,6 +619,23 @@
                     <label>Required Date</label>
                     <input type="date" id="editReqDate">
                 </div>
+
+                <div class="form-group">
+                    <label>District</label>
+                    <select id="editReqDistrict">
+                        <option value="">Select district</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Thana</label>
+                    <select id="editReqThana">
+                        <option value="">Select thana</option>
+                    </select>
+                </div>
+                <!-- <div class="form-group">
+                    <label>Location (optional)</label>
+                    <input type="text" id="editReqLocation" placeholder="Neighborhood / locality">
+                </div> -->
 
                 <div class="form-group">
                     <label>Medical Reason (optional)</label>
@@ -811,17 +867,14 @@
 
             donors.forEach(d => {
                 const blood = getBloodValue(d);
-                const eligibility = computeEligibility(d.lastDonated, d.diseases || []);
+                const status = d.status || computeEligibility(d.lastDonated, d.diseases || []);
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${d.name || '—'}</strong></td>
-                    <td><a href="mailto:${d.email || '#'}" style="color:#d32f2f;text-decoration:none;">${d.email || '—'}</a></td>
-                    <td>${d.age || '—'}</td>
-                    <td>${d.gender || '—'}</td>
                     <td><strong>${blood}</strong></td>
-                    <td>${d.contact || '—'}</td>
-                    <td>${d.lastDonated ? d.lastDonated.substring(0, 10) : '—'}</td>
-                    <td>${eligibility}</td>
+                    <td>${d.district || d.location || '—'}</td>
+                    <td>${d.thana || '—'}</td>
+                    <td>${status}</td>
                     <td style="text-align: center;">
                         <button class="btn btn-warning edit-donor" title="Edit donor" style="padding: 6px 10px;">✏️</button>
                         <button class="btn btn-danger delete-donor" title="Delete donor" style="padding: 6px 10px;">🗑️</button>
@@ -829,9 +882,7 @@
                     </td>
                 `;
                 donorTableBody.appendChild(row);
-                // expose id on the row for debugging/diagnostics
                 if (d && d.id !== undefined) row.dataset.id = d.id;
-
                 row.querySelector('.edit-donor').addEventListener('click', () => editDonor(d.id));
                 row.querySelector('.delete-donor').addEventListener('click', () => deleteDonor(d.id));
                 row.querySelector('.view-diseases').addEventListener('click', () => viewDiseases(d.id));
@@ -842,16 +893,19 @@
 
         const requestTableBody = document.querySelector('#requestTable tbody');
         async function renderRequests() {
-            const requests = await loadRequests();
+            let requests = await loadRequests();
+            // Per requirement: show only PENDING requests in this table by default
+            requests = (requests || []).filter(r => (r.status || 'Pending').toLowerCase() === 'pending');
             requestTableBody.innerHTML = '';
 
             requests.forEach(r => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${r.name || '—'}</strong></td>
-                    <td><a href="mailto:${r.email || '#'}" style="color:#d32f2f;text-decoration:none;">${r.email || '—'}</a></td>
                     <td><strong>${getBloodValue(r)}</strong></td>
-                    <td>${r.units || 0} units</td>
+                    <td>${r.units || 0}</td>
+                    <td>${r.district || '—'}</td>
+                    <td>${r.thana || '—'}</td>
                     <td><span class="status-${r.status}">${r.status || 'Pending'}</span></td>
                     <td style="text-align: center;">
                         <button class="btn btn-warning edit-request" title="Edit request" style="padding: 6px 10px;">✏️</button>
@@ -865,6 +919,56 @@
             });
 
             filterRequests();
+        }
+
+        // Load districts & thanas for dashboard filters and modals
+        let _dashboardDistrictsLoaded = false;
+        async function populateDashboardDistricts() {
+            if (_dashboardDistrictsLoaded) return;
+            try {
+                const res = await fetch('/api/locations/districts');
+                const data = await res.json();
+                const districts = data && data.districts ? data.districts : [];
+
+                const donorSel = document.getElementById('donorFilterDistrict');
+                const reqSel = document.getElementById('requestFilterDistrict');
+                const editDonorSel = document.getElementById('editDonorDistrict');
+                districts.forEach(d => {
+                    const o1 = document.createElement('option'); o1.value = d; o1.text = d; donorSel.appendChild(o1);
+                    const o2 = document.createElement('option'); o2.value = d; o2.text = d; reqSel.appendChild(o2);
+                    if (editDonorSel) { const o3 = document.createElement('option'); o3.value = d; o3.text = d; editDonorSel.appendChild(o3); }
+                });
+                _dashboardDistrictsLoaded = true;
+            } catch (e) { console.warn('populateDashboardDistricts failed', e); }
+        }
+
+        async function loadThanasForDashboard(district) {
+            try {
+                const selDonorTh = document.getElementById('donorFilterThana');
+                const selEditDonorTh = document.getElementById('editDonorThana');
+                const selReqTh = document.getElementById('requestFilterThana');
+
+                [selDonorTh, selEditDonorTh, selReqTh].forEach(s => { if (s) s.innerHTML = '<option value="">🔹 All Thanas</option>'; });
+                if (!district) return;
+                const res = await fetch('/api/locations/thanas?district=' + encodeURIComponent(district));
+                const data = await res.json();
+                const thanas = data && data.thanas ? data.thanas : [];
+                thanas.forEach(t => {
+                    if (selDonorTh) { const o=document.createElement('option'); o.value=t; o.text=t; selDonorTh.appendChild(o); }
+                    if (selEditDonorTh) { const o=document.createElement('option'); o.value=t; o.text=t; selEditDonorTh.appendChild(o); }
+                    if (selReqTh) { const o=document.createElement('option'); o.value=t; o.text=t; selReqTh.appendChild(o); }
+                });
+            } catch (e) { console.warn('loadThanasForDashboard failed', e); }
+        }
+
+        function onDonorDistrictChange() {
+            const d = document.getElementById('donorFilterDistrict').value;
+            loadThanasForDashboard(d).then(() => renderDonors());
+        }
+
+        function onRequestDistrictChange() {
+            const d = document.getElementById('requestFilterDistrict').value;
+            loadThanasForDashboard(d).then(() => renderRequests());
         }
 
         // Donor modal submit handler removed; full-page donor form handles save
@@ -905,6 +1009,18 @@
                 document.getElementById('editDonorEmail').value = donor.email || '';
                 document.getElementById('editDonorLastDonated').value = donor.lastDonated ? donor.lastDonated.toString().substring(0,10) : (donor.last_donated ? donor.last_donated.toString().substring(0,10) : '');
 
+                // Prefill district/thana/location if available
+                await populateDashboardDistricts();
+                try {
+                    const d = donor.district || donor.location || '';
+                    if (d) document.getElementById('editDonorDistrict').value = d;
+                    await loadThanasForDashboard(d);
+                    const th = donor.thana || '';
+                    if (th) document.getElementById('editDonorThana').value = th;
+                } catch (e) { console.warn('Prefill district/thana failed', e); }
+
+                // document.getElementById('editDonorLocation').value = donor.location || '';
+
                 document.getElementById('editDonorModal').classList.add('show');
             } catch (err) {
                 console.error('Failed to load donor for edit:', err);
@@ -926,7 +1042,10 @@
                 bloodGroup: document.getElementById('editDonorBlood').value || null,
                 contact: document.getElementById('editDonorContact').value.trim() || null,
                 email: document.getElementById('editDonorEmail').value.trim() || null,
-                lastDonated: document.getElementById('editDonorLastDonated').value || null
+                lastDonated: document.getElementById('editDonorLastDonated').value || null,
+                district: document.getElementById('editDonorDistrict') ? document.getElementById('editDonorDistrict').value : null,
+                thana: document.getElementById('editDonorThana') ? document.getElementById('editDonorThana').value : null,
+                location: document.getElementById('editDonorLocation') ? document.getElementById('editDonorLocation').value.trim() : null
             };
 
             try {
@@ -1007,6 +1126,15 @@
                 document.getElementById('editReqDate').value = dateVal ? dateVal.toString().substring(0,10) : '';
                 document.getElementById('editReqReason').value = req.medicalReason || req.medical_reason || req.reason || '';
 
+                // load and prefill district/thana/location
+                await populateDashboardDistricts();
+                try {
+                    if (req.district) document.getElementById('editReqDistrict').value = req.district;
+                    await loadThanasForDashboard(req.district);
+                    if (req.thana) document.getElementById('editReqThana').value = req.thana;
+                    // if (req.location) document.getElementById('editReqLocation').value = req.location;
+                } catch (e) { console.warn('Prefill request district/thana failed', e); }
+
                 document.getElementById('editRequestModal').classList.add('show');
             } catch (err) {
                 console.error('Failed to load request for edit:', err);
@@ -1024,7 +1152,10 @@
                 bloodGroup: document.getElementById('editReqBlood').value,
                 units: parseInt(document.getElementById('editReqUnits').value) || 1,
                 requiredDate: document.getElementById('editReqDate').value,
-                medicalReason: document.getElementById('editReqReason').value || ''
+                medicalReason: document.getElementById('editReqReason').value || '',
+                district: document.getElementById('editReqDistrict') ? document.getElementById('editReqDistrict').value : null,
+                thana: document.getElementById('editReqThana') ? document.getElementById('editReqThana').value : null,
+                // location: document.getElementById('editReqLocation') ? document.getElementById('editReqLocation').value.trim() : null
             };
 
             try {
@@ -1084,40 +1215,50 @@
         }
 
         function filterDonors() {
-            const nameFilter = donorFilterName.value.toLowerCase();
-            const bloodFilter = donorFilterBlood.value.toLowerCase();
-            const eligibilityFilter = donorFilterStatus.value;
+            const nameFilter = (document.getElementById('donorFilterName') || {value:''}).value.toLowerCase();
+            const bloodFilter = (document.getElementById('donorFilterBlood') || {value:''}).value.toLowerCase();
+            const districtFilter = (document.getElementById('donorFilterDistrict') || {value:''}).value.toLowerCase();
+            const thanaFilter = (document.getElementById('donorFilterThana') || {value:''}).value.toLowerCase();
+            const eligibilityFilter = (document.getElementById('donorFilterStatus') || {value:''}).value;
 
             Array.from(donorTableBody.rows).forEach(row => {
-                const name = row.cells[0].textContent.toLowerCase();
-                const blood = row.cells[4].textContent.toLowerCase();
-                const eligibility = row.cells[7].textContent;
+                const name = (row.cells[0] && row.cells[0].textContent || '').toLowerCase();
+                const blood = (row.cells[1] && row.cells[1].textContent || '').toLowerCase();
+                const district = (row.cells[2] && row.cells[2].textContent || '').toLowerCase();
+                const thana = (row.cells[3] && row.cells[3].textContent || '').toLowerCase();
+                const eligibility = (row.cells[4] && row.cells[4].textContent || '');
 
-                row.style.display =
-                    name.includes(nameFilter) &&
-                    blood.includes(bloodFilter) &&
-                    (eligibilityFilter === "" || eligibility === eligibilityFilter)
-                        ? ""
-                        : "none";
+                const matches = name.includes(nameFilter)
+                    && blood.includes(bloodFilter)
+                    && (districtFilter === "" || district.includes(districtFilter))
+                    && (thanaFilter === "" || thana.includes(thanaFilter))
+                    && (eligibilityFilter === "" || eligibility === eligibilityFilter);
+
+                row.style.display = matches ? "" : "none";
             });
         }
 
         function filterRequests() {
-            const nameFilter = requestFilterName.value.toLowerCase();
-            const bloodFilter = requestFilterBlood.value.toLowerCase();
-            const statusFilter = requestFilterStatus.value;
+            const nameFilter = (document.getElementById('requestFilterName') || {value:''}).value.toLowerCase();
+            const bloodFilter = (document.getElementById('requestFilterBlood') || {value:''}).value.toLowerCase();
+            const districtFilter = (document.getElementById('requestFilterDistrict') || {value:''}).value.toLowerCase();
+            const thanaFilter = (document.getElementById('requestFilterThana') || {value:''}).value.toLowerCase();
+            const statusFilter = (document.getElementById('requestFilterStatus') || {value:''}).value;
 
             Array.from(requestTableBody.rows).forEach(row => {
-                const name = row.cells[0].textContent.toLowerCase();
-                const blood = row.cells[2].textContent.toLowerCase();
-                const status = row.cells[4].textContent;
+                const name = (row.cells[0] && row.cells[0].textContent || '').toLowerCase();
+                const blood = (row.cells[1] && row.cells[1].textContent || '').toLowerCase();
+                const district = (row.cells[3] && row.cells[3].textContent || '').toLowerCase();
+                const thana = (row.cells[4] && row.cells[4].textContent || '').toLowerCase();
+                const status = (row.cells[5] && row.cells[5].textContent) || '';
 
-                row.style.display =
-                    name.includes(nameFilter) &&
-                    blood.includes(bloodFilter) &&
-                    (statusFilter === "" || status === statusFilter)
-                        ? ""
-                        : "none";
+                const matches = name.includes(nameFilter)
+                    && blood.includes(bloodFilter)
+                    && (districtFilter === "" || district.includes(districtFilter))
+                    && (thanaFilter === "" || thana.includes(thanaFilter))
+                    && (statusFilter === "" || status === statusFilter);
+
+                row.style.display = matches ? "" : "none";
             });
         }
 
@@ -1146,6 +1287,7 @@
 
         // initial render and try to apply any pending update shortly after
         (async function initDashboard() {
+            await populateDashboardDistricts();
             await renderDonors();
             await renderRequests();
             setTimeout(applyPendingDonorUpdate, 250);
