@@ -17,6 +17,9 @@ public class Request {
     private String email;
     private String bloodGroup;
     private int units;
+    private String district;
+    private String thana;
+    private String location;
     private LocalDate requiredDate;
     private String status;
     private String medicalReason;
@@ -44,4 +47,10 @@ public class Request {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public String getMedicalReason() { return medicalReason; }
     public void setMedicalReason(String medicalReason) { this.medicalReason = medicalReason; }
+    public String getDistrict() { return district; }
+    public void setDistrict(String district) { this.district = district; }
+    public String getThana() { return thana; }
+    public void setThana(String thana) { this.thana = thana; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 }
