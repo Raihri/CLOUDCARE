@@ -174,6 +174,37 @@ public class RequestController {
         }
     }
 
+    @GetMapping("/api/search")
+    @ResponseBody
+    public ResponseEntity<?> searchRequests(@RequestParam(required = false) String district,
+                                            @RequestParam(required = false) String thana,
+                                            @RequestParam(required = false) String status,
+                                            @RequestParam(required = false) String bloodGroup,
+                                            @RequestParam(required = false) String name) {
+        try {
+            List<Request> requests = requestService.getAllRequests();
+            if (district != null && !district.isBlank()) {
+                requests = requests.stream().filter(r -> r.getDistrict() != null && district.equalsIgnoreCase(r.getDistrict())).toList();
+            }
+            if (thana != null && !thana.isBlank()) {
+                requests = requests.stream().filter(r -> r.getThana() != null && thana.equalsIgnoreCase(r.getThana())).toList();
+            }
+            if (status != null && !status.isBlank()) {
+                requests = requests.stream().filter(r -> r.getStatus() != null && status.equalsIgnoreCase(r.getStatus())).toList();
+            }
+            if (bloodGroup != null && !bloodGroup.isBlank()) {
+                requests = requests.stream().filter(r -> r.getBloodGroup() != null && bloodGroup.equalsIgnoreCase(r.getBloodGroup())).toList();
+            }
+            if (name != null && !name.isBlank()) {
+                String lower = name.toLowerCase();
+                requests = requests.stream().filter(r -> r.getName() != null && r.getName().toLowerCase().contains(lower)).toList();
+            }
+            return ResponseEntity.ok(Map.of("success", true, "count", requests.size(), "data", requests));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/api/get/{id}")
     @ResponseBody
     public ResponseEntity<?> getRequestDetails(@PathVariable Long id) {
@@ -216,11 +247,33 @@ public class RequestController {
             if (request.getStatus() == null) {
                 request.setStatus("Pending");
             }
+            // Save first
             requestService.saveRequest(request);
+
+            // Try to find matching donors (by blood group + district/thana)
+            java.util.List<com.example.cloud.care.model.Donor> matches = new java.util.ArrayList<>();
+            try {
+                if (request.getBloodGroup() != null && !request.getBloodGroup().isBlank()) {
+                    matches = donorService.findMatchingDonors(request.getBloodGroup(), request.getDistrict(), request.getThana());
+                }
+            } catch (Exception e) {
+                // ignore match errors
+            }
+
+            if (matches != null && !matches.isEmpty()) {
+                request.setStatus("Matched");
+                requestService.saveRequest(request);
+            } else {
+                request.setStatus("Pending");
+                requestService.saveRequest(request);
+            }
+
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Request created successfully");
             response.put("data", request);
+            response.put("matchedCount", matches == null ? 0 : matches.size());
+            response.put("matchedDonors", matches == null ? java.util.Collections.emptyList() : matches);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             Map<String, Object> error = new HashMap<>();
@@ -324,7 +377,9 @@ public class RequestController {
             System.out.println("🔍 [DEBUG] Blood group is blank: " + (bloodGroup != null && bloodGroup.isBlank()));
 
             if (bloodGroup != null && !bloodGroup.isBlank()) {
-                // Find donors with matching blood group
+                // Find donors with matching blood group and location
+                // Fetch all donors matching the blood group (across locations).
+                // Frontend will provide location filtering if needed.
                 java.util.List<com.example.cloud.care.model.Donor> bloodMatched = donorService.findMatchingDonors(bloodGroup);
                 System.out.println("🔍 [DEBUG] Blood group matched donors count: " + bloodMatched.size());
                 
