@@ -190,47 +190,15 @@
         </div>
     </div>
 
-    <!-- Recent Donors -->
-    <div class="donor-list">
-
-        <div th:if="${recentDonors == null or #lists.isEmpty(recentDonors)}" class="card">
-            No recent donors found.
+    <!-- Management Buttons + Lists -->
+    <div style="margin-top:18px;" class="card">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <button id="showDonorsBtn" style="background:#1976d2;color:#fff;padding:10px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer">Donor List</button>
+            <button id="showRequestsBtn" style="background:#d32f2f;color:#fff;padding:10px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer">Request List</button>
+            <div style="margin-left:auto;color:#666;font-size:13px">Use search/filter to narrow results, click edit or delete for actions.</div>
         </div>
 
-        <div th:each="d : ${recentDonors}" class="donor-card">
-
-            <div class="donor-meta">
-                <div class="donor-avatar"
-                     th:text="${d.name != null and d.name.length() > 0 ? d.name.substring(0,1) : '?'}">
-                    A
-                </div>
-
-                <div class="donor-info">
-                    <strong th:text="${d.name != null ? d.name : 'Unknown'}">Name</strong>
-                    <div style="color:#666;font-size:13px">
-                        <span th:text="${d.bloodGroup != null ? d.bloodGroup : 'Unknown'}">A+</span>
-                        <span th:text="' • ' + (d.location != null ? d.location : '—')"> • City</span>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div
-                    th:classappend="${d.id != null and eligibilityMap.containsKey(d.id) and eligibilityMap[d.id]}
-                        ? ' status-badge status-eligible'
-                        : ' status-badge status-not'"
-                    th:text="${d.id != null and eligibilityMap.containsKey(d.id) and eligibilityMap[d.id]}
-                        ? 'Eligible'
-                        : 'Not Eligible'">
-                </div>
-
-                <div style="font-size:12px;color:#888;margin-top:6px;text-align:right"
-                     th:text="${d.createdAt != null ? d.createdAt.toLocalDate() : '—'}">
-                    —
-                </div>
-            </div>
-
-        </div>
+        <div id="managementArea" style="margin-top:16px;"></div>
     </div>
 
 </div>
@@ -278,6 +246,396 @@
         });
     }
 /*]]>*/
+</script>
+
+<script>
+(() => {
+    const mgmt = document.getElementById('managementArea');
+    const showDonorsBtn = document.getElementById('showDonorsBtn');
+    const showRequestsBtn = document.getElementById('showRequestsBtn');
+
+    if (showDonorsBtn) showDonorsBtn.addEventListener('click', () => showDonorList());
+    if (showRequestsBtn) showRequestsBtn.addEventListener('click', () => showRequestList());
+
+    // --- Location helpers (caching) ---
+    let cachedDistricts = null;
+    async function ensureLocationOptions() {
+        if (cachedDistricts) return;
+        try {
+            const r = await fetch('/api/locations/districts');
+            const j = await r.json();
+            cachedDistricts = j.districts || j.data || [];
+        } catch (e) { cachedDistricts = []; }
+    }
+
+    async function loadThanasForSelect(thanaSelect, district) {
+        if (!district) { thanaSelect.innerHTML = `<option value="">(any)</option>`; return; }
+        try {
+            const r = await fetch('/api/locations/thanas?district=' + encodeURIComponent(district));
+            const j = await r.json();
+            const list = j.thanas || j.data || [];
+            thanaSelect.innerHTML = `<option value="">(any)</option>` + list.map(t => `<option>${escapeHtml(t)}</option>`).join('');
+        } catch (e) { thanaSelect.innerHTML = `<option value="">(error)</option>`; }
+    }
+
+    async function awaitPopulateLocationSelect(districtSelectId, thanaSelectId) {
+        await ensureLocationOptions();
+        const ds = document.getElementById(districtSelectId);
+        const ts = document.getElementById(thanaSelectId);
+        if (!ds) return;
+        ds.innerHTML = `<option value="">All Districts</option>` + (cachedDistricts.map(d=> `<option>${escapeHtml(d)}</option>`).join(''));
+        ds.addEventListener('change', async () => {
+            const val = ds.value;
+            if (!val) { ts.innerHTML = `<option value="">All Thanas</option>`; return; }
+            await loadThanasForSelect(ts, val);
+        });
+    }
+
+    async function populateDistrictSelectInRow(districtSelect, thanaSelect) {
+        await ensureLocationOptions();
+        districtSelect.innerHTML = `<option value="">(select)</option>` + cachedDistricts.map(d => `<option>${escapeHtml(d)}</option>`).join('');
+        districtSelect.addEventListener('change', async () => {
+            await loadThanasForSelect(thanaSelect, districtSelect.value);
+        });
+    }
+
+    // --- Donors ---
+    async function showDonorList() {
+        mgmt.innerHTML = `<div style="padding:12px">Loading donors…</div>`;
+        try {
+            const res = await fetch('/patient/donor/api/list');
+            const j = await res.json();
+            if (!j.success) throw new Error(j.error || 'Failed');
+            await ensureLocationOptions();
+            renderDonorTable(j.donors || []);
+        } catch (e) {
+            mgmt.innerHTML = `<div style="color:#b71c1c;padding:12px">Error loading donors: ${e.message}</div>`;
+        }
+    }
+
+    function renderDonorTable(donors) {
+        mgmt.innerHTML = `
+            <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap">
+                <input id="donorFilterName" placeholder="Filter by Name" style="flex:1;min-width:180px;padding:8px;border-radius:6px;border:1px solid #ddd">
+                <select id="donorFilterBlood" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Blood Groups</option>
+                    <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                    <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                </select>
+                <select id="donorFilterDistrict" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Districts</option>
+                </select>
+                <select id="donorFilterThana" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Thanas</option>
+                </select>
+                <select id="donorStatusFilter" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Statuses</option>
+                    <option>Available</option>
+                    <option>Not Available</option>
+                    <option>Pending</option>
+                </select>
+            </div>
+            <div style="overflow:auto;max-height:520px;border-top:1px solid #eee;margin-top:10px">
+                <table class="urgent-table" style="width:100%;border-collapse:collapse;font-size:14px">
+                    <thead><tr>
+                        <th style="padding:8px;text-align:left">Name</th>
+                        <th style="padding:8px;text-align:left">Blood</th>
+                        <th style="padding:8px;text-align:left">District / Thana</th>
+                        <th style="padding:8px;text-align:left">Contact</th>
+                        <th style="padding:8px;text-align:left">Status</th>
+                        <th style="padding:8px;text-align:right">Actions</th>
+                    </tr></thead>
+                    <tbody id="donorTbody"></tbody>
+                </table>
+            </div>
+        `;
+
+        awaitPopulateLocationSelect('donorFilterDistrict', 'donorFilterThana');
+
+        const tbody = document.getElementById('donorTbody');
+        function populate(list) {
+            tbody.innerHTML = list.map(d => `
+                <tr data-id="${d.id}">
+                    <td class="d-name" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml(d.name || '')}</td>
+                    <td class="d-blood" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml(d.bloodGroup || '')}</td>
+                    <td class="d-loc" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml((d.district? d.district : '') + (d.thana ? (' / ' + d.thana) : ''))}</td>
+                    <td class="d-contact" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml(d.contact || '')}</td>
+                    <td class="d-status" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml(d.status||'')}</td>
+                    <td style="padding:10px;border-bottom:1px solid #f1f1f1;text-align:right">
+                        <button data-id="${d.id}" class="editDonor btn btn-warning" style="margin-right:8px">Edit</button>
+                        <button data-id="${d.id}" class="deleteDonor btn btn-danger">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            Array.from(document.getElementsByClassName('deleteDonor')).forEach(b => {
+                b.addEventListener('click', async (ev) => {
+                    const id = ev.currentTarget.dataset.id;
+                    if (!confirm('Delete donor #' + id + '? This cannot be undone.')) return;
+                    await deleteDonor(id);
+                });
+            });
+
+            Array.from(document.getElementsByClassName('editDonor')).forEach(b => {
+                b.addEventListener('click', (ev) => {
+                    const id = ev.currentTarget.dataset.id;
+                    makeDonorRowEditable(id);
+                });
+            });
+        }
+
+        const nameInput = document.getElementById('donorFilterName');
+        const bloodSelect = document.getElementById('donorFilterBlood');
+        const districtSelect = document.getElementById('donorFilterDistrict');
+        const thanaSelect = document.getElementById('donorFilterThana');
+        const statusSelect = document.getElementById('donorStatusFilter');
+
+        function runFilter() {
+            const name = nameInput.value.toLowerCase();
+            const bg = bloodSelect.value;
+            const district = districtSelect.value;
+            const thana = thanaSelect.value;
+            const status = statusSelect.value;
+            const filtered = donors.filter(d => {
+                if (name && !(d.name||'').toLowerCase().includes(name)) return false;
+                if (bg && (d.bloodGroup||'') !== bg) return false;
+                if (district && (d.district||'') !== district) return false;
+                if (thana && (d.thana||'') !== thana) return false;
+                if (status && (d.status||'') !== status) return false;
+                return true;
+            });
+            populate(filtered);
+        }
+
+        [nameInput, bloodSelect, districtSelect, thanaSelect, statusSelect].forEach(el => {
+            if (el) el.addEventListener('change', runFilter);
+            if (el) el.addEventListener('input', runFilter);
+        });
+
+        populate(donors);
+    }
+
+    // inline edit for donor row
+    async function makeDonorRowEditable(id) {
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (!row) return;
+        const res = await fetch('/patient/donor/api/get/' + id);
+        const j = await res.json();
+        if (!j.success) { alert('Donor not found'); return; }
+        const d = j.data;
+        row.querySelector('.d-name').innerHTML = `<input class="inp-name" value="${escapeHtml(d.name||'')}" style="padding:6px;border-radius:4px;border:1px solid #ddd;width:180px">`;
+        row.querySelector('.d-blood').innerHTML = `<select class="inp-blood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>`;
+        row.querySelector('.d-blood').querySelector('select').value = d.bloodGroup || '';
+        row.querySelector('.d-loc').innerHTML = `<select class="inp-district" style="margin-right:6px"></select><select class="inp-thana"></select>`;
+        await populateDistrictSelectInRow(row.querySelector('.inp-district'), row.querySelector('.inp-thana'));
+        if (d.district) row.querySelector('.inp-district').value = d.district;
+        if (d.thana) await loadThanasForSelect(row.querySelector('.inp-thana'), d.district).then(()=> row.querySelector('.inp-thana').value = d.thana);
+        row.querySelector('.d-contact').innerHTML = `<input class="inp-contact" value="${escapeHtml(d.contact||'')}" style="padding:6px;border-radius:4px;border:1px solid #ddd;width:140px">`;
+        row.querySelector('.d-status').innerHTML = `<select class="inp-status"><option>Available</option><option>Not Available</option><option>Pending</option></select>`;
+        row.querySelector('.inp-status').value = d.status || '';
+        const actionsCell = row.querySelector('td:last-child');
+        actionsCell.innerHTML = `<button class="saveDonor btn btn-success">Save</button><button class="cancelDonor btn btn-secondary">Cancel</button>`;
+        actionsCell.querySelector('.cancelDonor').addEventListener('click', showDonorList);
+        actionsCell.querySelector('.saveDonor').addEventListener('click', async () => {
+            const payload = {
+                name: row.querySelector('.inp-name').value,
+                bloodGroup: row.querySelector('.inp-blood').value,
+                district: row.querySelector('.inp-district').value,
+                thana: row.querySelector('.inp-thana').value,
+                contact: row.querySelector('.inp-contact').value,
+                status: row.querySelector('.inp-status').value
+            };
+            try {
+                const up = await fetch('/patient/donor/api/update/' + id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                const r = await up.json();
+                if (!r.success) throw new Error(r.error || r.message || 'Update failed');
+                alert('Donor updated');
+                showDonorList();
+            } catch (e) { alert('Error: ' + e.message); }
+        });
+    }
+
+    // --- Requests ---
+    async function showRequestList() {
+        mgmt.innerHTML = `<div style="padding:12px">Loading requests…</div>`;
+        try {
+            const res = await fetch('/patient/request/api/list');
+            const j = await res.json();
+            if (!j.success) throw new Error(j.message || 'Failed');
+            await ensureLocationOptions();
+            renderRequestTable(j.data || []);
+        } catch (e) {
+            mgmt.innerHTML = `<div style="color:#b71c1c;padding:12px">Error loading requests: ${e.message}</div>`;
+        }
+    }
+
+    function renderRequestTable(requests) {
+        mgmt.innerHTML = `
+            <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center;flex-wrap:wrap">
+                <input id="reqFilterName" placeholder="Filter by Name" style="flex:1;min-width:180px;padding:8px;border-radius:6px;border:1px solid #ddd">
+                <select id="reqFilterBlood" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Blood Groups</option>
+                    <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                    <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+                </select>
+                <select id="reqFilterDistrict" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Districts</option>
+                </select>
+                <select id="reqFilterThana" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Thanas</option>
+                </select>
+                <select id="reqStatusFilter" style="padding:8px;border-radius:6px;border:1px solid #ddd">
+                    <option value="">All Statuses</option>
+                    <option>Pending</option>
+                    <option>Matched</option>
+                    <option>Confirmed</option>
+                </select>
+            </div>
+            <div style="overflow:auto;max-height:520px;border-top:1px solid #eee;margin-top:10px">
+                <table class="urgent-table" style="width:100%;border-collapse:collapse;font-size:14px">
+                    <thead><tr>
+                        <th style="padding:8px;text-align:left">Name</th>
+                        <th style="padding:8px;text-align:left">Blood</th>
+                        <th style="padding:8px;text-align:left">Units</th>
+                        <th style="padding:8px;text-align:left">District / Thana</th>
+                        <th style="padding:8px;text-align:left">Status</th>
+                        <th style="padding:8px;text-align:right">Actions</th>
+                    </tr></thead>
+                    <tbody id="reqTbody"></tbody>
+                </table>
+            </div>
+        `;
+
+        awaitPopulateLocationSelect('reqFilterDistrict', 'reqFilterThana');
+
+        const tbody = document.getElementById('reqTbody');
+        function populate(list) {
+            tbody.innerHTML = list.map(r => `
+                <tr data-id="${r.id}">
+                    <td class="r-name" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.name || '')}</td>
+                    <td class="r-blood" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.bloodGroup || '')}</td>
+                    <td class="r-units" style="padding:10px;border-bottom:1px solid #f1f1f1">${r.units || 0}</td>
+                    <td class="r-loc" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml((r.district? r.district : '') + (r.thana ? (' / ' + r.thana) : ''))}</td>
+                    <td class="r-status" style="padding:10px;border-bottom:1px solid #f1f1f1">${escapeHtml(r.status||'')}</td>
+                    <td style="padding:10px;border-bottom:1px solid #f1f1f1;text-align:right">
+                        <button data-id="${r.id}" class="editReq btn btn-warning" style="margin-right:8px">Edit</button>
+                        <button data-id="${r.id}" class="deleteReq btn btn-danger">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            Array.from(document.getElementsByClassName('deleteReq')).forEach(b => {
+                b.addEventListener('click', async (ev) => {
+                    const id = ev.currentTarget.dataset.id;
+                    if (!confirm('Delete request #' + id + '?')) return;
+                    await deleteRequest(id);
+                });
+            });
+
+            Array.from(document.getElementsByClassName('editReq')).forEach(b => {
+                b.addEventListener('click', (ev) => {
+                    const id = ev.currentTarget.dataset.id;
+                    makeRequestRowEditable(id);
+                });
+            });
+        }
+
+        const nameInput = document.getElementById('reqFilterName');
+        const bloodSelect = document.getElementById('reqFilterBlood');
+        const districtSelect = document.getElementById('reqFilterDistrict');
+        const thanaSelect = document.getElementById('reqFilterThana');
+        const statusSelect = document.getElementById('reqStatusFilter');
+
+        function runFilter() {
+            const name = nameInput.value.toLowerCase();
+            const bg = bloodSelect.value;
+            const district = districtSelect.value;
+            const thana = thanaSelect.value;
+            const status = statusSelect.value;
+            const filtered = requests.filter(r => {
+                if (name && !(r.name||'').toLowerCase().includes(name)) return false;
+                if (bg && (r.bloodGroup||'') !== bg) return false;
+                if (district && (r.district||'') !== district) return false;
+                if (thana && (r.thana||'') !== thana) return false;
+                if (status && (r.status||'') !== status) return false;
+                return true;
+            });
+            populate(filtered);
+        }
+
+        [nameInput, bloodSelect, districtSelect, thanaSelect, statusSelect].forEach(el => {
+            if (el) el.addEventListener('change', runFilter);
+            if (el) el.addEventListener('input', runFilter);
+        });
+
+        populate(requests);
+    }
+
+    // inline edit for request
+    async function makeRequestRowEditable(id) {
+        const row = document.querySelector(`tr[data-id="${id}"]`);
+        if (!row) return;
+        const res = await fetch('/patient/request/api/get/' + id);
+        const j = await res.json();
+        if (!j.success) { alert('Request not found'); return; }
+        const r = j.data;
+        row.querySelector('.r-name').innerHTML = `<input class="inp-name" value="${escapeHtml(r.name||'')}" style="padding:6px;border-radius:4px;border:1px solid #ddd;width:160px">`;
+        row.querySelector('.r-blood').innerHTML = `<select class="inp-blood"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>`;
+        row.querySelector('.r-blood').querySelector('select').value = r.bloodGroup || '';
+        row.querySelector('.r-units').innerHTML = `<input class="inp-units" type="number" value="${r.units||1}" style="width:80px;padding:6px;border-radius:4px;border:1px solid #ddd">`;
+        row.querySelector('.r-loc').innerHTML = `<select class="inp-district" style="margin-right:6px"></select><select class="inp-thana"></select>`;
+        await populateDistrictSelectInRow(row.querySelector('.inp-district'), row.querySelector('.inp-thana'));
+        if (r.district) row.querySelector('.inp-district').value = r.district;
+        if (r.thana) await loadThanasForSelect(row.querySelector('.inp-thana'), r.district).then(()=> row.querySelector('.inp-thana').value = r.thana);
+        row.querySelector('.r-status').innerHTML = `<select class="inp-status"><option>Pending</option><option>Matched</option><option>Confirmed</option></select>`;
+        row.querySelector('.inp-status').value = r.status || '';
+        const actionsCell = row.querySelector('td:last-child');
+        actionsCell.innerHTML = `<button class="saveReq btn btn-success">Save</button><button class="cancelReq btn btn-secondary">Cancel</button>`;
+        actionsCell.querySelector('.cancelReq').addEventListener('click', showRequestList);
+        actionsCell.querySelector('.saveReq').addEventListener('click', async () => {
+            const payload = {
+                name: row.querySelector('.inp-name').value,
+                bloodGroup: row.querySelector('.inp-blood').value,
+                units: parseInt(row.querySelector('.inp-units').value || '1',10),
+                district: row.querySelector('.inp-district').value,
+                thana: row.querySelector('.inp-thana').value,
+                status: row.querySelector('.inp-status').value
+            };
+            try {
+                const up = await fetch('/patient/request/api/update/' + id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+                const r = await up.json();
+                if (!r.success) throw new Error(r.message || 'Update failed');
+                alert('Request updated');
+                showRequestList();
+            } catch (e) { alert('Error: ' + e.message); }
+        });
+    }
+
+    // delete helpers
+    async function deleteDonor(id) {
+        try {
+            const res = await fetch('/patient/donor/api/delete/' + id, { method: 'DELETE' });
+            const j = await res.json();
+            if (!j.success) throw new Error(j.message || 'Delete failed');
+            alert('Donor deleted');
+            showDonorList();
+        } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    async function deleteRequest(id) {
+        try {
+            const res = await fetch('/patient/request/api/delete/' + id, { method: 'DELETE' });
+            const j = await res.json();
+            if (!j.success) throw new Error(j.message || 'Delete failed');
+            alert('Request deleted');
+            showRequestList();
+        } catch (e) { alert('Error: ' + e.message); }
+    }
+
+    function escapeHtml(s) { return (s+'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'}[c])); }
+
+    // default: do not auto-load to avoid unexpected calls; user clicks button
+})();
 </script>
 
 </body>
