@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title th:text="|${doctor.name} — Update Profile|">Doctor Profile</title>
@@ -211,7 +212,9 @@
             font-size: 1rem;
         }
 
-        input, select, textarea {
+        input,
+        select,
+        textarea {
             width: 100%;
             padding: 14px 15px 14px 45px;
             border: 1px solid var(--border);
@@ -223,7 +226,9 @@
             transition: var(--transition);
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.1);
@@ -361,7 +366,7 @@
             .form-container {
                 grid-template-columns: 1fr;
             }
-            
+
             .sidebar {
                 position: static;
             }
@@ -371,11 +376,11 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .header h1 {
                 font-size: 2.2rem;
             }
-            
+
             .container {
                 padding: 20px 15px;
             }
@@ -392,6 +397,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -399,6 +405,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -413,32 +420,32 @@
                     <div class="profile-section">
                         <!-- Profile Image Upload - Same as signup form -->
                         <div class="profile-img-container">
-                            <img id="previewImage" 
-                                 th:src="${doctor.profileImage != null ? doctor.profileImage : 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'}"
-                                 alt="Doctor Photo"
-                                 class="profile-img">
+                            <img id="previewImage"
+                                th:src="${doctor.profileImage != null ? doctor.profileImage : 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80'}"
+                                alt="Doctor Photo" class="profile-img">
                             <div class="profile-img-upload">
                                 <i class="fas fa-camera"></i>
-                                <input type="file" id="profileImageFile" name="profileImageFile" accept="image/*" 
-                                       style="display: none;" onchange="handleProfileImageUpload(event)">
+                                <input type="file" id="profileImageFile" name="profileImageFile" accept="image/*"
+                                    style="display: none;" onchange="handleProfileImageUpload(event)">
                             </div>
                         </div>
-                        
+
                         <h2 class="doctor-name" th:text="${doctor.name}">Dr. Alex Morgan</h2>
-                        <p class="doctor-id"><strong>BMDC:</strong> <span th:text="${doctor.bmdcRegNo}">123456</span></p>
-                        
+                        <p class="doctor-id"><strong>BMDC:</strong> <span th:text="${doctor.bmdcRegNo}">123456</span>
+                        </p>
+
                         <!-- BMDC Validation (optional for update) -->
                         <div class="form-group">
                             <label>BMDC Registration No.</label>
-                            <input type="text" th:field="*{bmdcRegNo}" id="bmdcRegNo" 
-                                   placeholder="e.g. A-123456" pattern="^[A-Za-z]-\d{6}$"
-                                   title="Format: A-123456 (single letter, dash, 6 digits)" />
+                            <input type="text" th:field="*{bmdcRegNo}" id="bmdcRegNo" placeholder="e.g. A-123456"
+                                pattern="^[A-Za-z]-\d{6}$" title="Format: A-123456 (single letter, dash, 6 digits)" />
                             <div id="bmdcHint" style="color: var(--text-light); font-size: 0.9rem; margin-top: 5px;">
                                 Format example: <strong>A-123456</strong>
                             </div>
-                            <div id="bmdcError" class="error-message">Please enter a valid BMDC number (e.g. A-123456)</div>
+                            <div id="bmdcError" class="error-message">Please enter a valid BMDC number (e.g. A-123456)
+                            </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Gender</label>
                             <div class="input-container">
@@ -450,7 +457,7 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Date of Birth</label>
                             <div class="input-container">
@@ -458,7 +465,7 @@
                                 <input type="date" th:field="*{dob}">
                             </div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Blood Group</label>
                             <div class="input-container">
@@ -475,14 +482,14 @@
                                 </select>
                             </div>
                         </div>
-                        
-                        <button type="button" class="btn btn-secondary" style="width:100%; margin-top:20px;" 
-                                th:onclick="|window.location.href='@{/doctor/dashboard}'|">
+
+                        <button type="button" class="btn btn-secondary" style="width:100%; margin-top:20px;"
+                            th:onclick="|window.location.href='@{/doctor/dashboard}'|">
                             <i class="fas fa-arrow-left"></i> Back to Dashboard
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Main content with form sections -->
                 <div class="main-content">
                     <!-- Contact Information -->
@@ -497,34 +504,34 @@
                                 </div>
                                 <div id="emailError" class="error-message"></div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Phone Number *</label>
                                 <div class="input-container">
                                     <i class="fas fa-phone input-icon"></i>
                                     <input type="text" th:field="*{phoneNumber}" maxlength="11" pattern="\d{11}"
-                                           title="Phone must be 11 digits" required>
+                                        title="Phone must be 11 digits" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Alternate Phone</label>
                                 <div class="input-container">
                                     <i class="fas fa-phone-alt input-icon"></i>
                                     <input type="text" th:field="*{altPhone}" maxlength="11" pattern="\d{11}"
-                                           title="Phone must be 11 digits">
+                                        title="Phone must be 11 digits">
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Emergency Contact *</label>
                                 <div class="input-container">
                                     <i class="fas fa-exclamation-triangle input-icon"></i>
                                     <input type="text" th:field="*{emergencyContact}" maxlength="11" pattern="\d{11}"
-                                           title="Emergency contact must be 11 digits" required>
+                                        title="Emergency contact must be 11 digits" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label>Address *</label>
                                 <div class="input-container">
@@ -532,7 +539,7 @@
                                     <input type="text" th:field="*{address}" placeholder="Street Address" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Division *</label>
                                 <select th:field="*{division}" required>
@@ -547,18 +554,78 @@
                                     <option value="Mymensingh">Mymensingh</option>
                                 </select>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>District *</label>
                                 <select th:field="*{zilla}" required>
                                     <option value="">Select District</option>
-                                    <option value="Dhaka">Dhaka</option>
-                                    <option value="Gazipur">Gazipur</option>
+                                    <option value="Bagerhat">Bagerhat</option>
+                                    <option value="Bandarban">Bandarban</option>
+                                    <option value="Barguna">Barguna</option>
+                                    <option value="Barishal">Barishal</option>
+                                    <option value="Bhola">Bhola</option>
+                                    <option value="Bogra">Bogra</option>
+                                    <option value="Brahmanbaria">Brahmanbaria</option>
+                                    <option value="Chandpur">Chandpur</option>
+                                    <option value="Chapainawabganj">Chapainawabganj</option>
                                     <option value="Chattogram">Chattogram</option>
+                                    <option value="Chuadanga">Chuadanga</option>
+                                    <option value="Cumilla">Cumilla</option>
+                                    <option value="Cox's Bazar">Cox's Bazar</option>
+                                    <option value="Dhaka">Dhaka</option>
+                                    <option value="Dinajpur">Dinajpur</option>
+                                    <option value="Faridpur">Faridpur</option>
+                                    <option value="Feni">Feni</option>
+                                    <option value="Gaibandha">Gaibandha</option>
+                                    <option value="Gazipur">Gazipur</option>
+                                    <option value="Gopalganj">Gopalganj</option>
+                                    <option value="Habiganj">Habiganj</option>
+                                    <option value="Jamalpur">Jamalpur</option>
+                                    <option value="Jashore">Jashore</option>
+                                    <option value="Jhalokati">Jhalokati</option>
+                                    <option value="Jhenaidah">Jhenaidah</option>
+                                    <option value="Joypurhat">Joypurhat</option>
+                                    <option value="Khagrachhari">Khagrachhari</option>
                                     <option value="Khulna">Khulna</option>
+                                    <option value="Kishoreganj">Kishoreganj</option>
+                                    <option value="Kurigram">Kurigram</option>
+                                    <option value="Kushtia">Kushtia</option>
+                                    <option value="Lakshmipur">Lakshmipur</option>
+                                    <option value="Lalmonirhat">Lalmonirhat</option>
+                                    <option value="Madaripur">Madaripur</option>
+                                    <option value="Magura">Magura</option>
+                                    <option value="Manikganj">Manikganj</option>
+                                    <option value="Meherpur">Meherpur</option>
+                                    <option value="Moulvibazar">Moulvibazar</option>
+                                    <option value="Munshiganj">Munshiganj</option>
+                                    <option value="Mymensingh">Mymensingh</option>
+                                    <option value="Naogaon">Naogaon</option>
+                                    <option value="Narail">Narail</option>
+                                    <option value="Narayanganj">Narayanganj</option>
+                                    <option value="Narsingdi">Narsingdi</option>
+                                    <option value="Natore">Natore</option>
+                                    <option value="Netrokona">Netrokona</option>
+                                    <option value="Nilphamari">Nilphamari</option>
+                                    <option value="Noakhali">Noakhali</option>
+                                    <option value="Pabna">Pabna</option>
+                                    <option value="Panchagarh">Panchagarh</option>
+                                    <option value="Patuakhali">Patuakhali</option>
+                                    <option value="Pirojpur">Pirojpur</option>
+                                    <option value="Rajbari">Rajbari</option>
+                                    <option value="Rajshahi">Rajshahi</option>
+                                    <option value="Rangamati">Rangamati</option>
+                                    <option value="Rangpur">Rangpur</option>
+                                    <option value="Satkhira">Satkhira</option>
+                                    <option value="Shariatpur">Shariatpur</option>
+                                    <option value="Sherpur">Sherpur</option>
+                                    <option value="Sirajganj">Sirajganj</option>
+                                    <option value="Sunamganj">Sunamganj</option>
+                                    <option value="Sylhet">Sylhet</option>
+                                    <option value="Tangail">Tangail</option>
+                                    <option value="Thakurgaon">Thakurgaon</option>
                                 </select>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Postal Code *</label>
                                 <div class="input-container">
@@ -568,7 +635,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Professional Information -->
                     <div class="form-section" style="animation-delay: 0.2s">
                         <h3 class="section-title">Professional Information</h3>
@@ -580,7 +647,7 @@
                                     <input type="text" th:field="*{degrees}" placeholder="MBBS, MD, etc." required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Specialization *</label>
                                 <div class="input-container">
@@ -588,7 +655,7 @@
                                     <input type="text" th:field="*{specialization}" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Experience (Years) *</label>
                                 <div class="input-container">
@@ -596,7 +663,7 @@
                                     <input type="number" th:field="*{experienceYears}" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Consultation Fee</label>
                                 <div class="input-container">
@@ -604,49 +671,51 @@
                                     <input type="text" th:field="*{consultationFee}">
                                 </div>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label>Education *</label>
-                                <input type="text" th:field="*{education}" placeholder="Medical colleges, universities" required>
+                                <input type="text" th:field="*{education}" placeholder="Medical colleges, universities"
+                                    required>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label>Medical College *</label>
                                 <input type="text" th:field="*{medicalCollege}" required>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Hospital Name *</label>
                                 <input type="text" th:field="*{hospitalName}" required>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Languages *</label>
-                                <input type="text" th:field="*{languages}" placeholder="English, Bengali, Hindi" required>
+                                <input type="text" th:field="*{languages}" placeholder="English, Bengali, Hindi"
+                                    required>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label>Hospital Address *</label>
                                 <input type="text" th:field="*{hospitalAddress}" required>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Working Days</label>
                                 <input type="text" th:field="*{workingDays}" placeholder="Mon-Fri">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Working Hours</label>
                                 <input type="text" th:field="*{workingHours}" placeholder="9:00 AM - 5:00 PM">
                             </div>
-                            
+
                             <!-- Certificate PDF Upload - Same as signup form -->
                             <div class="form-group full-width">
                                 <label>Certificate (PDF)</label>
                                 <div class="file-upload-container">
                                     <div class="file-input-container">
-                                        <input type="file" id="certificateFile" name="certificateFile" accept="application/pdf" 
-                                               style="padding: 8px 6px; border-radius: 8px;">
+                                        <input type="file" id="certificateFile" name="certificateFile"
+                                            accept="application/pdf" style="padding: 8px 6px; border-radius: 8px;">
                                         <div id="certificateInfo" class="certificate-info">No file selected</div>
                                     </div>
                                     <div class="current-file" th:if="${doctor.certifications != null}">
@@ -656,14 +725,15 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label>Description</label>
-                                <textarea th:field="*{description}" placeholder="Tell patients about your approach and expertise..."></textarea>
+                                <textarea th:field="*{description}"
+                                    placeholder="Tell patients about your approach and expertise..."></textarea>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Additional Information -->
                     <div class="form-section" style="animation-delay: 0.3s">
                         <h3 class="section-title">Additional Information</h3>
@@ -675,7 +745,7 @@
                                     <input type="text" th:field="*{website}" placeholder="https://">
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>LinkedIn</label>
                                 <div class="input-container">
@@ -683,35 +753,37 @@
                                     <input type="text" th:field="*{linkedin}">
                                 </div>
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Special Interests</label>
                                 <input type="text" th:field="*{specialInterests}">
                             </div>
-                            
+
                             <div class="form-group">
                                 <label>Awards & Recognitions</label>
                                 <input type="text" th:field="*{awards}">
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label>Publications</label>
-                                <textarea th:field="*{publications}" placeholder="List your notable publications..."></textarea>
+                                <textarea th:field="*{publications}"
+                                    placeholder="List your notable publications..."></textarea>
                             </div>
-                            
+
                             <div class="form-group full-width">
                                 <label>Notes</label>
                                 <textarea th:field="*{notes}" placeholder="Any additional notes..."></textarea>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Form Actions -->
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-pen-to-square"></i> Update Profile
                         </button>
-                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/doctor/dashboard'">
+                        <button type="button" class="btn btn-secondary"
+                            onclick="window.location.href='/doctor/dashboard'">
                             <i class="fas fa-times"></i> Cancel
                         </button>
                     </div>
@@ -719,7 +791,7 @@
             </div>
         </form>
     </div>
-    
+
     <!-- Toast Notification -->
     <div id="toast" class="toast">
         <i class="fas fa-check-circle"></i>
@@ -811,7 +883,7 @@
             }
 
             const reader = new FileReader();
-            reader.onload = (ev) => { 
+            reader.onload = (ev) => {
                 preview.src = ev.target.result;
                 preview.style.transform = "scale(0.95)";
                 setTimeout(() => preview.style.transform = "scale(1)", 200);
@@ -884,36 +956,37 @@
         }
 
         // ===== Toast Notification =====
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('updated') === 'true') {
                 const toast = document.getElementById("toast");
                 toast.classList.add('show');
-                
+
                 setTimeout(() => {
                     toast.classList.remove('show');
                 }, 4000);
             }
-            
+
             // Animate form sections sequentially
             const formSections = document.querySelectorAll('.form-section');
             formSections.forEach((section, index) => {
                 section.style.animationDelay = `${0.1 + (index * 0.1)}s`;
                 section.style.opacity = 1;
             });
-            
+
             // Add focus effects to inputs
             const inputs = document.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
-                input.addEventListener('focus', function() {
+                input.addEventListener('focus', function () {
                     this.parentElement.style.transform = 'translateY(-2px)';
                 });
-                
-                input.addEventListener('blur', function() {
+
+                input.addEventListener('blur', function () {
                     this.parentElement.style.transform = 'translateY(0)';
                 });
             });
         });
     </script>
 </body>
+
 </html>

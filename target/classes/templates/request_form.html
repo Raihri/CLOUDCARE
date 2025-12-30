@@ -375,6 +375,24 @@
                 <input type="number" id="units" name="units" required min="1" max="10" th:value="${ request != null ? request.units : '' }" placeholder="Enter number of units (1-10)">
                 <div class="error">Units must be between 1 and 10</div>
             </div>
+
+            <!-- District & Thana -->
+            <div class="form-group">
+                <label for="district">District <span class="label-required">*</span></label>
+                <select id="district" name="district">
+                    <option value="">-- Select District --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="thana">Thana <span class="label-required">*</span></label>
+                <select id="thana" name="thana">
+                    <option value="">-- Select Thana --</option>
+                </select>
+            </div>
+            <!-- <div class="form-group">
+                <label for="location">Location (optional)</label>
+                <input type="text" id="location" name="location" placeholder="Neighborhood or locality" th:value="${ request != null ? request.location : '' }">
+            </div> -->
             
             <!-- Required Date -->
             <div class="form-group">
@@ -443,6 +461,40 @@
     });
     
     customEmailInput.addEventListener('input', updateSelectedEmail);
+
+// Load districts and thanas for request form
+async function loadDistrictsReq() {
+    try {
+        const res = await fetch('/api/locations/districts');
+        const data = await res.json();
+        if (data && data.districts) {
+            const sel = document.getElementById('district');
+            data.districts.forEach(d => {
+                const opt = document.createElement('option'); opt.value = d; opt.text = d; sel.appendChild(opt);
+            });
+            const current = '[[${request != null ? request.district : ""}]]';
+            if (current) sel.value = current;
+        }
+    } catch (e) { console.warn('Could not load districts', e); }
+}
+
+async function loadThanasReq(d) {
+    try {
+        const sel = document.getElementById('thana');
+        sel.innerHTML = '<option value="">-- Select Thana --</option>';
+        if (!d) return;
+        const res = await fetch('/api/locations/thanas?district=' + encodeURIComponent(d));
+        const data = await res.json();
+        if (data && data.thanas) {
+            data.thanas.forEach(t => { const opt = document.createElement('option'); opt.value = t; opt.text = t; sel.appendChild(opt); });
+            const curTh = '[[${request != null ? request.thana : ""}]]';
+            if (curTh) sel.value = curTh;
+        }
+    } catch (e) { console.warn('Could not load thanas', e); }
+}
+
+document.getElementById('district').addEventListener('change', function(){ loadThanasReq(this.value); });
+loadDistrictsReq();
     
     // Form validation and submission
     document.getElementById('requestForm').addEventListener('submit', async function(e) {
@@ -500,6 +552,9 @@
             email: email,
             bloodGroup: bloodGroup,
             units: units,
+            district: (document.getElementById('district') ? document.getElementById('district').value : ''),
+            thana: (document.getElementById('thana') ? document.getElementById('thana').value : ''),
+            // location: (document.getElementById('location') ? document.getElementById('location').value.trim() : ''),
             requiredDate: requiredDate || null,
             medicalReason: medicalReason
         };
@@ -526,6 +581,10 @@
                 sessionStorage.setItem('requestId', result.data.id);
                 sessionStorage.setItem('requestBloodGroup', bloodGroup);
                 sessionStorage.setItem('selectedEmail', email);
+
+                // store selected location for next page usage
+                sessionStorage.setItem('requestDistrict', request.district || '');
+                sessionStorage.setItem('requestThana', request.thana || '');
 
                 // show success then redirect to matching donors page
                 if (typeof showSaveOverlay === 'function') showSaveOverlay('Request created ✓', true);

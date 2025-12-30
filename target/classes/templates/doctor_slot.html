@@ -158,7 +158,9 @@
 <body>
 <div class="wrap">
     <div class="main-content">
+        <a th:href="@{/doctor/dashboard(doctorId=${doctor.id})}" class="booking-btn">Back to Dashboard</a>
         <h1>Manage Availability</h1>
+
         <div class="container">
 
             <!-- LEFT COLUMN: Add Slot Form -->
@@ -210,7 +212,7 @@
         onclick="return confirm('Are you sure you want to remove this slot?');">Remove</button>
     </form>
 </div>
-                <a th:href="@{/doctor/dashboard(doctorId=${doctor.id})}" class="booking-btn">Back to Dashboard</a>
+                
             </div>
 
         </div>

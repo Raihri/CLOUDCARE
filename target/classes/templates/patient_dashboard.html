@@ -839,7 +839,9 @@ onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
                         <div class="tab" data-tab="medical">Medical History</div>
                         <div class="tab" data-tab="reports">Lab Reports</div>
                         <div class="tab" data-tab="appointments">Appointments</div>
-                        <div class="tab" data-tab="medications">Medications</div>
+                        <div class="tab" data-tab="medications">
+                            Medications
+                        </div>
                     </div>
                     <div class="tab-content">
                         <!-- Overview Tab -->
@@ -912,7 +914,7 @@ onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
                             <div class="card">
                                 <div class="card-header">
                                     <h3 class="card-title">Health Metrics</h3>
-                                    <div class="card-action">View History</div>
+                                    
                                 </div>
                                 <div class="metrics-grid">
                                     <div class="metric-card">
@@ -934,26 +936,8 @@ onmouseout="this.style.background='white'; this.style.color='#2A7DE1'"
                                 </div>
                             </div>
 
-                            <!-- Recent Activity Card -->
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Recent Activity</h3>
-                                    <div class="card-action">See All</div>
-                                </div>
-                                <div class="activity-list">
-                                    <th:block th:if="${patient != null and patient.recentUpdates != null}" th:each="update : ${patient.recentUpdates}">
-                                        <div class="activity-item">
-                                            <div class="activity-icon">
-                                                <i class='bx bx-bell'></i>
-                                            </div>
-                                            <div class="activity-content">
-                                                <div class="activity-text" th:text="${update}">Activity text</div>
-                                                <div class="activity-time">Today</div>
-                                            </div>
-                                        </div>
-                                    </th:block>
-                                </div>
-                            </div>
+                            
+                            
                         </div>
 
                         <!-- Medical History Tab -->

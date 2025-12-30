@@ -361,10 +361,34 @@
         <!-- FILTERS -->
         <div class="filters-section">
             <div class="filter-group">
-                <button class="filter-btn active" onclick="filterRequests('all')">All</button>
-                <button class="filter-btn" onclick="filterRequests('Pending')">Pending</button>
-                <button class="filter-btn" onclick="filterRequests('Matched')">Matched</button>
-                <!-- Fulfilled filter removed -->
+                <button class="filter-btn active" onclick="filterRequests('all', this)">All</button>
+                <button class="filter-btn" onclick="filterRequests('Pending', this)">Pending</button>
+                <button class="filter-btn" onclick="filterRequests('Matched', this)">Matched</button>
+            </div>
+
+            <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+                <select id="filterBloodGroup" class="filter-btn" style="padding:8px; font-weight:600;">
+                    <option value="">All Blood Groups</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                </select>
+                <input id="filterName" type="text" placeholder="Search by requester name" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-weight:600;" />
+                <input id="filterDistrict" type="text" placeholder="District" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-weight:600; width:120px;" />
+                <input id="filterThana" type="text" placeholder="Thana" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-weight:600; width:120px;" />
+                <select id="filterStatus" style="padding:8px; border-radius:8px; border:1px solid #ddd; font-weight:600;">
+                    <option value="">Any Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Matched">Matched</option>
+                    <option value="Fulfilled">Fulfilled</option>
+                </select>
+                <button class="filter-btn" onclick="applyFilters()">Search</button>
+                <button class="filter-btn" onclick="clearFilters()">Clear</button>
             </div>
         </div>
         
@@ -398,6 +422,47 @@
             console.error('Error loading requests:', err);
             displayEmpty();
         }
+    }
+
+    // Apply server-side search using all filter inputs
+    async function applyFilters() {
+        const bg = document.getElementById('filterBloodGroup').value;
+        const name = document.getElementById('filterName').value;
+        const district = document.getElementById('filterDistrict').value;
+        const thana = document.getElementById('filterThana').value;
+        const status = document.getElementById('filterStatus').value;
+
+        const params = new URLSearchParams();
+        if (bg) params.append('bloodGroup', bg);
+        if (name) params.append('name', name);
+        if (district) params.append('district', district);
+        if (thana) params.append('thana', thana);
+        if (status) params.append('status', status);
+
+        try {
+            const res = await fetch('/patient/request/api/search?' + params.toString(), { method: 'GET' });
+            const data = await res.json();
+            if (data.success) {
+                allRequests = data.data;
+                displayRequests();
+                updateStatistics();
+            } else {
+                allRequests = [];
+                displayEmpty();
+            }
+        } catch (err) {
+            console.error('Search error:', err);
+            displayEmpty();
+        }
+    }
+
+    function clearFilters() {
+        document.getElementById('filterBloodGroup').value = '';
+        document.getElementById('filterName').value = '';
+        document.getElementById('filterDistrict').value = '';
+        document.getElementById('filterThana').value = '';
+        document.getElementById('filterStatus').value = '';
+        initPage();
     }
     
     // Display requests
@@ -484,14 +549,19 @@
         document.getElementById('matchedCount').textContent = allRequests.filter(r => r.status === 'Matched').length;
     }
     
-    // Filter requests
-    function filterRequests(status) {
+    // Filter requests (status quick buttons)
+    function filterRequests(status, btn) {
         currentFilter = status;
-        
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        displayRequests();
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        try { if (btn) btn.classList.add('active'); } catch(e) {}
+        if (status === 'all') {
+            // reset any status-only filter and show all
+            displayRequests();
+        } else {
+            // use server-side search for status only
+            document.getElementById('filterStatus').value = status;
+            applyFilters();
+        }
     }
     
     // View/Edit actions removed from the UI; navigation handled from other pages if needed.

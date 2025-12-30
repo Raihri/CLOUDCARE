@@ -1,145 +1,458 @@
-<!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Error</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}" />
-  <link rel="stylesheet" th:href="@{/css/styles.css}" />
-   <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudCare - Oops... Syringe 404</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            width: 800px;
+        }
+        
+        .game-title {
+            font-size: 48px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #fff;
+        }
+        
+        .game-subtitle {
+            font-size: 24px;
+            color: #aaa;
+            letter-spacing: 2px;
+        }
+        
+        canvas {
+            border: 3px solid #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        #score {
+            font-size: 28px;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+        
+        #instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 24px;
+            background-color: rgba(0, 0, 0, 0.95);
+            padding: 40px;
+            border: 2px solid #fff;
+            z-index: 100;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+        
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 36px;
+            background-color: rgba(0, 0, 0, 0.95);
+            padding: 50px;
+            border: 3px solid #fff;
+            z-index: 100;
+            display: none;
+            line-height: 1.5;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #888;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .blink {
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    </style>
 </head>
 <body>
-  <div class="sidebar">
-    <div class="logo-details">
-        <img th:src="@{/image/logo.png}" alt="CloudCare Logo"/>
-
-        <span class="logo_name">CloudCare</span>
+    <div class="header">
+        <div class="game-title">CLOUDCARE</div>
+        <div class="game-subtitle">Oops... Syringe 404</div>
     </div>
-    <ul class="nav-links">
+    
+    <div id="score">SCORE: 0</div>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+    
+    <div id="instructions" class="blink">
+        PRESS <span style="color: #fff; font-weight: bold;">UP ARROW</span> TO START<br><br>
+        ARROW KEYS TO MOVE<br>
+        AVOID SYRINGES<br>
+        COLLECT PILLS
+    </div>
+    
+    <div id="gameOver">
+        GAME OVER<br><br>
+        <span style="font-size: 28px; color: #aaa;">FINAL SCORE: <span id="finalScore">0</span></span><br><br>
+        <span class="blink" style="font-size: 20px;">PRESS UP TO RESTART</span>
+    </div>
+    
+    <div class="controls">
+        [↑↓←→] MOVE | AVOID SYRINGES | COLLECT PILLS
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const instructions = document.getElementById('instructions');
+        const gameOverScreen = document.getElementById('gameOver');
+        const scoreDisplay = document.getElementById('score');
+        const finalScoreDisplay = document.getElementById('finalScore');
         
-        <li>
-            <a th:href="@{/patient/dashboard}">
-                <i class="bx bxs-user"></i>
-                <span class="link_name">Patient Profile</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Patient Profile</a></li>
-            </ul>
-        </li>
-
-          <li >
-            <a th:href="@{/patient/dataEntry}">
-                <i class="bx bxs-edit"></i>
-                <span class="link_name">Edit Profile</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Edit Profile</a></li>
-            </ul>
-        </li>
-
-         <li>
-            <a th:href="@{/patient/doctor_list}">
-                <i class="bx bx-menu"></i>
-                <span class="link_name">Doctors List</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="patient">Doctors List</a></li>
-            </ul>
-        </li>
-
-
-        <li>
-            <a th:href="@{/patient/donor}">
-                <i class='bx bxs-droplet'></i>
-                <span class="link_name">Find Donor</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="donor">Find Donor</a></li>
-            </ul>
-        </li>
-
-        <li>
-            <a th:href="@{/patient/aichat}">
-                <i class='bx bxs-chat'></i>
-                <span class="link_name">CloudCare AI</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/aichat">CloudCare AI</a></li>
-            </ul>
-        </li>
-        <li>
-            <a th:href="@{/patient/quiz_index1}">
-                <i class='bx bxs-brain'></i>
-                <span class="link_name">Mental Health Quiz</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/quiz_index1">Mental Health Quiz</a></li>
-            </ul>
-        </li>
-         <li>
-            <a th:href="@{/patient/appointments}">
-                <i class='bx bx-phone'></i>
-                <span class="link_name">Appointments</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="appointments">Appointments</a></li>
-            </ul>
-        </li>
-
-        <li>
-            <a th:href="@{/patient/feedbacks}">
-                <i class='bx bxs-star'></i>
-                <span class="link_name">Feedback</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/feedbacks">Feedback</a></li>
-            </ul>
-        </li>
-
-        <li class="active">
-            <a th:href="@{/patient/error}">
-                <i class='bx bxs-star'></i>
-                <span class="link_name">ERROR</span>
-            </a>
-            <ul class="sub-menu blank">
-                <li><a class="link_name" href="/patient/error">ERROR</a></li>
-            </ul>
-        </li>
-      
-
-       
-        <li>
-            <!-- Patient Content Here -->
-            <div class="profile-details" th:if="${patient != null}">
-                <a th:href="@{/patient/dashboard}"
-                   style="display: flex; align-items: center; text-decoration: none; width: 100%;">
-                    <div class="profile-content">
-                        <!-- show patient image -->
-                        <img th:if="${patient != null and patient.user != null and patient.user.photoUrl != null}"
-                             th:src="${patient.user.photoUrl}"
-                             alt="profileImg" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
-                        <img th:if="${patient.user == null or patient.user.photoUrl == null}"
-                             src="https://media.istockphoto.com/id/1208175274/vector/avatar-vector-icon-simple-element-illustrationavatar-vector-icon-material-concept-vector.jpg?s=612x612&w=0&k=20&c=t4aK_TKnYaGQcPAC5Zyh46qqAtuoPcb-mjtQax3_9Xc="
-                             alt="defaultProfile" style="height: 52px; width: 52px; object-fit: cover; border-radius: 16px;">
-
-                        <div class="name-job">
-                            <div class="profile_name" th:text="${patient.user != null and patient.user.name != null ? patient.user.name : 'Patient'}">Patient</div>
-                            <div class="job" th:text="'Patient ID: ' + (${patient.id != null ? patient.id : 'N/A'})">Patient ID</div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </li>
-    </ul>
-</div>
-
-  <section class="raima" style="padding:100px;">
-    <div class="quiz-container">
-      <header class="header">
-        <h1>OOPS!</h1>
-        <div class="sub">We couldn't complete that request. Try again or contact support.</div>
-      </header>
-    </div>
-  </section>
+        // Game variables
+        let gameRunning = false;
+        let score = 0;
+        let gameSpeed = 3;
+        let obstacles = [];
+        let pills = [];
+        let animationId = null;
+        
+        // Player (patient)
+        const player = {
+            x: 100,
+            y: canvas.height / 2 - 40,
+            width: 80,
+            height: 80,
+            speed: 5,
+            draw() {
+                // Draw patient icon (bedridden person)
+                ctx.fillStyle = '#fff';
+                
+                // Body
+                ctx.beginPath();
+                ctx.arc(this.x + 40, this.y + 40, 30, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Head
+                ctx.beginPath();
+                ctx.arc(this.x + 40, this.y + 15, 20, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Eyes (scared)
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(this.x + 32, this.y + 12, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(this.x + 48, this.y + 12, 4, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mouth (screaming)
+                ctx.beginPath();
+                ctx.arc(this.x + 40, this.y + 22, 8, 0, Math.PI, false);
+                ctx.fill();
+                
+                // Hospital gown lines
+                ctx.fillStyle = '#000';
+                ctx.fillRect(this.x + 30, this.y + 40, 20, 3);
+                ctx.fillRect(this.x + 30, this.y + 50, 20, 3);
+            }
+        };
+        
+        // Create syringe obstacle
+        function createSyringe() {
+            return {
+                x: canvas.width + 100,
+                y: Math.random() * (canvas.height - 60),
+                width: 80,
+                height: 20,
+                speed: gameSpeed,
+                active: true,
+                draw() {
+                    if (!this.active) return;
+                    
+                    ctx.fillStyle = '#fff';
+                    
+                    // Syringe body
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    
+                    // Needle
+                    ctx.beginPath();
+                    ctx.moveTo(this.x - 10, this.y + 10);
+                    ctx.lineTo(this.x, this.y + 10);
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = '#fff';
+                    ctx.stroke();
+                    
+                    // Needle tip
+                    ctx.beginPath();
+                    ctx.arc(this.x - 15, this.y + 10, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Plunger
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(this.x + this.width - 15, this.y, 15, this.height);
+                    
+                    // Liquid in syringe
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(this.x + 5, this.y + 5, this.width - 25, this.height - 10);
+                }
+            };
+        }
+        
+        // Create pill
+        function createPill() {
+            return {
+                x: canvas.width + 100,
+                y: Math.random() * (canvas.height - 30),
+                width: 40,
+                height: 20,
+                speed: gameSpeed,
+                active: true,
+                draw() {
+                    if (!this.active) return;
+                    
+                    ctx.fillStyle = '#fff';
+                    
+                    // Pill shape
+                    ctx.beginPath();
+                    ctx.arc(this.x + 10, this.y + 10, 10, Math.PI/2, Math.PI*3/2);
+                    ctx.arc(this.x + 30, this.y + 10, 10, Math.PI*3/2, Math.PI/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    // Pill split line
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + 20, this.y);
+                    ctx.lineTo(this.x + 20, this.y + 20);
+                    ctx.stroke();
+                    
+                    // Pill markings
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.arc(this.x + 10, this.y + 10, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(this.x + 30, this.y + 10, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            };
+        }
+        
+        // Check collision
+        function checkCollision(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width &&
+                   obj1.x + obj1.width > obj2.x &&
+                   obj1.y < obj2.y + obj2.height &&
+                   obj1.y + obj1.height > obj2.y;
+        }
+        
+        // Start game
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            gameSpeed = 3;
+            obstacles = [];
+            pills = [];
+            
+            player.x = 100;
+            player.y = canvas.height / 2 - 40;
+            
+            instructions.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            scoreDisplay.textContent = `SCORE: ${score}`;
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            gameLoop();
+        }
+        
+        // End game
+        function endGame() {
+            gameRunning = false;
+            finalScoreDisplay.textContent = score;
+            gameOverScreen.style.display = 'block';
+        }
+        
+        // Game loop
+        function gameLoop() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid background
+            ctx.strokeStyle = '#222';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            if (gameRunning) {
+                // Spawn syringes
+                if (Math.random() < 0.02) {
+                    obstacles.push(createSyringe());
+                }
+                
+                // Spawn pills
+                if (Math.random() < 0.015) {
+                    pills.push(createPill());
+                }
+                
+                // Update and draw syringes
+                for (let i = obstacles.length - 1; i >= 0; i--) {
+                    const syringe = obstacles[i];
+                    syringe.x -= syringe.speed;
+                    
+                    // Remove if off screen
+                    if (syringe.x < -100) {
+                        obstacles.splice(i, 1);
+                        score++;
+                        scoreDisplay.textContent = `SCORE: ${score}`;
+                        continue;
+                    }
+                    
+                    syringe.draw();
+                    
+                    // Check collision with player
+                    if (checkCollision(player, syringe)) {
+                        endGame();
+                        return;
+                    }
+                }
+                
+                // Update and draw pills
+                for (let i = pills.length - 1; i >= 0; i--) {
+                    const pill = pills[i];
+                    pill.x -= pill.speed;
+                    
+                    // Remove if off screen
+                    if (pill.x < -50) {
+                        pills.splice(i, 1);
+                        continue;
+                    }
+                    
+                    pill.draw();
+                    
+                    // Check collision with player
+                    if (pill.active && checkCollision(player, pill)) {
+                        pill.active = false;
+                        pills.splice(i, 1);
+                        score += 10;
+                        scoreDisplay.textContent = `SCORE: ${score}`;
+                    }
+                }
+                
+                // Increase difficulty
+                if (score > 0 && score % 20 === 0) {
+                    gameSpeed = 3 + Math.floor(score / 20) * 0.5;
+                }
+            }
+            
+            // Draw player
+            player.draw();
+            
+            // Draw border
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            // Start/restart with up arrow
+            if (e.key === 'ArrowUp') {
+                if (!gameRunning) {
+                    startGame();
+                }
+            }
+            
+            // Movement
+            if (gameRunning) {
+                switch(e.key) {
+                    case 'ArrowUp':
+                        player.y = Math.max(0, player.y - player.speed);
+                        break;
+                    case 'ArrowDown':
+                        player.y = Math.min(canvas.height - player.height, player.y + player.speed);
+                        break;
+                    case 'ArrowLeft':
+                        player.x = Math.max(0, player.x - player.speed);
+                        break;
+                    case 'ArrowRight':
+                        player.x = Math.min(canvas.width - player.width, player.x + player.speed);
+                        break;
+                }
+            }
+        });
+        
+        // Mouse/touch controls
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameRunning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left - player.width/2;
+            const y = e.clientY - rect.top - player.height/2;
+            
+            player.x = Math.max(0, Math.min(x, canvas.width - player.width));
+            player.y = Math.max(0, Math.min(y, canvas.height - player.height));
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameRunning) return;
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left - player.width/2;
+            const y = touch.clientY - rect.top - player.height/2;
+            
+            player.x = Math.max(0, Math.min(x, canvas.width - player.width));
+            player.y = Math.max(0, Math.min(y, canvas.height - player.height));
+        });
+        
+        // Start initial game loop
+        gameLoop();
+    </script>
 </body>
 </html>

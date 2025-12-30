@@ -605,6 +605,21 @@
             font-size: 13px;
             color: #cfe9ff;
         }
+        .logout-btn {
+    
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #dc3545;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+.logout-btn:hover {
+    background-color: #c82333;
+}
     </style>
 </head>
 <body>
@@ -657,6 +672,9 @@
                     <p><strong>Gender:</strong> <span th:text="${doctor.gender}">N/A</span></p>
                     <p><strong>DOB:</strong> <span th:text="${#dates.format(doctor.dob,'dd-MM-yyyy')}">N/A</span></p>
                     <p><strong>Blood Group:</strong> <span th:text="${doctor.bloodGroup}">N/A</span></p>
+                    <form th:action="@{/doctor/logout}" method="post">
+                        <button class="logout-btn" type="submit">LOGOUT</button>
+                    </form>
                 </div>
 
                 <!-- RIGHT COLUMN -->

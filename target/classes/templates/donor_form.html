@@ -125,7 +125,7 @@
         <!-- Eligibility Status Display -->
         <div id="eligibilityAlert" class="eligibility-alert"></div>
 
-        <form id="donorForm">
+        <form id="donorForm" th:attr="data-donor-district=${donor != null ? donor.district : ''}, data-donor-thana=${donor != null ? donor.thana : ''}">
             <input type="hidden" id="donorId" name="donorId" th:value="${donor != null ? donor.id : ''}">
             <div data-donor-diseases="[[${ donor != null ? #json.serialize(donor.diseases) : '[]' }]]" style="display:none;"></div>
             <div data-patient-diseases="[[${ #json.serialize(patient.diseases) }]]" style="display:none;"></div>
@@ -219,6 +219,24 @@
                 <input type="text" id="contact" name="contact" required placeholder="Your mobile number" th:value="${ donor != null ? donor.contact : (patient != null and patient.emergencyContact != null ? patient.emergencyContact : '') }">
                 <div class="error">Contact number is required</div>
             </div>
+
+            <!-- District & Thana -->
+            <div class="form-group">
+                <label for="district">District</label>
+                <select id="district" name="district">
+                    <option value="">-- Select District --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="thana">Thana</label>
+                <select id="thana" name="thana">
+                    <option value="">-- Select Thana --</option>
+                </select>
+            </div>
+            <!-- <div class="form-group">
+                <label for="location">Location (optional)</label>
+                <input type="text" id="location" name="location" placeholder="Neighborhood or locality" th:value="${ donor != null ? donor.location : '' }">
+            </div> -->
             
             <!-- Last Donated with Change Option -->
             <div class="form-group-row">
@@ -522,6 +540,43 @@
                     });
                 }
 
+                // Load districts and thanas
+                async function loadDistricts() {
+                    try {
+                        const res = await fetch('/api/locations/districts');
+                        const data = await res.json();
+                        if (data && data.districts) {
+                            const sel = document.getElementById('district');
+                            data.districts.forEach(d => {
+                                const opt = document.createElement('option'); opt.value = d; opt.text = d; sel.appendChild(opt);
+                            });
+                            // set current value from server-populated display if present (read from data attributes)
+                            const donorFormEl = document.getElementById('donorForm');
+                            const donorDistrict = donorFormEl ? (donorFormEl.dataset.donorDistrict || '') : '';
+                            if (donorDistrict) sel.value = donorDistrict;
+                        }
+                    } catch (e) { console.warn('Could not load districts', e); }
+                }
+
+                async function loadThanasForDistrict(d) {
+                    try {
+                        const sel = document.getElementById('thana');
+                        sel.innerHTML = '<option value="">-- Select Thana --</option>';
+                        if (!d) return;
+                        const res = await fetch('/api/locations/thanas?district=' + encodeURIComponent(d));
+                        const data = await res.json();
+                        if (data && data.thanas) {
+                            data.thanas.forEach(t => { const opt = document.createElement('option'); opt.value = t; opt.text = t; sel.appendChild(opt); });
+                            const donorFormEl2 = document.getElementById('donorForm');
+                            const donorThana = donorFormEl2 ? (donorFormEl2.dataset.donorThana || '') : '';
+                            if (donorThana) sel.value = donorThana;
+                        }
+                    } catch (e) { console.warn('Could not load thanas', e); }
+                }
+
+                document.getElementById('district').addEventListener('change', function(){ loadThanasForDistrict(this.value); });
+                loadDistricts();
+
                 // Ensure eligibility status shows on load
                 setTimeout(updateEligibilityDisplay, 150);
 
@@ -562,7 +617,10 @@
                             const donor = {
                                 id: document.getElementById('donorId') ? document.getElementById('donorId').value || null : null,
                                 name, email, age, gender: (document.getElementById('gender') ? document.getElementById('gender').value : ''), bloodGroup, contact,
-                                lastDonated: lastDonated || null, diseases
+                                lastDonated: lastDonated || null, diseases,
+                                district: (document.getElementById('district') ? document.getElementById('district').value : ''),
+                                thana: (document.getElementById('thana') ? document.getElementById('thana').value : ''),
+                                // location: (document.getElementById('location') ? document.getElementById('location').value.trim() : '')
                             };
 
                             const endpoint = donor.id ? '/patient/donor/api/update/' + donor.id : '/patient/donor/api/create';
