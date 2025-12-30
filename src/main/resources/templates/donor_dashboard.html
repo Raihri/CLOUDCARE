@@ -876,16 +876,16 @@
                     <td>${d.thana || '—'}</td>
                     <td>${status}</td>
                     <td style="text-align: center;">
-                        <button class="btn btn-warning edit-donor" title="Edit donor" style="padding: 6px 10px;">✏️</button>
                         <button class="btn btn-danger delete-donor" title="Delete donor" style="padding: 6px 10px;">🗑️</button>
                         <button class="btn btn-primary view-diseases" title="View medical history" style="padding: 6px 10px;">📋</button>
                     </td>
                 `;
                 donorTableBody.appendChild(row);
                 if (d && d.id !== undefined) row.dataset.id = d.id;
-                row.querySelector('.edit-donor').addEventListener('click', () => editDonor(d.id));
-                row.querySelector('.delete-donor').addEventListener('click', () => deleteDonor(d.id));
-                row.querySelector('.view-diseases').addEventListener('click', () => viewDiseases(d.id));
+                const delBtn = row.querySelector('.delete-donor');
+                if (delBtn) delBtn.addEventListener('click', () => deleteDonor(d.id));
+                const viewBtn = row.querySelector('.view-diseases');
+                if (viewBtn) viewBtn.addEventListener('click', () => viewDiseases(d.id));
             });
 
             filterDonors();
@@ -908,14 +908,13 @@
                     <td>${r.thana || '—'}</td>
                     <td><span class="status-${r.status}">${r.status || 'Pending'}</span></td>
                     <td style="text-align: center;">
-                        <button class="btn btn-warning edit-request" title="Edit request" style="padding: 6px 10px;">✏️</button>
                         <button class="btn btn-danger delete-request" title="Delete request" style="padding: 6px 10px;">🗑️</button>
                     </td>
                 `;
                 requestTableBody.appendChild(row);
 
-                row.querySelector('.edit-request').addEventListener('click', () => editRequest(r.id));
-                row.querySelector('.delete-request').addEventListener('click', () => deleteRequest(r.id));
+                const delReqBtn = row.querySelector('.delete-request');
+                if (delReqBtn) delReqBtn.addEventListener('click', () => deleteRequest(r.id));
             });
 
             filterRequests();
