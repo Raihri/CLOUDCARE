@@ -479,8 +479,19 @@
         </div>
     </div>
 
+    <!-- Request Medical Reason Modal -->
+    <div class="modal" id="requestDetailModal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRequestDetailModal()">&times;</span>
+            <h3>🏥 Medical Reason / Hospital</h3>
+            <div id="requestDetailContent" style="max-height: 320px; overflow-y: auto; line-height:1.6; font-size:15px; color:#222;">
+                <!-- only medical reason / hospital will be shown here -->
+            </div>
+        </div>
+    </div>
+
     <!-- Inline Edit Donor Modal -->
-    <div class="modal" id="editDonorModal">
+    <!-- <div class="modal" id="editDonorModal">
         <div class="modal-content" style="max-width:640px; max-height:90vh; overflow-y:auto;">
             <span class="close" onclick="closeEditDonorModal()">&times;</span>
             <div style="background: linear-gradient(135deg,#d32f2f,#b71c1c); color:#fff; margin:-30px -30px 20px -30px; padding:20px 25px; border-radius:10px 10px 0 0; text-align:center;">
@@ -561,17 +572,17 @@
                     <label>Location (optional)</label>
                     <input type="text" id="editDonorLocation" placeholder="Neighborhood / locality">
                 </div> -->
-
+<!-- 
                 <div class="modal-buttons" style="margin-top:14px;">
                     <button type="button" class="cancel-btn" onclick="closeEditDonorModal()">Cancel</button>
                     <button type="button" class="save-btn" onclick="saveEditedDonor()">💾 Save Changes</button>
                 </div>
             </form>
         </div>
-    </div>
+    </div> --> -->
 
     <!-- Inline Edit Request Modal -->
-    <div class="modal" id="editRequestModal">
+    <!-- <div class="modal" id="editRequestModal">
         <div class="modal-content" style="max-width:620px; max-height:90vh; overflow-y:auto;">
             <span class="close" onclick="closeEditRequestModal()">&times;</span>
             <div style="background: linear-gradient(135deg,#d32f2f,#b71c1c); color:#fff; margin:-30px -30px 20px -30px; padding:20px 25px; border-radius:10px 10px 0 0; text-align:center;">
@@ -637,7 +648,7 @@
                     <input type="text" id="editReqLocation" placeholder="Neighborhood / locality">
                 </div> -->
 
-                <div class="form-group">
+                <!-- <div class="form-group">
                     <label>Medical Reason (optional)</label>
                     <textarea id="editReqReason" style="min-height:80px;"></textarea>
                 </div>
@@ -648,7 +659,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div> --> -->
 
 <script>
     // Fixed Tab Switching Functionality
@@ -876,14 +887,11 @@
                     <td>${d.thana || '—'}</td>
                     <td>${status}</td>
                     <td style="text-align: center;">
-                        <button class="btn btn-danger delete-donor" title="Delete donor" style="padding: 6px 10px;">🗑️</button>
                         <button class="btn btn-primary view-diseases" title="View medical history" style="padding: 6px 10px;">📋</button>
                     </td>
                 `;
                 donorTableBody.appendChild(row);
                 if (d && d.id !== undefined) row.dataset.id = d.id;
-                const delBtn = row.querySelector('.delete-donor');
-                if (delBtn) delBtn.addEventListener('click', () => deleteDonor(d.id));
                 const viewBtn = row.querySelector('.view-diseases');
                 if (viewBtn) viewBtn.addEventListener('click', () => viewDiseases(d.id));
             });
@@ -908,13 +916,13 @@
                     <td>${r.thana || '—'}</td>
                     <td><span class="status-${r.status}">${r.status || 'Pending'}</span></td>
                     <td style="text-align: center;">
-                        <button class="btn btn-danger delete-request" title="Delete request" style="padding: 6px 10px;">🗑️</button>
+                        <button class="btn btn-secondary view-request" title="View medical reason" style="padding: 6px 10px;">🏥</button>
                     </td>
                 `;
                 requestTableBody.appendChild(row);
 
-                const delReqBtn = row.querySelector('.delete-request');
-                if (delReqBtn) delReqBtn.addEventListener('click', () => deleteRequest(r.id));
+                const viewReqBtn = row.querySelector('.view-request');
+                if (viewReqBtn) viewReqBtn.addEventListener('click', () => viewRequestDetails(r.id));
             });
 
             filterRequests();
@@ -1211,6 +1219,28 @@
             });
 
             diseaseModal.classList.add('show');
+        }
+
+        function closeRequestDetailModal() { document.getElementById('requestDetailModal').classList.remove('show'); }
+
+        async function viewRequestDetails(id) {
+            if (!id && id !== 0) return;
+            try {
+                const requests = await loadRequests();
+                const r = (requests || []).find(x => x.id == id);
+                if (!r) {
+                    alert('Request not found');
+                    return;
+                }
+
+                const container = document.getElementById('requestDetailContent');
+                const text = r.medicalReason || r.medical_reason || r.hospital || 'No medical reason / hospital provided';
+                container.innerHTML = `<div style="white-space:pre-wrap;">${text}</div>`;
+                document.getElementById('requestDetailModal').classList.add('show');
+            } catch (e) {
+                console.error('viewRequestDetails failed', e);
+                alert('Failed to load request details');
+            }
         }
 
         function filterDonors() {
