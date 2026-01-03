@@ -42,12 +42,12 @@ Note: Admin has a separate login page.
           │ Controllers & │
           │ Services      │
           └──────┬────────┘
-     ┌───────────────────────┐
-     │                       │
-┌────▼────┐              ┌───▼─────┐
-│NeonDB    │             |Cloudinary|
-│(Data)    │             |(Files)   |
-└─────────┘              └─────────┘
+     ┌─────────────────────────┐
+     │                         │
+┌────▼────┐              ┌─────▼────┐
+│NeonDB   │              |Cloudinary|
+│(Data)   │              |(Files)   |
+└─────────┘              └──────────┘
 ---
 
 ## Requirements
