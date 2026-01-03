@@ -43,8 +43,8 @@ Note: Admin has a separate login page.
           │   Services    │
           └──────┬────────┘
                  │
-    ┌────────────┼────────────┐
-    ▼            ▼            ▼
+     ┌───────────┼───────────┐
+     ▼           ▼           ▼
 ┌───────────┐ ┌───────────┐ ┌───────────┐
 │   NeonDB  │ │ Cloudinary│ │   Brevo   │
 │   (Data)  │ │  (Files)  │ │  (Mail)   │
