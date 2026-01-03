@@ -32,22 +32,23 @@ Note: Admin has a separate login page.
 ---
 # Architecture
 
-
           ┌───────────────┐
           │   Web Client  │
           └──────┬────────┘
-                 │ HTTP/HTTPS
-          ┌──────▼────────┐
-          │ Spring Boot   │
-          │ Controllers & │
-          │ Services      │
+                 │
+                 ▼
+          ┌───────────────┐
+          │  Spring Boot  │
+          │Controllers &  │
+          │   Services    │
           └──────┬────────┘
-     ┌─────────────────────────┐
-     │                         │
-┌────▼────┐              ┌─────▼────┐
-│NeonDB   │              |Cloudinary|
-│(Data)   │              |(Files)   |
-└─────────┘              └──────────┘
+                 │
+    ┌────────────┼────────────┐
+    ▼            ▼            ▼
+┌───────────┐ ┌───────────┐ ┌───────────┐
+│   NeonDB  │ │ Cloudinary│ │   Brevo   │
+│   (Data)  │ │  (Files)  │ │  (Mail)   │
+└───────────┘ └───────────┘ └───────────┘
 ---
 
 ## Requirements
