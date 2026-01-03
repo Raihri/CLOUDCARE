@@ -29,26 +29,7 @@ Note: Admin has a separate login page.
 - Email notifications (Brevo / SMTP)
 - PostgreSQL via Spring Data JPA
 
----
-# Architecture
 
-          ┌───────────────┐
-          │   Web Client  │
-          └──────┬────────┘
-                 │
-                 ▼
-          ┌───────────────┐
-          │  Spring Boot  │
-          │Controllers &  │
-          │   Services    │
-          └──────┬────────┘
-                 │
-     ┌───────────┼───────────┐
-     ▼           ▼           ▼
-┌───────────┐ ┌───────────┐ ┌───────────┐
-│   NeonDB  │ │ Cloudinary│ │   Brevo   │
-│   (Data)  │ │  (Files)  │ │  (Mail)   │
-└───────────┘ └───────────┘ └───────────┘
 ---
 
 ## Requirements
