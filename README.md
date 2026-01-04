@@ -76,8 +76,8 @@ java -jar target/cloud-care-0.0.1-SNAPSHOT.jar
 
 4. Access app:
 
-	•	Main: http://localhost:8080￼
-	•	Admin: http://localhost:8080/admin/login￼
+	•	Main: http://localhost:8080
+	•	Admin: http://localhost:8080/admin/login
 
 
 ---
