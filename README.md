@@ -10,8 +10,8 @@
 ---
 
 ## Live Demo
-- **Main site:** https://cloudcare-3.onrender.com/￼
-- **Admin panel:** https://cloudcare-3.onrender.com/admin/login￼
+- **Main site:** https://cloudcare-3.onrender.com/
+- **Admin panel:** https://cloudcare-3.onrender.com/admin/login
 
 Note: Admin has a separate login page.
 ---
