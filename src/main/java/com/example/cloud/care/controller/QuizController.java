@@ -37,6 +37,82 @@ public class QuizController {
         return "index1";
     }
 
+    /**
+     * JSON form of the quiz questions, for the Next.js frontend.
+     *
+     * <p>Same source ({@code questions.txt}) and same option list as the
+     * Thymeleaf view, so both paths stay in step.
+     */
+    @GetMapping("/api/quiz")
+    @ResponseBody
+    public Map<String, Object> quizJson(@RequestParam(name = "name", required = false) String name) {
+        List<String> questions;
+        try {
+            questions = loadQuestions();
+        } catch (IOException e) {
+            e.printStackTrace();
+            questions = Collections.emptyList();
+        }
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("success", true);
+        out.put("name", (name == null || name.isEmpty()) ? "Anonymous" : name);
+        out.put("questions", questions);
+        out.put("options", Arrays.asList(OPTIONS));
+        return out;
+    }
+
+    /**
+     * Scores a submitted quiz and returns the result as JSON.
+     *
+     * <p>Mirrors {@code POST /patient/result} exactly — same question-key
+     * matching, same score bands — and also stashes the result in the session so
+     * the existing PDF download route can still serve it.
+     */
+    @PostMapping("/api/quiz/result")
+    @ResponseBody
+    public Map<String, Object> resultJson(@RequestParam Map<String, String> answers, HttpSession session) {
+        String name = answers.getOrDefault("name", "Anonymous");
+
+        int score = 0;
+        int questionCount = 0;
+
+        for (Map.Entry<String, String> e : answers.entrySet()) {
+            Matcher m = QUESTION_KEY.matcher(e.getKey());
+            if (m.matches()) {
+                questionCount++;
+                String ans = e.getValue();
+                int idx = Arrays.asList(OPTIONS).indexOf(ans);
+                score += (idx >= 0) ? SCORES[idx] : 0;
+            }
+        }
+
+        String status = getStatus(score);
+        String suggestion = getSuggestion(score);
+
+        QuizResult result = new QuizResult(name, score, status, suggestion);
+
+        if (answers.containsKey("q_suicidal")) {
+            String val = answers.get("q_suicidal");
+            if ("Nearly every day".equals(val) || "More than half the days".equals(val)) {
+                result.setSuicidalRisk(true);
+            }
+        }
+
+        session.setAttribute("lastQuizResult", result);
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("success", true);
+        out.put("name", result.getName());
+        out.put("score", result.getScore());
+        out.put("status", result.getStatus());
+        out.put("suggestion", result.getSuggestion());
+        out.put("suicidalRisk", result.hasSuicidalRisk());
+        out.put("questionCount", questionCount);
+        out.put("shareLink", generateShareLink(result));
+        return out;
+    }
+
     @GetMapping("/quiz")
     public String quiz(@RequestParam(name = "name", required = false) String name, Model model) {
         List<String> questions;

@@ -128,7 +128,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/doctor/login", "/doctor/signup", "/doctor/signup/request",
-                                "/doctor/check-email", "/doctor/forgot-password",
+                                "/doctor/check-email", "/doctor/check-bmdc", "/doctor/forgot-password",
                                 "/doctor/reset-password**", "/doctor/css/**", "/doctor/js/**")
                         .permitAll()
                         .anyRequest().authenticated())

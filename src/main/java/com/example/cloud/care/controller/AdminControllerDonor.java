@@ -14,8 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Admin analytics over donors and blood requests.
+ *
+ * <p>This was mapped under {@code /patient/donor-admin}, which made every one of
+ * these endpoints fall inside the {@code /patient/**} security chain (Order 1).
+ * An ADMIN session therefore never matched that chain's authorities, and the
+ * requests were bounced to the patient login page. It is admin functionality, so
+ * it now lives under {@code /admin/donor} where the {@code /admin/**} chain
+ * (Order 3) applies and {@code hasRole("ADMIN")} is actually enforced.
+ */
 @Controller
-@RequestMapping("/patient/donor-admin")
+@RequestMapping("/admin/donor")
 public class AdminControllerDonor {
 
     @Autowired
@@ -26,14 +36,15 @@ public class AdminControllerDonor {
 
     @GetMapping("")
     public String adminPage() {
-        return "redirect:/patient/donor";
+        return "redirect:/admin/donor/dashboard";
     }
 
     @GetMapping("/dashboard")
     public String donorDashboard(org.springframework.ui.Model model) {
         // No "admin_dashboardDonor" template exists; this path previously 500'd.
-        // Redirect to the donor dashboard, matching the sibling @GetMapping("") above.
-        return "redirect:/patient/donor";
+        // The Next.js frontend serves this screen, so the JSON endpoints below are
+        // what actually get consumed. Keep a redirect for any legacy link.
+        return "redirect:/admin/donor/dashboard";
     }
 
     @GetMapping("/api/summary")

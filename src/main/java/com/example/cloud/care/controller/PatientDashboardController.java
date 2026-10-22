@@ -1,4 +1,8 @@
 package com.example.cloud.care.controller;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Donor;
 import com.example.cloud.care.model.Patient;
@@ -67,6 +71,50 @@ public class PatientDashboardController {
         // IMPORTANT: Return the template name, not the response text!
         return "aichat"; // This tells Spring to render aichat.html template
     }
+
+    /**
+     * JSON variant of {@code POST /patient/chat} for the Next.js frontend.
+     *
+     * <p>Prefers the real {@code gpt-4o-mini} service; if no API key is configured
+     * or the call fails, falls back to the existing canned keyword answers so the
+     * page is never left without a reply. The boolean in the response tells the
+     * frontend whether to show the "powered by GPT" attribution.
+     */
+    @PostMapping("/api/chat")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public Map<String, Object> chatJson(@RequestParam("message") String message) {
+        String trimmed = message == null ? "" : message.trim();
+        if (trimmed.isEmpty()) {
+            Map<String, Object> out = new java.util.LinkedHashMap<>();
+            out.put("success", false);
+            out.put("reply", "Please type a message first.");
+            return out;
+        }
+
+        String reply;
+        boolean ai;
+
+        String apiKey = openaiApiKey == null ? "" : openaiApiKey.trim();
+        if (apiKey.isEmpty() || apiKey.startsWith("${")) {
+            reply = getGimmickResponse(trimmed);
+            ai = false;
+        } else {
+            reply = chatService.getChatResponse(trimmed);
+            // ChatService signals failure with this marker rather than throwing,
+            // so a failed call degrades to the canned answers instead of an error.
+            ai = !reply.startsWith("⚠️");
+            if (!ai) reply = getGimmickResponse(trimmed);
+        }
+
+        Map<String, Object> out = new java.util.LinkedHashMap<>();
+        out.put("success", true);
+        out.put("reply", reply);
+        out.put("ai", ai);
+        return out;
+    }
+
+    @Value("${openai.api.key:}")
+    private String openaiApiKey;
 
     // GIMMICK FUNCTION - Hardcoded responses for common stuff
     private String getGimmickResponse(String message) {

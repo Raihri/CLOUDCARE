@@ -5,3 +5,7 @@
 
 # maven build output
 target/
+
+# local run logs
+backend.log
+*.log

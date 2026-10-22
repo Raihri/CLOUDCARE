@@ -164,7 +164,10 @@ public class AuthController {
         return "otp"; // OTP verification page
     }
 
-    @PostMapping("/patient/logout")
+    // Path must be "/logout" only — the class-level @RequestMapping("/patient")
+    // already supplies the prefix. "/patient/logout" here resolved to
+    // /patient/patient/logout and was unreachable.
+    @PostMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
         // Invalidate the session and clear authentication
