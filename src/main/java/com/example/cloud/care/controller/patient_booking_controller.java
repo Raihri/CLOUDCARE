@@ -51,7 +51,7 @@ public class patient_booking_controller {
         model.addAttribute("availabilityList",
                 availabilityService.getAvailabilityForDoctor(doctor));
 
-        return "shitshitshit"; // your availability view template
+        return "doctor_availability"; // availability view template
     }
 
    @PostMapping("/{doctorId}/book/{slotId}")

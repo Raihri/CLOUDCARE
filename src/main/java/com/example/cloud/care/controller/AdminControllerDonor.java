@@ -31,7 +31,9 @@ public class AdminControllerDonor {
 
     @GetMapping("/dashboard")
     public String donorDashboard(org.springframework.ui.Model model) {
-        return "admin_dashboardDonor";
+        // No "admin_dashboardDonor" template exists; this path previously 500'd.
+        // Redirect to the donor dashboard, matching the sibling @GetMapping("") above.
+        return "redirect:/patient/donor";
     }
 
     @GetMapping("/api/summary")

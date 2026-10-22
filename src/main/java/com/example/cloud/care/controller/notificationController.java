@@ -34,7 +34,7 @@ public class notificationController {
             return "notification"; // This will load notification.html
         } catch (Exception e) {
             model.addAttribute("error", "Patient not found");
-            return "error";
+            return "error_page";
         }
     }
 
@@ -51,7 +51,7 @@ public class notificationController {
             return "notification"; // This will load notification.html
         } catch (Exception e) {
             model.addAttribute("error", "Patient not found");
-            return "error";
+            return "error_page";
         }
     }
 

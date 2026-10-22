@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   CloudCare Design Tokens
+   ----------------------------------------------------------------------------
+   ONE source of truth for color, type, spacing and elevation.
+
+   This file is the mechanism that replaces the old codebase's ~370 ad-hoc hex
+   values. The rule that keeps it that way: never type a raw hex in a component.
+   If a color is needed, it must exist here first.
+
+   --color-blood is DELIBERATELY RESTRICTED: blood group chips, urgency badges
+   and critical alerts only. It is not a general-purpose red.
+   ========================================================================== */
+
+:root {
+  /* ---- Primary: clinical teal -------------------------------------------
+     Calm, trustworthy, medical. Chosen over the old 52 competing blues. */
+  --color-primary-50: #f0fdfa;
+  --color-primary-100: #ccfbf1;
+  --color-primary-200: #99f6e4;
+  --color-primary-300: #5eead4;
+  --color-primary-400: #2dd4bf;
+  --color-primary-500: #14b8a6;
+  --color-primary-600: #0d9488;
+  --color-primary-700: #0f766e;
+  --color-primary-800: #115e59;
+  --color-primary-900: #134e4a;
+
+  /* ---- Accent: deeper teal, for hover/active states --------------------- */
+  --color-accent: #115e59;
+
+  /* ---- Neutral: the only greys permitted in the system ------------------- */
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+
+  /* ---- Semantic --------------------------------------------------------- */
+  --color-success: #059669;
+  --color-success-soft: #ecfdf5;
+  --color-warning: #d97706;
+  --color-warning-soft: #fffbeb;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fef2f2;
+  --color-info: #2563eb;
+  --color-info-soft: #eff6ff;
+
+  /* ---- Blood / urgency. RESTRICTED USE. --------------------------------
+     This is the one legitimate red in the product. It signals an actual blood
+     group, an actual urgency level, or a genuinely critical alert. Never use
+     it for generic emphasis, decoration, or hover states. */
+  --color-blood: #dc2626;
+  --color-blood-dark: #b91c1c;
+  --color-blood-soft: #fef2f2;
+
+  /* ---- Surfaces & text -------------------------------------------------- */
+  --color-surface: #ffffff;
+  --color-surface-sunken: var(--color-neutral-50);
+  --color-surface-raised: #ffffff;
+  --color-border: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-300);
+  --color-text-primary: var(--color-neutral-900);
+  --color-text-secondary: var(--color-neutral-600);
+  --color-text-muted: var(--color-neutral-500);
+  --color-text-inverted: #ffffff;
+
+  /* ---- Radius ----------------------------------------------------------- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ---- Elevation: subtle borders + soft shadow, no glassmorphism ------ */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+  --shadow-md: 0 2px 8px -2px rgb(15 23 42 / 0.08), 0 1px 2px 0 rgb(15 23 42 / 0.04);
+  --shadow-lg: 0 12px 24px -8px rgb(15 23 42 / 0.12), 0 2px 4px -2px rgb(15 23 42 / 0.04);
+}
+
+/* Expose the tokens to Tailwind so utilities like `bg-primary-600`,
+   `text-text-secondary` and `border-border` resolve from the palette above.
+   This is what makes off-palette values obvious: `bg-[#4a90e2]` sticks out. */
+@theme inline {
+  --color-primary-50: var(--color-primary-50);
+  --color-primary-100: var(--color-primary-100);
+  --color-primary-200: var(--color-primary-200);
+  --color-primary-300: var(--color-primary-300);
+  --color-primary-400: var(--color-primary-400);
+  --color-primary-500: var(--color-primary-500);
+  --color-primary-600: var(--color-primary-600);
+  --color-primary-700: var(--color-primary-700);
+  --color-primary-800: var(--color-primary-800);
+  --color-primary-900: var(--color-primary-900);
+  --color-accent: var(--color-accent);
+
+  --color-neutral-50: var(--color-neutral-50);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-200: var(--color-neutral-200);
+  --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-400: var(--color-neutral-400);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-600: var(--color-neutral-600);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-neutral-800: var(--color-neutral-800);
+  --color-neutral-900: var(--color-neutral-900);
+
+  --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
+  --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
+  --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
+  --color-info: var(--color-info);
+  --color-info-soft: var(--color-info-soft);
+
+  --color-blood: var(--color-blood);
+  --color-blood-dark: var(--color-blood-dark);
+  --color-blood-soft: var(--color-blood-soft);
+
+  --color-surface: var(--color-surface);
+  --color-surface-sunken: var(--color-surface-sunken);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-inverted: var(--color-text-inverted);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---- Base ------------------------------------------------------------- */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text-primary);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A single visible focus treatment across the entire app. The old codebase
+   had no consistent focus state at all. */
+:focus-visible {
+  outline: 2px solid var(--color-primary-600);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

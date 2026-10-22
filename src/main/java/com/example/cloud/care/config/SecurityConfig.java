@@ -189,6 +189,10 @@ public SecurityFilterChain publicPages(HttpSecurity http) throws Exception {
             .securityMatcher("/**") // global match for last priority
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/", "/landing", "/css/**", "/js/**", "/image/**","/video/**").permitAll()
+                    // Role-agnostic identity endpoint used by the Next.js frontend.
+                    // Must be reachable for all three roles so it can report which one
+                    // is active; it answers 401 itself when nobody is signed in.
+                    .requestMatchers("/api/me").permitAll()
                     .anyRequest().permitAll() // final fallback
             )
             .csrf(csrf -> csrf.disable());

@@ -41,6 +41,6 @@ public class PatientAppointmentController {
         model.addAttribute("appointments", appointments);
         model.addAttribute("patient", patient);
 
-        return "shitpatient"; // Thymeleaf template name
+        return "doctor_list_public"; // Thymeleaf template name
     }
 }

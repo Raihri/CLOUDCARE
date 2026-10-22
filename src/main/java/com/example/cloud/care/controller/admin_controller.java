@@ -116,7 +116,7 @@ public String showDonorManagement(Model model) {
     } catch (Exception e) {
         e.printStackTrace();
         model.addAttribute("error", "Failed to load donor management");
-        return "error";
+        return "error_page";
     }
 }
 private boolean safeEligibilityCheck(com.example.cloud.care.model.Donor donor) {
