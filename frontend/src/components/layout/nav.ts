@@ -3,40 +3,44 @@ import type { Role } from "@/lib/auth";
 export type NavItem = {
   href: string;
   label: string;
+  /** Boxicons class, ported from fragments/sidebar.html so the nav keeps the
+   *  icons it has always had. */
   icon: string;
   exact?: boolean;
 };
 
 /**
- * One nav definition per role, replacing ~17 hand-rolled sidebars that each
- * had their own icon set, link order and active-state logic.
+ * Ported from src/main/resources/templates/fragments/sidebar.html — the 8
+ * patient entries, their labels and their exact `bx bxs-*` icons. Hrefs point
+ * at the new Next.js routes rather than the old Thymeleaf paths.
+ *
+ * Doctor and admin trees were hand-rolled per page in the legacy templates;
+ * these consolidate them using the same visual language.
  */
 export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   PATIENT: [
-    { href: "/dashboard", label: "Dashboard", icon: "▦", exact: true },
-    { href: "/requests", label: "Blood Requests", icon: "❥" },
-    { href: "/donors", label: "Donors", icon: "◈" },
-    { href: "/doctors", label: "Doctors", icon: "⚕" },
-    { href: "/appointments", label: "Appointments", icon: "☰" },
-    { href: "/health-records", label: "Health Records", icon: "❤" },
-    { href: "/ai-chat", label: "CloudCare AI", icon: "✦" },
-    { href: "/quiz", label: "Mental Health Quiz", icon: "◑" },
-    { href: "/notifications", label: "Notifications", icon: "◔" },
-    { href: "/feedback", label: "Feedback", icon: "✎" },
+    { href: "/dashboard", label: "Patient Profile", icon: "bxs-user", exact: true },
+    { href: "/health-records", label: "Edit Profile", icon: "bxs-edit" },
+    { href: "/doctors", label: "Doctors List", icon: "bx-list-ul" },
+    { href: "/donors", label: "Find Donor", icon: "bxs-droplet" },
+    { href: "/ai-chat", label: "CloudCare AI", icon: "bxs-chat" },
+    { href: "/quiz", label: "Mental Health Quiz", icon: "bxs-brain" },
+    { href: "/feedback", label: "Patient Feedback", icon: "bxs-star" },
+    { href: "/appointments", label: "Appointments", icon: "bxs-calendar-check" },
   ],
   DOCTOR: [
-    { href: "/doctor/dashboard", label: "Dashboard", icon: "▦", exact: true },
-    { href: "/doctor/appointments", label: "Appointments", icon: "☰" },
-    { href: "/doctor/availability", label: "Availability", icon: "◷" },
-    { href: "/doctor/patients", label: "Patients", icon: "◈" },
-    { href: "/doctor/profile", label: "My Profile", icon: "⚕" },
+    { href: "/doctor/dashboard", label: "Dashboard", icon: "bxs-user", exact: true },
+    { href: "/doctor/appointments", label: "Appointments", icon: "bxs-calendar-check" },
+    { href: "/doctor/availability", label: "Availability", icon: "bx-time" },
+    { href: "/doctor/patients", label: "My Patients", icon: "bx-list-ul" },
+    { href: "/doctor/profile", label: "Edit Profile", icon: "bxs-edit" },
   ],
   ADMIN: [
-    { href: "/admin/dashboard", label: "Dashboard", icon: "▦", exact: true },
-    { href: "/admin/doctors", label: "Doctors", icon: "⚕" },
-    { href: "/admin/doctors/pending", label: "Pending Approval", icon: "◷" },
-    { href: "/admin/donors", label: "Donor Analytics", icon: "◈" },
-    { href: "/admin/feedbacks", label: "Feedback", icon: "✎" },
+    { href: "/admin/dashboard", label: "Dashboard", icon: "bxs-dashboard", exact: true },
+    { href: "/admin/doctors", label: "Doctors List", icon: "bx-list-ul" },
+    { href: "/admin/doctors/pending", label: "Pending Doctors", icon: "bxs-time" },
+    { href: "/admin/donors", label: "Donor Analysis", icon: "bxs-droplet" },
+    { href: "/admin/feedbacks", label: "Feedback List", icon: "bxs-star" },
   ],
 };
 
@@ -47,7 +51,8 @@ export function roleForPath(pathname: string): Role | null {
   if (
     pathname === "/" ||
     pathname.startsWith("/login") ||
-    pathname.startsWith("/register")
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/verify")
   ) {
     return null;
   }

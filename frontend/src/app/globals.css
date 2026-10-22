@@ -3,90 +3,113 @@
 /* ============================================================================
    CloudCare Design Tokens
    ----------------------------------------------------------------------------
-   ONE source of truth for color, type, spacing and elevation.
+   These values are PORTED FROM THE EXISTING TEMPLATES, not invented. Every
+   hex here appears in the legacy CSS or templates:
 
-   This file is the mechanism that replaces the old codebase's ~370 ad-hoc hex
-   values. The rule that keeps it that way: never type a raw hex in a component.
-   If a color is needed, it must exist here first.
+     --color-brand-*      #2A7DE1 / #1976D2 / #0D47A1  patient_dashboard.html, styles.css
+     --color-navy         #040D72                        style.css (headings, buttons)
+     --color-sidebar-*    #23282D / #191E23 / #1D1B31    style.css (.sidebar)
+     --color-highlight    #00A0D2                        style.css (active nav item)
+     --color-azure        #1D8CF8                        style.css (chips, accents)
+
+   Why a token layer at all, if the originals already exist? Because the
+   originals CONFLICT — style.css, styles.css and styles-feedback.css each
+   define their own :root, and 46 of 53 templates carry ~12,000 lines of
+   inline CSS in their <head>. The tokens keep the ported appearance while
+   collapsing that duplication into one authoritative set.
+
+   The rule that maintains it: never type a raw hex in a component. If a color
+   is needed, it must exist here first.
 
    --color-blood is DELIBERATELY RESTRICTED: blood group chips, urgency badges
    and critical alerts only. It is not a general-purpose red.
    ========================================================================== */
 
 :root {
-  /* ---- Primary: clinical teal -------------------------------------------
-     Calm, trustworthy, medical. Chosen over the old 52 competing blues. */
-  --color-primary-50: #f0fdfa;
-  --color-primary-100: #ccfbf1;
-  --color-primary-200: #99f6e4;
-  --color-primary-300: #5eead4;
-  --color-primary-400: #2dd4bf;
-  --color-primary-500: #14b8a6;
-  --color-primary-600: #0d9488;
-  --color-primary-700: #0f766e;
-  --color-primary-800: #115e59;
-  --color-primary-900: #134e4a;
+  /* ---- Brand blue ramp ---------------------------------------------------
+     Built around #2A7DE1 (the dashboard's --primary) with #1976D2/#0D47A1
+     from styles.css. Deep navy #040D72 is the heading/button colour. */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafc;
+  --color-primary-200: #bbdefb;
+  --color-primary-300: #90caf9;
+  --color-primary-400: #64b5f6;
+  --color-primary-500: #2a7de1;
+  --color-primary-600: #1976d2;
+  --color-primary-700: #1565c0;
+  --color-primary-800: #0d47a1;
+  --color-primary-900: #040d72;
 
-  /* ---- Accent: deeper teal, for hover/active states --------------------- */
-  --color-accent: #115e59;
+  /* ---- Ported accents --------------------------------------------------- */
+  --color-navy: #040d72; /* headings, primary buttons — style.css */
+  --color-highlight: #00a0d2; /* ACTIVE sidebar item — style.css:602 */
+  --color-azure: #1d8cf8; /* chips, small accents — style.css:585 */
+  --color-mint: #00c9a7; /* "available" status dot — patient_dashboard.html */
+  --color-coral: #ff6b6b; /* accent — patient_dashboard.html */
 
-  /* ---- Neutral: the only greys permitted in the system ------------------- */
-  --color-neutral-50: #f8fafc;
-  --color-neutral-100: #f1f5f9;
-  --color-neutral-200: #e2e8f0;
-  --color-neutral-300: #cbd5e1;
-  --color-neutral-400: #94a3b8;
-  --color-neutral-500: #64748b;
-  --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1e293b;
-  --color-neutral-900: #0f172a;
+  /* ---- Sidebar: the dark shell ------------------------------------------
+     Fixed #23282D, hover #191E23, sub-menu #1D1B31, footer #000000C2. */
+  --color-sidebar: #23282d;
+  --color-sidebar-hover: #191e23;
+  --color-sidebar-sub: #1d1b31;
+  --color-sidebar-footer: #000000c2;
 
-  /* ---- Semantic --------------------------------------------------------- */
-  --color-success: #059669;
-  --color-success-soft: #ecfdf5;
+  /* ---- Neutral ---------------------------------------------------------- */
+  --color-neutral-50: #f7f8fa; /* .home-section background */
+  --color-neutral-100: #f0f2f5; /* body background */
+  --color-neutral-200: #e2e4e7; /* borders — style.css */
+  --color-neutral-300: #d1e3f3;
+  --color-neutral-400: #b4b9be;
+  --color-neutral-500: #888;
+  --color-neutral-600: #718096; /* --gray — patient_dashboard.html */
+  --color-neutral-700: #4a5568;
+  --color-neutral-800: #2d3748; /* --dark — patient_dashboard.html */
+  --color-neutral-900: #11101d;
+
+  /* ---- Semantic (from styles.css + the --gray/--danger inline tokens) ---- */
+  --color-success: #2e7d32;
+  --color-success-soft: #e8f5e9;
   --color-warning: #d97706;
   --color-warning-soft: #fffbeb;
-  --color-danger: #dc2626;
-  --color-danger-soft: #fef2f2;
-  --color-info: #2563eb;
-  --color-info-soft: #eff6ff;
+  --color-danger: #c62828;
+  --color-danger-soft: #ffebee;
+  --color-info: #1976d2;
+  --color-info-soft: #e8f2ff;
 
   /* ---- Blood / urgency. RESTRICTED USE. --------------------------------
-     This is the one legitimate red in the product. It signals an actual blood
-     group, an actual urgency level, or a genuinely critical alert. Never use
-     it for generic emphasis, decoration, or hover states. */
-  --color-blood: #dc2626;
+     The one legitimate red in the product: an actual blood group, an actual
+     urgency level, or a genuinely critical alert. Never generic emphasis. */
+  --color-blood: #d32f2f;
   --color-blood-dark: #b91c1c;
-  --color-blood-soft: #fef2f2;
+  --color-blood-soft: #ffebee;
 
   /* ---- Surfaces & text -------------------------------------------------- */
   --color-surface: #ffffff;
-  --color-surface-sunken: var(--color-neutral-50);
+  --color-surface-sunken: var(--color-neutral-100);
   --color-surface-raised: #ffffff;
   --color-border: var(--color-neutral-200);
-  --color-border-strong: var(--color-neutral-300);
-  --color-text-primary: var(--color-neutral-900);
-  --color-text-secondary: var(--color-neutral-600);
-  --color-text-muted: var(--color-neutral-500);
+  --color-border-strong: #b4b9be;
+  --color-text-primary: #2d3748;
+  --color-text-secondary: #718096;
+  --color-text-muted: #888;
   --color-text-inverted: #ffffff;
 
-  /* ---- Radius ----------------------------------------------------------- */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* ---- Radius: templates use 12–15px, not the 6–8px I'd assumed ---------- */
+  --radius-sm: 0.5rem; /* 8px */
+  --radius-md: 0.75rem; /* 12px — the templates' dominant radius */
+  --radius-lg: 0.875rem; /* 14px — styles.css --radius */
+  --radius-xl: 0.9375rem; /* 15px — the sidebar's border-radius */
   --radius-full: 9999px;
 
-  /* ---- Elevation: subtle borders + soft shadow, no glassmorphism ------ */
-  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
-  --shadow-md: 0 2px 8px -2px rgb(15 23 42 / 0.08), 0 1px 2px 0 rgb(15 23 42 / 0.04);
-  --shadow-lg: 0 12px 24px -8px rgb(15 23 42 / 0.12), 0 2px 4px -2px rgb(15 23 42 / 0.04);
+  /* ---- Elevation: templates use a soft 20px blur, not a tight shadow ---- */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 20px rgb(0 0 0 / 0.08); /* --shadow, patient_dashboard.html */
+  --shadow-lg: 0 14px 40px rgb(12 26 56 / 0.08); /* .quiz-container */
 }
 
-/* Expose the tokens to Tailwind so utilities like `bg-primary-600`,
-   `text-text-secondary` and `border-border` resolve from the palette above.
-   This is what makes off-palette values obvious: `bg-[#4a90e2]` sticks out. */
+/* Expose the tokens to Tailwind so `bg-primary-600`, `text-text-secondary` and
+   `border-border` resolve from the palette above. This is what makes
+   off-palette values obvious: `bg-[#4a90e2]` sticks out. */
 @theme inline {
   --color-primary-50: var(--color-primary-50);
   --color-primary-100: var(--color-primary-100);
@@ -98,7 +121,17 @@
   --color-primary-700: var(--color-primary-700);
   --color-primary-800: var(--color-primary-800);
   --color-primary-900: var(--color-primary-900);
-  --color-accent: var(--color-accent);
+
+  --color-navy: var(--color-navy);
+  --color-highlight: var(--color-highlight);
+  --color-azure: var(--color-azure);
+  --color-mint: var(--color-mint);
+  --color-coral: var(--color-coral);
+
+  --color-sidebar: var(--color-sidebar);
+  --color-sidebar-hover: var(--color-sidebar-hover);
+  --color-sidebar-sub: var(--color-sidebar-sub);
+  --color-sidebar-footer: var(--color-sidebar-footer);
 
   --color-neutral-50: var(--color-neutral-50);
   --color-neutral-100: var(--color-neutral-100);
@@ -142,8 +175,6 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
-
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ---- Base ------------------------------------------------------------- */
@@ -154,14 +185,14 @@
 body {
   background-color: var(--color-surface-sunken);
   color: var(--color-text-primary);
-  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-poppins), "Segoe UI", Tahoma, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 /* A single visible focus treatment across the entire app. The old codebase
    had no consistent focus state at all. */
 :focus-visible {
-  outline: 2px solid var(--color-primary-600);
+  outline: 2px solid var(--color-highlight);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }

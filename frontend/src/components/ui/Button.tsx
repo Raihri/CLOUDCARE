@@ -10,12 +10,14 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   children?: ReactNode;
 };
 
+/* Values ported from static/css/style.css: primary buttons use navy #040D72,
+   which is the colour the templates already use for `.btn`/headings. */
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm",
+    "bg-primary-900 text-white hover:bg-primary-800 active:bg-primary-900 shadow-sm",
   secondary:
-    "bg-surface text-text-primary border border-border-strong hover:bg-neutral-100",
-  ghost: "bg-transparent text-text-secondary hover:bg-neutral-100",
+    "bg-surface text-primary-900 border border-primary-600 hover:bg-primary-50",
+  ghost: "bg-transparent text-text-secondary hover:bg-neutral-200",
   danger: "bg-danger text-white hover:bg-danger/90",
   // Reserved for blood-donation actions only.
   blood: "bg-blood text-white hover:bg-blood-dark",

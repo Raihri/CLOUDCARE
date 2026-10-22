@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
+
 import "./globals.css";
 
-/* ONE font for the entire product. Replaces the old codebase's 15 competing
-   font stacks (Poppins vs Inter vs Montserrat vs Arial vs Courier).
-   next/font self-hosts it — no external request, no layout shift. */
-const inter = Inter({
-  variable: "--font-inter",
+/* ONE font for the entire product, chosen to MATCH the existing templates —
+   style.css imports Poppins 300-700 and every dashboard inherits it. The old
+   codebase had 15 competing stacks (Poppins vs Inter vs Montserrat vs Arial
+   vs Courier); this locks in the dominant one. next/font self-hosts it, so
+   there is no external request and no layout shift. */
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -24,8 +28,17 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={`${poppins.variable} h-full antialiased`}>
+      <head>
+        {/* Boxicons is the icon set every template already uses
+            (bxs-droplet, bx-list-ul, bxs-user, ...). Ported rather than
+            replaced so the nav keeps the icons it has always had. */}
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css"
+        />
+      </head>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
 }
