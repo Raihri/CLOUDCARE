@@ -1,6 +1,48 @@
 import type { ReactNode } from "react";
 
 /**
+ * Server-action error banner. Previously each form copy-pasted its own
+ * `role="alert"` <p>, which is how three shades of red crept into the app.
+ */
+export function ErrorMessage({
+  children,
+  id,
+}: {
+  children: ReactNode;
+  id?: string;
+}) {
+  if (!children) return null;
+  return (
+    <p
+      id={id}
+      role="alert"
+      className="rounded-md border border-danger/20 bg-danger-soft px-3 py-2 text-sm text-danger"
+    >
+      {children}
+    </p>
+  );
+}
+
+export function SuccessMessage({
+  children,
+  id,
+}: {
+  children: ReactNode;
+  id?: string;
+}) {
+  if (!children) return null;
+  return (
+    <p
+      id={id}
+      role="status"
+      className="rounded-md border border-success/20 bg-success-soft px-3 py-2 text-sm text-success"
+    >
+      {children}
+    </p>
+  );
+}
+
+/**
  * Empty state — replaces the many ad-hoc "no data" blocks.
  * Every list in the app uses this so an empty result always looks intentional.
  */

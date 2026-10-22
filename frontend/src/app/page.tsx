@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { RolePortals } from "@/components/marketing/RolePortals";
 import { Card } from "@/components/ui/Card";
 import { getCurrentUser, homeFor } from "@/lib/auth";
 
@@ -66,26 +67,20 @@ function AuthActionsSkeleton() {
   );
 }
 
-async function PrimaryCta() {
-  const user = await getCurrentUser();
+/** Portal placeholders. The real cards need the session, so they stream in. */
+function PortalSkeleton() {
   return (
-    <Link href={user ? homeFor(user.role) : "/register"}>
-      <Button size="lg">
-        {user ? "Open your dashboard" : "Create an account"}
-      </Button>
-    </Link>
-  );
-}
-
-async function SecondaryCta() {
-  const user = await getCurrentUser();
-  if (user) return null;
-  return (
-    <Link href="/login">
-      <Button variant="secondary" size="lg">
-        Sign in
-      </Button>
-    </Link>
+    <section>
+      <div className="h-6 w-56 animate-pulse rounded-md bg-neutral-200" />
+      <div className="mt-4 grid grid-cols-3 gap-4">
+        {[0, 1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-52 animate-pulse rounded-lg border border-border bg-surface"
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -123,31 +118,33 @@ export default function LandingPage() {
               Blood donation, doctor appointments and your health records — in
               one calm, simple place.
             </p>
-            <div className="mt-2 flex items-center gap-3">
-              <Suspense fallback={<Button size="lg">Create an account</Button>}>
-                <PrimaryCta />
-              </Suspense>
-              <Suspense fallback={null}>
-                <SecondaryCta />
-              </Suspense>
-            </div>
           </div>
 
+          {/* ---- Role portals: the three doors ---- */}
+          <Suspense fallback={<PortalSkeleton />}>
+            <RolePortals />
+          </Suspense>
+
           {/* ---- Features ---- */}
-          <div className="grid grid-cols-2 gap-4">
-            {FEATURES.map((feature) => (
-              <Card key={feature.title} className="p-6">
-                <span className="flex size-9 items-center justify-center rounded-md bg-primary-50 text-lg text-primary-600">
-                  <span aria-hidden>{feature.icon}</span>
-                </span>
-                <h2 className="mt-4 font-semibold text-text-primary">
-                  {feature.title}
-                </h2>
-                <p className="mt-1 text-sm text-text-secondary">
-                  {feature.description}
-                </p>
-              </Card>
-            ))}
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight text-text-primary">
+              What you can do here
+            </h2>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {FEATURES.map((feature) => (
+                <Card key={feature.title} className="p-6">
+                  <span className="flex size-9 items-center justify-center rounded-md bg-primary-50 text-lg text-primary-600">
+                    <span aria-hidden>{feature.icon}</span>
+                  </span>
+                  <h3 className="mt-4 font-semibold text-text-primary">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-text-secondary">
+                    {feature.description}
+                  </p>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
       </main>

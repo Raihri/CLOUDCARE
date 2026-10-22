@@ -30,7 +30,13 @@ if [ -f .env ]; then
   done < .env
 fi
 
-GOAL="${1:-spring-boot:run}"
+# Remaining args are passed through verbatim, so compound goals with flags work:
+#   ./run-backend.sh -q compile
+#   ./run-backend.sh spring-boot:run -Dspring-boot.run.fork=false
+if [ "$#" -gt 0 ]; then
+  echo "Using JAVA_HOME=$JAVA_HOME"
+  exec ./mvnw "$@"
+fi
 
 echo "Using JAVA_HOME=$JAVA_HOME"
-exec ./mvnw "$GOAL"
+exec ./mvnw spring-boot:run
