@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { BloodGroupBadge, StatusBadge } from "@/components/ui/Badge";
 import { Card, CardBody } from "@/components/ui/Card";
-import { EmptyState } from "@/components/ui/Feedback";
+import { EmptyState, SuccessMessage } from "@/components/ui/Feedback";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { fetchMyRequests } from "@/lib/patient-api";
@@ -13,9 +13,15 @@ export const metadata: Metadata = { title: "My Blood Requests" };
 
 export const instant = false;
 
-export default async function RequestsPage() {
+export default async function RequestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ created?: string; matched?: string }>;
+}) {
   const user = await requireRole(["PATIENT"], "/requests");
   const requests = await fetchMyRequests();
+  const { created, matched } = await searchParams;
+  const matchedCount = Number(matched ?? 0);
 
   return (
     <AppShell user={user}>
@@ -31,6 +37,17 @@ export default async function RequestsPage() {
           </Link>
         }
       />
+
+      {created ? (
+        <div className="mb-4">
+          <SuccessMessage>
+            Your request has been posted.{" "}
+            {matchedCount > 0
+              ? `${matchedCount} eligible donor${matchedCount === 1 ? "" : "s"} already registered for this group.`
+              : "We'll notify you as soon as a matching donor is available."}
+          </SuccessMessage>
+        </div>
+      ) : null}
 
       {requests.length === 0 ? (
         <Card>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { BloodGroupBadge, StatusBadge } from "@/components/ui/Badge";
 import { Card, CardBody } from "@/components/ui/Card";
-import { EmptyState } from "@/components/ui/Feedback";
+import { EmptyState, ErrorMessage, SuccessMessage } from "@/components/ui/Feedback";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { fetchDonors } from "@/lib/patient-api";
@@ -13,9 +13,14 @@ export const metadata: Metadata = { title: "Find a Donor" };
 
 export const instant = false;
 
-export default async function DonorsPage() {
+export default async function DonorsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ registered?: string; eligible?: string; reasons?: string }>;
+}) {
   const user = await requireRole(["PATIENT"], "/donors");
   const donors = await fetchDonors();
+  const { registered, eligible, reasons } = await searchParams;
 
   // Donors are a shared public resource, so everyone is listed. Sorting by
   // blood group makes the directory scannable.
@@ -37,6 +42,23 @@ export default async function DonorsPage() {
           </Link>
         }
       />
+
+      {registered ? (
+        <div className="mb-4">
+          {eligible === "1" ? (
+            <SuccessMessage>
+              You&apos;re registered and currently eligible to donate. Thank you
+              for helping the community.
+            </SuccessMessage>
+          ) : (
+            <ErrorMessage>
+              You&apos;re registered, but you&apos;re not eligible to donate right
+              now{reasons ? `: ${reasons.replace(/;/g, ", ")}` : "."} You can
+              update your details once that changes.
+            </ErrorMessage>
+          )}
+        </div>
+      ) : null}
 
       {sorted.length === 0 ? (
         <Card>
