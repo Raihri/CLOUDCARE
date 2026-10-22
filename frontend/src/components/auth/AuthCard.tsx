@@ -26,7 +26,7 @@ export function AuthCard({
   wide?: boolean;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-6 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-surface-sunken">
       <div className={wide ? "w-full max-w-lg" : "w-full max-w-sm"}>
         <div className="mb-6 flex flex-col items-center text-center">
           <span className="flex size-11 items-center justify-center rounded-xl bg-primary-600 text-xl text-white">

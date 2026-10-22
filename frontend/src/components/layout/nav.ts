@@ -24,8 +24,6 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { href: "/doctors", label: "Doctors List", icon: "bx-list-ul" },
     { href: "/donors", label: "Find Donor", icon: "bxs-droplet" },
     { href: "/donor-dashboard", label: "Donor Dashboard", icon: "bxs-dashboard" },
-    { href: "/ai-chat", label: "CloudCare AI", icon: "bxs-chat" },
-    { href: "/quiz", label: "Mental Health Quiz", icon: "bxs-brain" },
     { href: "/feedback", label: "Patient Feedback", icon: "bxs-star" },
     { href: "/appointments", label: "Appointments", icon: "bxs-calendar-check" },
   ],
