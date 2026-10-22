@@ -5,86 +5,107 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { EmptyState, StatCard } from "@/components/ui/Feedback";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { StatusBadge } from "@/components/ui/Badge";
 import { requireRole } from "@/lib/auth";
-import { springJson } from "@/lib/api";
+import {
+  fetchAppointments,
+  fetchDashboard,
+  fetchMyRequests,
+} from "@/lib/patient-api";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 // Authenticated, per-user data — not prerenderable.
 export const instant = false;
 
-type DonorSummary = {
-  totalDonors?: number;
-  eligibleDonors?: number;
-  pendingRequests?: number;
-  matchedRequests?: number;
-  byBloodGroup?: Record<string, number>;
-};
-
 export default async function DashboardPage() {
   const user = await requireRole(["PATIENT"], "/dashboard");
 
-  // Spring being down should not take the whole shell down with it — fall back
-  // to zeros so the page still renders and the user can navigate.
-  let summary: DonorSummary = {};
-  try {
-    summary = await springJson<DonorSummary>("/patient/donor-admin/api/summary");
-  } catch {
-    summary = {};
-  }
+  // All three fetches tolerate failure internally, so a backend blip degrades
+  // this page to empty panels rather than a 500.
+  const [stats, requests, appointments] = await Promise.all([
+    fetchDashboard(),
+    fetchMyRequests(),
+    fetchAppointments(),
+  ]);
 
-  const groups = Object.entries(summary.byBloodGroup ?? {});
+  const recentRequests = requests.slice(0, 5);
+  const upcoming = appointments
+    .filter((a) => a.status !== "CANCELLED")
+    .slice(0, 5);
+
+  const firstName = user.name?.split(" ")[0] ?? user.email;
 
   return (
     <AppShell user={user}>
       <PageHeader
-        title={`Welcome back, ${user.name?.split(" ")[0] ?? user.email}`}
-        description="Here's what's happening in the CloudCare community today."
+        title={`Welcome back, ${firstName}`}
+        description="Here's what's happening with your health today."
       />
 
       <div className="grid grid-cols-4 gap-4">
-        <StatCard label="Registered donors" value={summary.totalDonors ?? 0} />
-        <StatCard label="Eligible to donate" value={summary.eligibleDonors ?? 0} />
         <StatCard
-          label="Pending requests"
-          value={summary.pendingRequests ?? 0}
+          label="My blood requests"
+          value={stats?.myRequests ?? 0}
+          icon={<i className="bx bxs-droplet" aria-hidden />}
         />
-        <StatCard label="Matched requests" value={summary.matchedRequests ?? 0} />
+        <StatCard
+          label="Awaiting a match"
+          value={stats?.pendingRequests ?? 0}
+          icon={<i className="bx bxs-time" aria-hidden />}
+        />
+        <StatCard
+          label="Appointments"
+          value={stats?.appointments ?? 0}
+          icon={<i className="bx bxs-calendar-check" aria-hidden />}
+        />
+        <StatCard
+          label="Unread notifications"
+          value={stats?.unreadNotifications ?? 0}
+          icon={<i className="bx bxs-bell" aria-hidden />}
+        />
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <Card className="col-span-2">
+      <div className="grid grid-cols-2 gap-4">
+        {/* ---- Recent requests ---- */}
+        <Card>
           <CardHeader
-            title="Donors by blood group"
-            description="Community coverage at a glance."
+            title="My recent requests"
+            description="Blood requests you've posted."
+            action={
+              <Link
+                href="/requests"
+                className="text-sm font-medium text-highlight hover:underline"
+              >
+                View all
+              </Link>
+            }
           />
           <CardBody>
-            {groups.length === 0 ? (
+            {recentRequests.length === 0 ? (
               <EmptyState
-                title="No donor data yet"
-                description="Donor registrations will appear here."
+                icon={<i className="bx bxs-droplet" aria-hidden />}
+                title="No blood requests yet"
+                description="Post a request and we'll match you with eligible donors."
               />
             ) : (
-              <ul className="flex flex-col gap-2.5">
-                {groups.map(([group, count]) => (
-                  <li key={group} className="flex items-center gap-3">
-                    <span className="w-20 shrink-0 text-sm font-semibold text-blood">
-                      {group}
-                    </span>
-                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-100">
-                      <span
-                        className="block h-full rounded-full bg-primary-500"
-                        style={{
-                          width: `${Math.min(
-                            100,
-                            (count / Math.max(...groups.map(([, c]) => c))) * 100,
-                          )}%`,
-                        }}
-                      />
-                    </span>
-                    <span className="w-8 shrink-0 text-right text-sm text-text-secondary">
-                      {count}
-                    </span>
+              <ul className="flex flex-col divide-y divide-border">
+                {recentRequests.map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-text-primary">
+                        {r.units} unit{r.units === 1 ? "" : "s"} of{" "}
+                        <span className="text-blood">{r.bloodGroup}</span>
+                      </p>
+                      <p className="truncate text-xs text-text-muted">
+                        {[r.district, r.thana].filter(Boolean).join(", ") ||
+                          "Location not set"}
+                      </p>
+                    </div>
+                    <StatusBadge status={r.status} />
                   </li>
                 ))}
               </ul>
@@ -92,30 +113,79 @@ export default async function DashboardPage() {
           </CardBody>
         </Card>
 
+        {/* ---- Upcoming appointments ---- */}
         <Card>
-          <CardHeader title="Quick actions" />
-          <CardBody className="flex flex-col gap-2">
-            <Link
-              href="/requests/new"
-              className="rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-neutral-100"
-            >
-              Post a blood request
-            </Link>
-            <Link
-              href="/donors/new"
-              className="rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-neutral-100"
-            >
-              Register as a donor
-            </Link>
-            <Link
-              href="/doctors"
-              className="rounded-md border border-border px-3 py-2 text-sm text-text-primary hover:bg-neutral-100"
-            >
-              Find a doctor
-            </Link>
+          <CardHeader
+            title="Upcoming appointments"
+            action={
+              <Link
+                href="/appointments"
+                className="text-sm font-medium text-highlight hover:underline"
+              >
+                View all
+              </Link>
+            }
+          />
+          <CardBody>
+            {upcoming.length === 0 ? (
+              <EmptyState
+                icon={<i className="bx bxs-calendar-check" aria-hidden />}
+                title="No appointments booked"
+                description="Find a doctor and pick a time slot."
+                action={
+                  <Link
+                    href="/doctors"
+                    className="rounded-md bg-primary-900 px-4 py-2 text-sm font-medium text-white hover:bg-primary-800"
+                  >
+                    Browse doctors
+                  </Link>
+                }
+              />
+            ) : (
+              <ul className="flex flex-col divide-y divide-border">
+                {upcoming.map((a) => (
+                  <li
+                    key={a.id}
+                    className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-text-primary">
+                        {a.doctorName}
+                      </p>
+                      <p className="truncate text-xs text-text-muted">
+                        {a.appointmentDate} · {a.timeSlot}
+                      </p>
+                    </div>
+                    <StatusBadge status={a.status} />
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardBody>
         </Card>
       </div>
+
+      {/* ---- Quick actions ---- */}
+      <Card>
+        <CardHeader title="Quick actions" />
+        <CardBody className="flex flex-wrap gap-3">
+          {[
+            { href: "/requests/new", label: "Post a blood request", icon: "bxs-droplet" },
+            { href: "/donors", label: "Find a donor", icon: "bx-search-alt" },
+            { href: "/doctors", label: "Book an appointment", icon: "bxs-calendar-check" },
+            { href: "/donors/new", label: "Register as a donor", icon: "bxs-heart" },
+          ].map((action) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className="flex items-center gap-2 rounded-md border border-border px-4 py-2.5 text-sm text-text-primary transition-colors hover:border-primary-600 hover:bg-primary-50"
+            >
+              <i className={`bx ${action.icon} text-lg text-highlight`} aria-hidden />
+              {action.label}
+            </Link>
+          ))}
+        </CardBody>
+      </Card>
     </AppShell>
   );
 }

@@ -52,16 +52,25 @@ export function BloodGroupBadge({ group }: { group?: string | null }) {
   );
 }
 
-/** Maps a request/donation status string to a consistent tone. */
+/**
+ * Maps a request/donation/appointment status to a consistent tone.
+ *
+ * Two different vocabularies reach this component: blood requests use
+ * "Pending"/"Matched"/"Confirmed" while appointments use uppercase
+ * "PENDING"/"CONFIRMED"/"CANCELLED"/"COMPLETED". Matching is
+ * case-insensitive so one mapping covers both.
+ */
 export function StatusBadge({ status }: { status?: string | null }) {
+  const key = status?.toUpperCase();
+
   const tone: Tone =
-    status === "Pending"
+    key === "PENDING"
       ? "warning"
-      : status === "Matched"
+      : key === "MATCHED"
         ? "info"
-        : status === "Completed" || status === "Approved"
+        : key === "CONFIRMED" || key === "COMPLETED" || key === "APPROVED"
           ? "success"
-          : status === "Cancelled" || status === "Rejected"
+          : key === "CANCELLED" || key === "REJECTED" || key === "NOT ELIGIBLE"
             ? "danger"
             : "neutral";
 
