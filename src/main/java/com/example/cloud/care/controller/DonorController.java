@@ -28,8 +28,47 @@ public class DonorController {
     @Autowired
     private com.example.cloud.care.service.RequestService requestService;
 
+    @Autowired
+    private com.example.cloud.care.service.loggedInUserFind loggedInUserFind;
+
     public DonorController(DonorService donorService) {
         this.donorService = donorService;
+    }
+
+    /**
+     * The signed-in patient's email, or null when nobody usable is signed in.
+     */
+    private String currentEmail() {
+        try {
+            var patient = loggedInUserFind.logger();
+            // Email hangs off the associated User, not off Patient directly.
+            if (patient == null || patient.getUser() == null) {
+                return null;
+            }
+            return patient.getUser().getEmail();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Loads a blood request only if the caller owns it.
+     *
+     * <p>Both view-request and response addressed requests by bare id, so any
+     * signed-in patient could read another patient's request — name, email and
+     * medical reason — or mark it Confirmed against their will. Returning null
+     * preserves each caller's existing "not found" handling.
+     */
+    private com.example.cloud.care.model.Request getOwnedRequest(Long id) {
+        var request = requestService.getRequest(id);
+        if (request == null || request.getEmail() == null) {
+            return null;
+        }
+        String email = currentEmail();
+        if (email == null) {
+            return null;
+        }
+        return email.equalsIgnoreCase(request.getEmail()) ? request : null;
     }
 
     // Simple HTML-escape helper used for constructing email bodies
@@ -373,7 +412,7 @@ public class DonorController {
     // View request details page for donors
     @GetMapping("/view-request/{id}")
     public String viewRequestDetails(@PathVariable Long id, Model model) {
-        com.example.cloud.care.model.Request request = requestService.getRequest(id);
+        com.example.cloud.care.model.Request request = getOwnedRequest(id);
         if (request == null) {
             model.addAttribute("error", "Request not found");
             return "error_page";
@@ -388,7 +427,7 @@ public class DonorController {
     public String processDonorResponse(@RequestParam Long requestId,
                                        @RequestParam String action,
                                        Model model) {
-        com.example.cloud.care.model.Request request = requestService.getRequest(requestId);
+        com.example.cloud.care.model.Request request = getOwnedRequest(requestId);
         if (request == null) {
             model.addAttribute("error", "Request not found");
             return "error_page";

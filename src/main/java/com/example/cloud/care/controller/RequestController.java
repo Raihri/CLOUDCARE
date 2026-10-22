@@ -26,9 +26,70 @@ public class RequestController {
     private com.example.cloud.care.service.EmailServiceDonor emailServiceDonor;
 
     private final RequestService requestService;
+    private final com.example.cloud.care.service.loggedInUserFind loggedInUserFind;
 
-    public RequestController(RequestService requestService) {
+    public RequestController(RequestService requestService,
+            com.example.cloud.care.service.loggedInUserFind loggedInUserFind) {
         this.requestService = requestService;
+        this.loggedInUserFind = loggedInUserFind;
+    }
+
+    // ========== OWNERSHIP ==========
+
+    /**
+     * The caller's email, or null when nobody usable is signed in.
+     *
+     * <p>Ownership is matched on email because the request table stores only an
+     * email string — the legacy forms wrote it straight from the signed-in
+     * account, and there is no foreign key to join on.
+     */
+    private String currentEmail() {
+        try {
+            com.example.cloud.care.model.Patient p = loggedInUserFind.logger();
+            // Email hangs off the associated User, not off Patient directly.
+            if (p == null || p.getUser() == null) {
+                return null;
+            }
+            return p.getUser().getEmail();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Loads a request addressed by id, but only if the caller owns it.
+     *
+     * <p>Every id-addressed handler used to call
+     * {@code requestService.getRequest(id)} directly, so any signed-in patient
+     * could read, edit or confirm somebody else's blood request — including its
+     * name, email and medical reason. Returning null for a non-owned request
+     * keeps the "not found" shape those handlers already handle, so the change
+     * is invisible to legitimate callers.
+     */
+    private Request getOwnedRequest(Long id) {
+        Request request = requestService.getRequest(id);
+        if (request == null || request.getEmail() == null) {
+            return null;
+        }
+        String email = currentEmail();
+        if (email == null) {
+            return null;
+        }
+        return email.equalsIgnoreCase(request.getEmail()) ? request : null;
+    }
+
+    /**
+     * Restricts a request list to the caller's own entries, so a
+     * patient-facing list never includes another patient's requests.
+     */
+    private List<Request> ownRequests(List<Request> requests) {
+        String email = currentEmail();
+        if (email == null) {
+            return List.of();
+        }
+        return requests.stream()
+                .filter(r -> r.getEmail() != null && email.equalsIgnoreCase(r.getEmail()))
+                .toList();
     }
 
     // ========== WEB UI ENDPOINTS ==========
@@ -77,7 +138,9 @@ public class RequestController {
 
     @GetMapping("/pending-requests")
     public String showPendingRequests(Model model) {
-        java.util.List<Request> pendingRequests = requestService.getAllRequests().stream()
+        // Scoped to the caller: this listed every patient's pending requests
+        // system-wide, exposing their names, emails and medical reasons.
+        java.util.List<Request> pendingRequests = ownRequests(requestService.getAllRequests()).stream()
             .filter(r -> "Pending".equals(r.getStatus()))
             .toList();
         model.addAttribute("pendingRequests", pendingRequests);
@@ -86,7 +149,7 @@ public class RequestController {
 
     @GetMapping("/view-request/{id}")
     public String viewRequestDetails(@PathVariable Long id, Model model) {
-        Request request = requestService.getRequest(id);
+        Request request = getOwnedRequest(id);
         if (request == null) {
             model.addAttribute("error", "Request not found");
             return "error_page";
@@ -101,7 +164,7 @@ public class RequestController {
      */
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Request request = requestService.getRequest(id);
+        Request request = getOwnedRequest(id);
         if (request == null) {
             model.addAttribute("error", "Request not found");
             return "error_page";
@@ -125,7 +188,7 @@ public class RequestController {
                               @RequestParam(required = false) String newEmail,
                               @RequestParam(required = false) String medicalReason,
                               Model model) {
-        Request existing = requestService.getRequest(id);
+        Request existing = getOwnedRequest(id);
         if (existing == null) {
             model.addAttribute("error", "Request not found");
             return "error_page";
@@ -160,7 +223,9 @@ public class RequestController {
     @ResponseBody
     public ResponseEntity<?> listAllRequests() {
         try {
-            List<Request> requests = requestService.getAllRequests();
+            // Scoped to the caller — this used to hand back every patient's
+            // requests, including names, emails and medical reasons.
+            List<Request> requests = ownRequests(requestService.getAllRequests());
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("count", requests.size());
@@ -182,7 +247,9 @@ public class RequestController {
                                             @RequestParam(required = false) String bloodGroup,
                                             @RequestParam(required = false) String name) {
         try {
-            List<Request> requests = requestService.getAllRequests();
+            // Scoped to the caller before any filter runs, so search can't be
+            // used to probe other patients' records.
+            List<Request> requests = ownRequests(requestService.getAllRequests());
             if (district != null && !district.isBlank()) {
                 requests = requests.stream().filter(r -> r.getDistrict() != null && district.equalsIgnoreCase(r.getDistrict())).toList();
             }
@@ -209,7 +276,7 @@ public class RequestController {
     @ResponseBody
     public ResponseEntity<?> getRequestDetails(@PathVariable Long id) {
         try {
-            Request request = requestService.getRequest(id);
+            Request request = getOwnedRequest(id);
             if (request == null) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
@@ -292,7 +359,7 @@ public class RequestController {
     @ResponseBody
     public ResponseEntity<?> updateRequest(@PathVariable Long id, @RequestBody Request request) {
         try {
-            Request existing = requestService.getRequest(id);
+            Request existing = getOwnedRequest(id);
             if (existing == null) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
@@ -300,7 +367,10 @@ public class RequestController {
                 return ResponseEntity.status(404).body(error);
             }
             if (request.getName() != null) existing.setName(request.getName());
-            if (request.getEmail() != null) existing.setEmail(request.getEmail());
+            // email is deliberately NOT taken from the payload: it is the
+            // ownership key, so letting a caller rewrite it would let them
+            // hand their request to someone else (or claim somebody else's).
+            // Pinned to the signed-in account instead.
             if (request.getBloodGroup() != null) existing.setBloodGroup(request.getBloodGroup());
             if (request.getUnits() > 0) existing.setUnits(request.getUnits());
             if (request.getRequiredDate() != null) existing.setRequiredDate(request.getRequiredDate());
@@ -324,7 +394,7 @@ public class RequestController {
     @ResponseBody
     public ResponseEntity<?> deleteRequest(@PathVariable Long id) {
         try {
-            Request request = requestService.getRequest(id);
+            Request request = getOwnedRequest(id);
             if (request == null) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
@@ -355,7 +425,7 @@ public class RequestController {
         try {
             System.out.println("🔍 [DEBUG] GET /request/api/find-match/" + requestId);
             
-            Request req = requestService.getRequest(requestId);
+            Request req = getOwnedRequest(requestId);
             System.out.println("🔍 [DEBUG] Request found: " + (req != null ? "YES" : "NO"));
             
             if (req == null) {
@@ -440,7 +510,7 @@ public class RequestController {
             Long requestId = Long.parseLong(payload.get("requestId").toString());
             List<?> donorList = (List<?>) payload.get("donors");
             
-            Request request = requestService.getRequest(requestId);
+            Request request = getOwnedRequest(requestId);
             if (request == null) {
                 Map<String, Object> error = new HashMap<>();
                 error.put("success", false);
