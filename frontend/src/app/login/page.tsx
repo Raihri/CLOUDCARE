@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { AuthCard } from "@/components/auth/AuthCard";
 import { login } from "./actions";
 import { LoginForm } from "./LoginForm";
 
@@ -13,46 +14,37 @@ export default function LoginPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-6 py-12">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex flex-col items-center text-center">
-          <span className="flex size-11 items-center justify-center rounded-xl bg-primary-600 text-lg font-bold text-white">
-            C
-          </span>
-          <h1 className="mt-4 text-xl font-semibold tracking-tight text-text-primary">
-            Sign in to CloudCare
-          </h1>
-          <p className="mt-1 text-sm text-text-muted">
-            Donate blood, book appointments, track your health.
+    <AuthCard
+      icon="C"
+      title="Sign in to CloudCare"
+      subtitle="Donate blood, book appointments, track your health."
+      footer={
+        <>
+          <p className="mt-4 text-center text-sm text-text-muted">
+            <Link href="/forgot-password" className="hover:text-primary-600">
+              Forgot your password?
+            </Link>
           </p>
-        </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6 shadow-sm">
-          {/* Reads ?next= so the post-login redirect can return the user to
-              wherever a guard interrupted them. Must sit behind a Suspense
-              boundary for this route to stay prerenderable. */}
-          <Suspense fallback={<LoginFormFallback />}>
-            <LoginFormWithNext searchParams={searchParams} />
-          </Suspense>
-        </div>
-
-        <p className="mt-4 text-center text-sm text-text-muted">
-          <Link href="/forgot-password" className="hover:text-primary-600">
-            Forgot your password?
-          </Link>
-        </p>
-
-        <p className="mt-4 text-center text-sm text-text-muted">
-          New to CloudCare?{" "}
-          <Link
-            href="/register"
-            className="font-medium text-primary-600 hover:text-primary-700"
-          >
-            Create an account
-          </Link>
-        </p>
-      </div>
-    </div>
+          <p className="mt-4 text-center text-sm text-text-muted">
+            New to CloudCare?{" "}
+            <Link
+              href="/register"
+              className="font-medium text-primary-600 hover:text-primary-700"
+            >
+              Create an account
+            </Link>
+          </p>
+        </>
+      }
+    >
+      {/* Reads ?next= so the post-login redirect can return the user to
+          wherever a guard interrupted them. Must sit behind a Suspense
+          boundary for this route to stay prerenderable. */}
+      <Suspense fallback={<LoginFormFallback />}>
+        <LoginFormWithNext searchParams={searchParams} />
+      </Suspense>
+    </AuthCard>
   );
 }
 
