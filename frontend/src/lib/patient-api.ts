@@ -187,3 +187,66 @@ export async function fetchDonors(): Promise<Donor[]> {
     return [];
   }
 }
+
+/** Search donors by group/name/area — backs the donor dashboard filters. */
+export async function searchDonors(filters: {
+  bloodGroup?: string;
+  name?: string;
+  district?: string;
+}): Promise<Donor[]> {
+  try {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(filters)) {
+      if (v) params.set(k, v);
+    }
+    const qs = params.toString();
+    return unwrap<Donor>(
+      await springJson(`/patient/donor/api/search${qs ? `?${qs}` : ""}`),
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** Search blood requests — the other half of the donor dashboard. */
+export async function searchRequests(filters: {
+  bloodGroup?: string;
+  name?: string;
+  status?: string;
+}): Promise<BloodRequest[]> {
+  try {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(filters)) {
+      if (v) params.set(k, v);
+    }
+    const qs = params.toString();
+    return unwrap<BloodRequest>(
+      await springJson(`/patient/request/api/search${qs ? `?${qs}` : ""}`),
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchDistricts(): Promise<string[]> {
+  try {
+    const body = await springJson<{ districts?: string[] }>(
+      "/api/locations/districts",
+    );
+    return body?.districts ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchThanas(district: string): Promise<string[]> {
+  if (!district) return [];
+  try {
+    const body = await springJson<{ thanas?: string[] }>(
+      `/api/locations/thanas?district=${encodeURIComponent(district)}`,
+    );
+    return body?.thanas ?? [];
+  } catch {
+    return [];
+  }
+}
