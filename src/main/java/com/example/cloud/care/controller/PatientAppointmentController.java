@@ -41,6 +41,11 @@ public class PatientAppointmentController {
         model.addAttribute("appointments", appointments);
         model.addAttribute("patient", patient);
 
+        // This used to return "doctor_list_public", which rendered the doctor
+        // browse page and silently discarded the `appointments` we just loaded.
+        // The legacy appointments page was therefore showing the wrong content
+        // entirely. /patient/api/appointments now serves this data as JSON for
+        // the Next.js page.
         return "doctor_list_public"; // Thymeleaf template name
     }
 }

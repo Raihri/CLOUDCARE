@@ -34,9 +34,22 @@ public class AppointmentService {
         return availabilityRepo.findByDoctor(doctor);
     }
 
+    @Transactional
     public Appointment bookAppointment(Patient patient, long doctorId, long slotId) {
         Doctor doctor = doctorRepo.findById(doctorId).orElseThrow();
         DoctorAvailability slot = availabilityRepo.findById(slotId).orElseThrow();
+
+        // Refuse a slot that is already taken. Without this check two patients
+        // can book the same slot and the doctor's calendar double-books.
+        if (slot.isBooked()) {
+            throw new IllegalStateException("That time slot has already been booked.");
+        }
+
+        // The slot belongs to a different doctor, so booking it would file the
+        // appointment against the wrong calendar.
+        if (slot.getDoctor() != null && slot.getDoctor().getId() != doctorId) {
+            throw new IllegalArgumentException("That slot does not belong to this doctor.");
+        }
 
         Appointment appointment = new Appointment();
         appointment.setDoctor(doctor);
@@ -48,7 +61,10 @@ public class AppointmentService {
                 Appointment.AppointmentType.PHYSICAL);
         appointment.setStatus(Appointment.Status.PENDING);
 
-       
+        // Mark the slot taken. This was missing entirely, so `booked` never
+        // became true and every slot stayed bookable forever.
+        slot.setBooked(true);
+        availabilityRepo.save(slot);
 
         return appointmentRepo.save(appointment);
     }
@@ -71,9 +87,42 @@ public class AppointmentService {
 
     appointmentRepo.save(appointment);
     }
+    @Transactional
     public void cancelAppointment(Appointment appointment) {
         appointment.setStatus(Appointment.Status.CANCELLED);
         appointmentRepo.save(appointment);
+
+        // Release the slot so it can be booked again. Without this a cancelled
+        // appointment leaves its slot permanently unusable.
+        DoctorAvailability slot = findSlotFor(appointment);
+        if (slot != null) {
+            slot.setBooked(false);
+            availabilityRepo.save(slot);
+        }
+    }
+
+    /**
+     * Locate the availability row an appointment consumed. Appointments store a
+     * rendered "HH:mm:ss-HH:mm:ss" string rather than the slot id, so the slot
+     * is matched on doctor + date + time.
+     */
+    private DoctorAvailability findSlotFor(Appointment appointment) {
+        Doctor doctor = appointment.getDoctor();
+        if (doctor == null || appointment.getTimeSlot() == null) {
+            return null;
+        }
+        String[] parts = appointment.getTimeSlot().split("-");
+        if (parts.length != 2) {
+            return null;
+        }
+        return availabilityRepo.findByDoctor(doctor).stream()
+                .filter(s -> appointment.getAppointmentDate() != null
+                        && s.getDate() != null
+                        && appointment.getAppointmentDate().compareTo(s.getDate()) == 0)
+                .filter(s -> parts[0].equals(s.getStartTime().toString())
+                        && parts[1].equals(s.getEndTime().toString()))
+                .findFirst()
+                .orElse(null);
     }
     public List<Appointment> getAppointmentsByDoctor(long doctorId) {
         return appointmentRepo.findByDoctorId(doctorId);
