@@ -31,7 +31,17 @@ public class DoctorAvailabilityService {
     }
     @Transactional
     public void save(DoctorAvailability slot) {
-        // TODO Auto-generated method stub
-         availabilityRepository.save(slot); 
+         availabilityRepository.save(slot);
+    }
+
+    /**
+     * Delete a slot by id.
+     *
+     * <p>Callers are expected to have already checked the slot belongs to the
+     * doctor making the request — this method deletes whatever it is handed.
+     */
+    @Transactional
+    public void delete(Long slotId) {
+        availabilityRepository.deleteById(slotId);
     }
 }

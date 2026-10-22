@@ -97,6 +97,11 @@ public class SecurityConfig {
                                 "/patient/css/**", "/patient/js/**","/ws/**", "/app/**","/patient/current")
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/patient/*/book/*").authenticated()
+                        // Same reasoning as the doctor chain: these handlers
+                        // read the current patient from the authenticated
+                        // email, so a doctor or admin session would otherwise
+                        // receive an empty 200 instead of a 403.
+                        .requestMatchers("/patient/api/**").hasRole("PATIENT")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/patient/login")
@@ -131,6 +136,12 @@ public class SecurityConfig {
                                 "/doctor/check-email", "/doctor/check-bmdc", "/doctor/forgot-password",
                                 "/doctor/reset-password**", "/doctor/css/**", "/doctor/js/**")
                         .permitAll()
+                        // The JSON API is explicitly role-gated. "authenticated()"
+                        // alone let a patient session through, and since these
+                        // handlers resolve the doctor from the authenticated
+                        // email, the patient simply got an empty result — a
+                        // silent 200 instead of a 403.
+                        .requestMatchers("/doctor/api/**").hasRole("DOCTOR")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/doctor/login")
