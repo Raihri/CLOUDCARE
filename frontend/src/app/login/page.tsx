@@ -37,6 +37,12 @@ export default function LoginPage({
         </div>
 
         <p className="mt-4 text-center text-sm text-text-muted">
+          <Link href="/forgot-password" className="hover:text-primary-600">
+            Forgot your password?
+          </Link>
+        </p>
+
+        <p className="mt-4 text-center text-sm text-text-muted">
           New to CloudCare?{" "}
           <Link
             href="/register"

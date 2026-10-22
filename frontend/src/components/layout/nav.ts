@@ -42,6 +42,7 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { href: "/admin/doctors/pending", label: "Pending Doctors", icon: "bxs-time" },
     { href: "/admin/donors", label: "Donor Analysis", icon: "bxs-droplet" },
     { href: "/admin/feedbacks", label: "Feedback List", icon: "bxs-star" },
+    { href: "/admin/change-password", label: "Change Password", icon: "bxs-lock-alt" },
   ],
 };
 

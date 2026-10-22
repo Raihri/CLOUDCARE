@@ -17,12 +17,19 @@ export function PortalLogin({
   subtitle,
   icon,
   footer,
+  forgotHref,
 }: {
   role: Role;
   title: string;
   subtitle: string;
   icon: string;
   footer?: React.ReactNode;
+  /**
+   * Where "Forgot password?" points. Each portal has its own reset route and
+   * they are not interchangeable — a patient OTP is meaningless to a doctor,
+   * whose flow is token-based.
+   */
+  forgotHref?: string;
 }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-sunken px-6 py-12">
@@ -42,6 +49,14 @@ export function PortalLogin({
         </div>
 
         {footer}
+
+        {forgotHref ? (
+          <p className="mt-4 text-center text-sm">
+            <Link href={forgotHref} className="text-text-muted hover:text-primary-600">
+              Forgot your password?
+            </Link>
+          </p>
+        ) : null}
 
         <p className="mt-4 text-center text-sm text-text-muted">
           <Link

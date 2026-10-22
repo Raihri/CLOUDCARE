@@ -11,6 +11,7 @@ export default function DoctorLoginPage() {
       title="Doctor sign in"
       subtitle="Manage appointments, availability and patient records."
       icon="⚕"
+      forgotHref="/doctor/forgot-password"
     />
   );
 }

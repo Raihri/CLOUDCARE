@@ -96,6 +96,13 @@ public class SecurityConfig {
                                 "/patient/reset-otp-verify",
                                 "/patient/css/**", "/patient/js/**","/ws/**", "/app/**","/patient/current")
                         .permitAll()
+                        // Password reset has to work while signed out, so it is
+                        // reachable anonymously. It sits under /patient/api/**,
+                        // which is otherwise PATIENT-only, so it must be listed
+                        // before that rule — order decides which one matches.
+                        // These handlers act on an email supplied in the request
+                        // body, not on the session, so they grant nothing.
+                        .requestMatchers("/patient/api/password/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/patient/*/book/*").authenticated()
                         // Same reasoning as the doctor chain: these handlers
                         // read the current patient from the authenticated
@@ -136,6 +143,11 @@ public class SecurityConfig {
                                 "/doctor/check-email", "/doctor/check-bmdc", "/doctor/forgot-password",
                                 "/doctor/reset-password**", "/doctor/css/**", "/doctor/js/**")
                         .permitAll()
+                        // Reachable while signed out, and listed ahead of the
+                        // DOCTOR-only rule below for the same reason as the
+                        // patient reset flow. Token-based, so it grants nothing
+                        // on its own.
+                        .requestMatchers("/doctor/api/password/**").permitAll()
                         // The JSON API is explicitly role-gated. "authenticated()"
                         // alone let a patient session through, and since these
                         // handlers resolve the doctor from the authenticated
