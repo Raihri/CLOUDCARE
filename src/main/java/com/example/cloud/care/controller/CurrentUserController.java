@@ -6,6 +6,7 @@ import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.service.DoctorUserDetails;
 import com.example.cloud.care.service.patient_service;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,9 +48,13 @@ public class CurrentUserController {
     public ResponseEntity<Map<String, Object>> me() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        // Covers both "no session" and the anonymous token Spring installs for
-        // unauthenticated requests.
-        if (auth == null || !auth.isAuthenticated()) {
+        // Spring installs an AnonymousAuthenticationToken for unauthenticated
+        // requests, and that token reports isAuthenticated() == true. Checking
+        // only that flag would report role "ANONYMOUS" to the frontend, so we
+        // must test the token type explicitly.
+        if (auth == null
+                || !auth.isAuthenticated()
+                || auth instanceof AnonymousAuthenticationToken) {
             // Explicitly typed so the generic matches the method's return type.
             return ResponseEntity.status(401).body(new LinkedHashMap<String, Object>());
         }

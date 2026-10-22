@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { HOME_BY_ROLE, LOGIN_PATH_BY_ROLE, type Role } from "@/lib/auth";
+import { homeFor, LOGIN_PATH_BY_ROLE, type Role } from "@/lib/auth";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -66,5 +66,5 @@ export async function login(
   if (next.startsWith("/") && !next.startsWith("//")) {
     redirect(next);
   }
-  redirect(HOME_BY_ROLE[role] ?? "/dashboard");
+  redirect(homeFor(role));
 }

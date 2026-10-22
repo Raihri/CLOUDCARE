@@ -102,11 +102,26 @@ function extractMessage(data: unknown): string | undefined {
   return undefined;
 }
 
-/** Unwrap the {success, count, data} envelope used by the existing APIs. */
+/**
+ * Unwrap the list envelope used by the existing Spring JSON APIs.
+ *
+ * The two families disagree on the key: RequestController returns
+ * `{success, count, data}`, while DonorController returns
+ * `{success, count, donors}`. Accept both rather than assuming one.
+ */
 export function unwrap<T>(envelope: unknown): T[] {
-  if (envelope && typeof envelope === "object" && "data" in envelope) {
-    const d = (envelope as Record<string, unknown>).data;
-    return Array.isArray(d) ? (d as T[]) : d ? [d as T] : [];
+  if (Array.isArray(envelope)) return envelope as T[];
+
+  if (envelope && typeof envelope === "object") {
+    const record = envelope as Record<string, unknown>;
+    for (const key of ["data", "donors", "requests", "doctors"]) {
+      const value = record[key];
+      if (Array.isArray(value)) return value as T[];
+    }
+    // A single-object payload ("data": {...}) still yields a one-item list.
+    if (record.data && typeof record.data === "object") {
+      return [record.data as T];
+    }
   }
-  return Array.isArray(envelope) ? (envelope as T[]) : [];
+  return [];
 }

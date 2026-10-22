@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { getCurrentUser, HOME_BY_ROLE } from "@/lib/auth";
+import { getCurrentUser, homeFor } from "@/lib/auth";
 
 const FEATURES = [
   {
@@ -38,7 +38,7 @@ async function AuthActions() {
 
   if (user) {
     return (
-      <Link href={HOME_BY_ROLE[user.role]}>
+      <Link href={homeFor(user.role)}>
         <Button size="sm">Go to dashboard</Button>
       </Link>
     );
@@ -69,7 +69,7 @@ function AuthActionsSkeleton() {
 async function PrimaryCta() {
   const user = await getCurrentUser();
   return (
-    <Link href={user ? HOME_BY_ROLE[user.role] : "/register"}>
+    <Link href={user ? homeFor(user.role) : "/register"}>
       <Button size="lg">
         {user ? "Open your dashboard" : "Create an account"}
       </Button>

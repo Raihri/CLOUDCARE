@@ -21,6 +21,18 @@ export const HOME_BY_ROLE: Record<Role, string> = {
   ADMIN: "/admin/dashboard",
 };
 
+const ROLES: readonly Role[] = ["PATIENT", "DOCTOR", "ADMIN"];
+
+function isRole(value: unknown): value is Role {
+  return typeof value === "string" && ROLES.includes(value as Role);
+}
+
+/** Home route for a role, with a safe fallback if the backend ever sends an
+ *  unexpected value (e.g. an anonymous token leaking through as "ANONYMOUS"). */
+export function homeFor(role: unknown): string {
+  return isRole(role) ? HOME_BY_ROLE[role] : "/login";
+}
+
 /** The Spring login endpoint for each role. */
 export const LOGIN_PATH_BY_ROLE: Record<Role, string> = {
   PATIENT: "/patient/login",
@@ -42,7 +54,10 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   "use cache: private";
   try {
     const user = await springJson<CurrentUser>("/api/me");
-    return user ?? null;
+    // A role we don't recognise means we can't reason about this session —
+    // treat it as signed out rather than rendering a broken nav.
+    if (!user || !isRole(user.role)) return null;
+    return user;
   } catch (err) {
     if (err instanceof ApiError && (err.status === 401 || err.status === 302)) {
       return null;
@@ -87,7 +102,7 @@ export async function requireRole(
 ): Promise<CurrentUser> {
   const user = await requireUser(returnTo);
   if (!allowed.includes(user.role)) {
-    redirect(HOME_BY_ROLE[user.role]);
+    redirect(homeFor(user.role));
   }
   return user;
 }

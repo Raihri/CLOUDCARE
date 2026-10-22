@@ -1,1 +1,7 @@
 .DS_Store
+
+# local env
+.env
+
+# maven build output
+target/
