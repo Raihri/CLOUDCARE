@@ -21,12 +21,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) {
         return userRepository.findByEmail(email)
-                .filter(User::isEnabled) // only verified users
+                // Email OTP verification has been removed, so a row existing is
+                // enough to authenticate. `enabled` is kept for compatibility
+                // with older data but no longer blocks sign-in.
                 .map(user -> new org.springframework.security.core.userdetails.User(
                         user.getEmail(),
                         user.getPassword(),
                         Collections.singletonList(new SimpleGrantedAuthority("ROLE_PATIENT"))
                 ))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found or not verified"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

@@ -1,9 +1,8 @@
 package com.example.cloud.care.controller;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.service.PhotoUploadService;
+import com.example.cloud.care.service.StorageService;
 import com.example.cloud.care.service.UserService;
 import com.example.cloud.care.service.loggedInUserFind;
 import com.example.cloud.care.service.patient_service;
@@ -39,7 +38,7 @@ public class patientDataController {
 
 
     @Autowired
-    private Cloudinary cloudinary;
+    private StorageService storageService;
 
     @GetMapping("/dataEntry")
     public String showPatientDataEntryForm(Model model) {
@@ -64,15 +63,8 @@ public class patientDataController {
         // ---- UPLOAD ----
         if (base64Image != null && !base64Image.isEmpty()) {
             try {
-                String cleanBase64 = base64Image.replaceFirst("^data:image/\\w+;base64,", "");
-                byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
-
-                Map upload = cloudinary.uploader().upload(
-                        imageBytes,
-                        ObjectUtils.asMap("folder", "patients")
-                );
-
-                patient.getUser().setPhotoUrl(upload.get("secure_url").toString());
+                String imageUrl = storageService.uploadBase64(base64Image, "patients");
+                patient.getUser().setPhotoUrl(imageUrl);
                 patientService.save(patient);
 
                 System.out.println("Image Uploaded----------------------");

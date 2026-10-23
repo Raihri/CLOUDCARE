@@ -30,7 +30,7 @@ export default async function AdminDonorsPage() {
         description="Supply by blood group, and the requests that need attention first."
       />
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total donors"
           value={summary?.totalDonors ?? "—"}
@@ -49,11 +49,11 @@ export default async function AdminDonorsPage() {
         <StatCard
           label="Matched"
           value={summary?.matchedRequests ?? "—"}
-          icon={<i className="bx bxs-link" aria-hidden />}
+          icon={<i className="bx bx-link" aria-hidden />}
         />
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-5">
+      <div className="grid gap-5 xl:grid-cols-2">
         <Card>
           <CardBody>
             <h2 className="mb-4 text-base font-semibold text-text-primary">
@@ -100,34 +100,36 @@ export default async function AdminDonorsPage() {
                 description="No pending requests due within three days."
               />
             ) : (
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="border-b border-border text-xs uppercase tracking-wide text-text-muted">
-                    <th className="pb-3 pr-4 font-medium">Patient</th>
-                    <th className="pb-3 pr-4 font-medium">Group</th>
-                    <th className="pb-3 pr-4 font-medium">Units</th>
-                    <th className="pb-3 font-medium">Needed by</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {urgent.map((r) => (
-                    <tr key={r.id}>
-                      <td className="py-3 pr-4 text-text-primary">
-                        {r.name ?? "Anonymous"}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <BloodGroupBadge group={r.bloodGroup} />
-                      </td>
-                      <td className="py-3 pr-4 text-text-secondary">
-                        {r.units ?? "—"}
-                      </td>
-                      <td className="py-3 text-xs font-medium text-danger">
-                        {r.requiredDate ?? "No date"}
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-xs uppercase tracking-wide text-text-muted">
+                      <th className="pb-3 pr-4 font-medium">Patient</th>
+                      <th className="pb-3 pr-4 font-medium">Group</th>
+                      <th className="pb-3 pr-4 font-medium">Units</th>
+                      <th className="pb-3 font-medium">Needed by</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {urgent.map((r) => (
+                      <tr key={r.id}>
+                        <td className="py-3 pr-4 text-text-primary">
+                          {r.name ?? "Anonymous"}
+                        </td>
+                        <td className="py-3 pr-4">
+                          <BloodGroupBadge group={r.bloodGroup} />
+                        </td>
+                        <td className="py-3 pr-4 text-text-secondary">
+                          {r.units ?? "—"}
+                        </td>
+                        <td className="py-3 text-xs font-medium text-danger">
+                          {r.requiredDate ?? "No date"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </CardBody>
         </Card>

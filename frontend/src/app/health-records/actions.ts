@@ -1,6 +1,6 @@
 "use server";
 
-import { springFetch } from "@/lib/api-client";
+import { springFetch } from "@/lib/api";
 
 export type SaveState = {
   message: string;
@@ -37,30 +37,19 @@ export async function savePersonal(
   return postSection("/patient/api/health/personal", formData);
 }
 
-export async function saveVitals(
+export async function savePhoto(
   _prev: SaveState,
   formData: FormData,
 ): Promise<SaveState> {
-  return postSection("/patient/api/health/vitals", formData);
-}
+  const file = formData.get("file");
 
-export async function saveLifestyle(
-  _prev: SaveState,
-  formData: FormData,
-): Promise<SaveState> {
-  return postSection("/patient/api/health/lifestyle", formData);
-}
+  // Server Actions serialise their args through React's form encoding, so a
+  // File survives the trip — but an empty picker still produces a File of
+  // size 0, which the backend would reject with a vaguer message. Catching it
+  // here keeps the message specific.
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, message: "Please choose a photo to upload." };
+  }
 
-export async function saveMenstrual(
-  _prev: SaveState,
-  formData: FormData,
-): Promise<SaveState> {
-  return postSection("/patient/api/health/menstrual", formData);
-}
-
-export async function saveEnvironment(
-  _prev: SaveState,
-  formData: FormData,
-): Promise<SaveState> {
-  return postSection("/patient/api/health/environment", formData);
+  return postSection("/patient/api/health/photo", formData);
 }

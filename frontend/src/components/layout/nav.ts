@@ -7,6 +7,10 @@ export type NavItem = {
    *  icons it has always had. */
   icon: string;
   exact?: boolean;
+  /** Key into the per-page counts passed to AppShell. When present, and the
+   *  count is > 0, the sidebar renders a pill beside the label — so an unread
+   *  notification is visible from any page, not only after visiting /notifications. */
+  badge?: string;
 };
 
 /**
@@ -20,23 +24,34 @@ export type NavItem = {
 export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   PATIENT: [
     { href: "/dashboard", label: "Patient Profile", icon: "bxs-user", exact: true },
+    { href: "/health-metrics", label: "Health Metrics", icon: "bxs-heart" },
     { href: "/health-records", label: "Edit Profile", icon: "bxs-edit" },
     { href: "/doctors", label: "Doctors List", icon: "bx-list-ul" },
     { href: "/donors", label: "Find Donor", icon: "bxs-droplet" },
     { href: "/donor-dashboard", label: "Donor Dashboard", icon: "bxs-dashboard" },
     { href: "/feedback", label: "Patient Feedback", icon: "bxs-star" },
     { href: "/appointments", label: "Appointments", icon: "bxs-calendar-check" },
+    { href: "/prescriptions", label: "Prescriptions", icon: "bxs-capsule" },
+    { href: "/notifications", label: "Notifications", icon: "bxs-bell", badge: "unreadNotifications" },
   ],
   DOCTOR: [
     { href: "/doctor/dashboard", label: "Dashboard", icon: "bxs-user", exact: true },
     { href: "/doctor/appointments", label: "Appointments", icon: "bxs-calendar-check" },
     { href: "/doctor/availability", label: "Availability", icon: "bx-time" },
     { href: "/doctor/patients", label: "My Patients", icon: "bx-list-ul" },
+    { href: "/doctor/prescriptions", label: "Prescriptions", icon: "bxs-capsule" },
     { href: "/doctor/profile", label: "Edit Profile", icon: "bxs-edit" },
   ],
   ADMIN: [
     { href: "/admin/dashboard", label: "Dashboard", icon: "bxs-dashboard", exact: true },
-    { href: "/admin/doctors", label: "Doctors List", icon: "bx-list-ul" },
+    {
+      href: "/admin/doctors",
+      label: "Doctors List",
+      icon: "bx-list-ul",
+      // Exact: otherwise /admin/doctors/pending highlights both this row and
+      // the Pending Doctors row below.
+      exact: true,
+    },
     { href: "/admin/doctors/pending", label: "Pending Doctors", icon: "bxs-time" },
     { href: "/admin/donors", label: "Donor Analysis", icon: "bxs-droplet" },
     { href: "/admin/feedbacks", label: "Feedback List", icon: "bxs-star" },
@@ -51,8 +66,7 @@ export function roleForPath(pathname: string): Role | null {
   if (
     pathname === "/" ||
     pathname.startsWith("/login") ||
-    pathname.startsWith("/register") ||
-    pathname.startsWith("/verify")
+    pathname.startsWith("/register")
   ) {
     return null;
   }

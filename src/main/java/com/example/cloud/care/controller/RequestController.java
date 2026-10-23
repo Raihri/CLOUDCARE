@@ -96,10 +96,10 @@ public class RequestController {
 
     @GetMapping("/create")
     public String showBloodRequestForm(Model model,
-                                      @RequestParam(required = false) String userName,
+                                      @RequestParam(required = false) String fullName,
                                       @RequestParam(required = false) String userBloodGroup,
                                       @RequestParam(required = false) String loginEmail) {
-        model.addAttribute("userName", userName);
+        model.addAttribute("fullName", fullName);
         model.addAttribute("userBloodGroup", userBloodGroup);
         model.addAttribute("loginEmail", loginEmail);
         model.addAttribute("today", LocalDate.now());

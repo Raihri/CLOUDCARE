@@ -3,9 +3,28 @@
 # local env
 .env
 
-# maven build output
+# ---- Maven build output --------------------------------------------------
+# `target/` on its own only matches at the repository ROOT, which is why
+# `MAIN-Project/cloud-care/target/` stayed tracked. `**/target/` matches at
+# any depth.
 target/
+**/target/
+*.jar
 
-# local run logs
+# ---- IDE ------------------------------------------------------------------
+# JetBrains/VS Code settings are personal and noisy in a diff.
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# ---- Node / Next ----------------------------------------------------------
+node_modules/
+.next/
+out/
+next-env.d.ts
+
+# ---- Local run logs ------------------------------------------------------
 backend.log
 *.log

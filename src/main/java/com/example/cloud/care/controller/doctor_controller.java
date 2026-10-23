@@ -17,9 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.cloud.care.dao.doctor_dao;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import com.example.cloud.care.config.CloudinaryConfig;
+import com.example.cloud.care.service.StorageService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.io.IOException;
@@ -35,7 +33,7 @@ public class doctor_controller {
     private final doctor_service doctorService;
     private final patient_service patient_service;
     private final doctor_dao doctorRepository;
-    private final com.cloudinary.Cloudinary cloudinary;
+    private final StorageService storageService;
     @Autowired
 
     private  BCryptPasswordEncoder passwordEncoder;
@@ -44,10 +42,10 @@ public class doctor_controller {
  
 
     @Autowired
-    public doctor_controller(doctor_service doctorService, doctor_dao doctorRepository, Cloudinary cloudinary,patient_service patient_service) {
+    public doctor_controller(doctor_service doctorService, doctor_dao doctorRepository, StorageService storageService,patient_service patient_service) {
         this.doctorService = doctorService;
         this.doctorRepository = doctorRepository;
-        this.cloudinary = cloudinary;
+        this.storageService = storageService;
         this.patient_service = patient_service;
     }
 
@@ -176,20 +174,14 @@ public String updateDoctorInfo(
 
     // ===== HANDLE FILES SEPARATELY =====
     if (profileImageFile != null && !profileImageFile.isEmpty()) {
-        Map uploadResult = cloudinary.uploader().upload(
-                profileImageFile.getBytes(),
-                ObjectUtils.asMap("folder", "doctor_profiles")
-        );
+        String profileUrl = storageService.upload(profileImageFile, "doctor_profiles");
         // Only set the URL string in your entity
-        doctor.setProfileImage((String) uploadResult.get("secure_url") + "?v=" + System.currentTimeMillis());
+        doctor.setProfileImage(profileUrl + "?v=" + System.currentTimeMillis());
     }
 
     if (certificateFile != null && !certificateFile.isEmpty()) {
-        Map certUpload = cloudinary.uploader().upload(
-                certificateFile.getBytes(),
-                ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "raw")
-        );
-        doctor.setCertifications((String) certUpload.get("secure_url") + "?v=" + System.currentTimeMillis());
+        String certificateUrl = storageService.upload(certificateFile, "doctor_certificates");
+        doctor.setCertifications(certificateUrl + "?v=" + System.currentTimeMillis());
     }
 
     // ===== SAVE =====

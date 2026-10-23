@@ -17,9 +17,11 @@ export function DeleteFeedbackButton({ feedbackId }: { feedbackId: number }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md border border-border-strong bg-surface px-3 py-1.5 text-xs font-medium text-text-primary hover:bg-neutral-50 disabled:opacity-60"
+          aria-label="Delete feedback"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-danger/20 bg-danger-soft px-2.5 text-xs font-medium text-danger transition-colors hover:bg-danger/10 disabled:opacity-60"
         >
-          {pending ? "…" : "Delete"}
+          <i aria-hidden className="bx bx-trash text-sm leading-none" />
+          {pending ? "Deleting…" : "Delete"}
         </button>
       </form>
       {state ? (

@@ -3,15 +3,25 @@ package com.example.cloud.care.controller;
 import com.example.cloud.care.model.Appointment;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.DoctorAvailability;
+import com.example.cloud.care.model.Patient;
+import com.example.cloud.care.model.Prescription;
+import com.example.cloud.care.model.User;
+import com.example.cloud.care.model.notification;
+import com.example.cloud.care.dto.PrescriptionDto;
 import com.example.cloud.care.service.AppointmentService;
+import com.example.cloud.care.service.PrescriptionService;
+import com.example.cloud.care.service.UserService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.DoctorAvailabilityService;
+import com.example.cloud.care.service.notificationService;
+import com.example.cloud.care.service.patient_service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,12 +31,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * JSON API behind the Next.js doctor portal.
@@ -54,6 +67,18 @@ public class DoctorApiController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    @Autowired
+    private patient_service patientService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private notificationService notificationService;
+
+    @Autowired
+    private PrescriptionService prescriptionService;
 
     // ------------------------------------------------------------------
     // Identity
@@ -431,8 +456,390 @@ public class DoctorApiController {
     }
 
     // ------------------------------------------------------------------
+    // Patient lookup / editing
+    // ------------------------------------------------------------------
+
+    /**
+     * Full chart for one patient, addressed by the patient id a doctor may have
+     * from a prescription, a referral or the patient list.
+     *
+     * <p>This is intentionally a directory lookup rather than a "my patients
+     * only" endpoint: a doctor may need to see a patient before the first
+     * appointment is created. It is still role-gated by the doctor security
+     * chain, and every response is shaped by hand so password hashes and lazy
+     * JPA graphs never leak.
+     */
+    @GetMapping("/patients/{patientId}")
+    @ResponseBody
+    @Transactional(readOnly = true)
+    public Map<String, Object> patientRecord(@PathVariable Long patientId) {
+        Map<String, Object> denied = denied();
+        if (denied != null) return denied;
+
+        Doctor doctor = currentDoctor();
+        Optional<Patient> found = patientService.findById(patientId);
+        if (found.isEmpty()) {
+            return error("No patient found with ID " + patientId + ".");
+        }
+
+        Patient patient = found.get();
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("success", true);
+        out.putAll(patientDto(patient, doctor));
+        return out;
+    }
+
+    /**
+     * Consolidated patient chart update used by the doctor's edit form.
+     *
+     * <p>Only fields present in the request are changed. Blank numeric fields
+     * arrive as null from Spring's converter and therefore leave the existing
+     * value alone, which is important: the form is long and a doctor may only
+     * want to correct one reading.
+     */
+    @PostMapping("/patients/{patientId}")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> updatePatientRecord(
+            @PathVariable Long patientId,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String bloodGroup,
+            @RequestParam(required = false) Integer age,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) @DateTimeFormat(pattern = DATE_FMT) Date dateOfBirth,
+            @RequestParam(required = false) String maritalStatus,
+            @RequestParam(required = false) String nationalId,
+            @RequestParam(required = false) String emergencyContact,
+            @RequestParam(required = false) String division,
+            @RequestParam(required = false) String zilla,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) Double weight,
+            @RequestParam(required = false) Double height,
+            @RequestParam(required = false) String bloodPressure,
+            @RequestParam(required = false) Integer systolicBP,
+            @RequestParam(required = false) Integer diastolicBP,
+            @RequestParam(required = false) Integer heartRate,
+            @RequestParam(required = false) Integer oxygenSaturation,
+            @RequestParam(required = false) Double respiratoryRate,
+            @RequestParam(required = false) Double bodyTemperature,
+            @RequestParam(required = false) Double hb,
+            @RequestParam(required = false) Double rbc,
+            @RequestParam(required = false) Double wbc,
+            @RequestParam(required = false) Double platelet,
+            @RequestParam(required = false) Double sugarLevel,
+            @RequestParam(required = false) Double bloodSugarLevel,
+            @RequestParam(required = false) Double cholesterolTotal,
+            @RequestParam(required = false) Double cholesterolLDL,
+            @RequestParam(required = false) Double cholesterolHDL,
+            @RequestParam(required = false) Double triglyceride,
+            @RequestParam(required = false) Double creatinine,
+            @RequestParam(required = false) Double creatinineLevel,
+            @RequestParam(required = false) Double alt,
+            @RequestParam(required = false) Double ast,
+            @RequestParam(required = false) Double bilirubin,
+            @RequestParam(required = false) String rhFactor,
+            @RequestParam(required = false) Double bmi,
+            @RequestParam(required = false) Double bmr,
+            @RequestParam(required = false) Double cholesterol,
+            @RequestParam(required = false) Double bloodSugar,
+            @RequestParam(required = false) Double sleepHours,
+            @RequestParam(required = false) Double waterIntake,
+            @RequestParam(required = false) Boolean smoker,
+            @RequestParam(required = false) Boolean alcoholConsumer,
+            @RequestParam(required = false) Integer physicalActivity,
+            @RequestParam(required = false) Integer stressLevel,
+            @RequestParam(required = false) Integer anxietyScore,
+            @RequestParam(required = false) String allergies,
+            @RequestParam(required = false) String diseases,
+            @RequestParam(required = false) String medications,
+            @RequestParam(required = false) String symptoms,
+            @RequestParam(required = false) String familyDiseaseHistory,
+            @RequestParam(required = false) String vaccinationHistory,
+            @RequestParam(required = false) String pastSurgeries,
+            @RequestParam(required = false) String mentalDiseases) {
+
+        Map<String, Object> denied = denied();
+        if (denied != null) return denied;
+
+        Doctor doctor = currentDoctor();
+        Optional<Patient> found = patientService.findById(patientId);
+        if (found.isEmpty()) {
+            return error("No patient found with ID " + patientId + ".");
+        }
+
+        Patient patient = found.get();
+        User patientUser = patient.getUser();
+
+        if (name != null && !name.trim().isEmpty()) {
+            patientUser.setName(name.trim());
+            userService.saveUser(patientUser);
+        }
+        if (bloodGroup != null) patient.setBloodGroup(bloodGroup.trim());
+        if (age != null) patient.setAge(age);
+        if (gender != null && !gender.isBlank()) patient.setGender(gender.charAt(0));
+        if (dateOfBirth != null) patient.setDateOfBirth(dateOfBirth);
+        if (maritalStatus != null) patient.setMaritalStatus(maritalStatus.trim());
+        if (nationalId != null) patient.setNationalId(nationalId.trim());
+        if (emergencyContact != null) patient.setEmergencyContact(emergencyContact.trim());
+        if (division != null) patient.setDivision(division.trim());
+        if (zilla != null) patient.setZilla(zilla.trim());
+        if (address != null) patient.setAddress(address.trim());
+        if (weight != null) patient.setWeight(weight);
+        if (height != null) patient.setHeight(height);
+
+        if (bloodPressure != null) patient.setBloodPressure(bloodPressure.trim());
+        if (systolicBP != null) patient.setSystolicBP(systolicBP);
+        if (diastolicBP != null) patient.setDiastolicBP(diastolicBP);
+        if (heartRate != null) patient.setHeartRate(heartRate);
+        if (oxygenSaturation != null) patient.setOxygenSaturation(oxygenSaturation);
+        if (respiratoryRate != null) patient.setRespiratoryRate(respiratoryRate);
+        if (bodyTemperature != null) patient.setBodyTemperature(bodyTemperature);
+
+        if (hb != null) patient.setHb(hb);
+        if (rbc != null) patient.setRbc(rbc);
+        if (wbc != null) patient.setWbc(wbc);
+        if (platelet != null) patient.setPlatelet(platelet);
+        if (sugarLevel != null) patient.setSugarLevel(sugarLevel);
+        if (bloodSugarLevel != null) patient.setBloodSugarLevel(bloodSugarLevel);
+        if (cholesterolTotal != null) patient.setCholesterolTotal(cholesterolTotal);
+        if (cholesterolLDL != null) patient.setCholesterolLDL(cholesterolLDL);
+        if (cholesterolHDL != null) patient.setCholesterolHDL(cholesterolHDL);
+        if (triglyceride != null) patient.setTriglyceride(triglyceride);
+        if (creatinine != null) patient.setCreatinine(creatinine);
+        if (creatinineLevel != null) patient.setCreatinineLevel(creatinineLevel);
+        if (alt != null) patient.setAlt(alt);
+        if (ast != null) patient.setAst(ast);
+        if (bilirubin != null) patient.setBilirubin(bilirubin);
+        if (rhFactor != null) patient.setRhFactor(rhFactor.trim());
+
+        if (bmi != null) patient.setBmi(bmi);
+        if (bmr != null) patient.setBmr(bmr);
+        if (cholesterol != null) patient.setCholesterol(cholesterol);
+        if (bloodSugar != null) patient.setBloodSugar(bloodSugar);
+
+        if (sleepHours != null) patient.setSleepHours(sleepHours);
+        if (waterIntake != null) patient.setWaterIntake(waterIntake);
+        if (smoker != null) patient.setSmoker(smoker);
+        if (alcoholConsumer != null) patient.setAlcoholConsumer(alcoholConsumer);
+        if (physicalActivity != null) patient.setPhysicalActivity(physicalActivity);
+        if (stressLevel != null) patient.setStressLevel(stressLevel);
+        if (anxietyScore != null) patient.setAnxietyScore(anxietyScore);
+
+        if (allergies != null) patient.setAllergies(splitCsv(allergies));
+        if (diseases != null) patient.setDiseases(splitCsv(diseases));
+        if (medications != null) patient.setMedications(splitCsv(medications));
+        if (symptoms != null) patient.setSymptoms(splitCsv(symptoms));
+        if (familyDiseaseHistory != null) {
+            patient.setFamilyDiseaseHistory(splitCsv(familyDiseaseHistory));
+        }
+        if (vaccinationHistory != null) {
+            patient.setVaccinationHistory(splitCsv(vaccinationHistory));
+        }
+        if (pastSurgeries != null) patient.setPastSurgeries(splitCsv(pastSurgeries));
+        if (mentalDiseases != null) patient.setMentalDiseases(splitCsv(mentalDiseases));
+
+        patient.setUpdatedAt(new Date());
+        patientService.save(patient);
+
+        String doctorName = doctor.getName() == null ? "your doctor" : doctor.getName().trim();
+        if (!doctorName.isEmpty() && !doctorName.startsWith("Dr.")) {
+            doctorName = "Dr. " + doctorName;
+        }
+        notification note = new notification(
+                "Your medical record was updated by " + doctorName + ".",
+                LocalDateTime.now(), patient);
+        patientService.addNotification(patient, note);
+        if (patient.getUser() != null) {
+            notificationService.sendToSpecific(patient.getUser().getEmail(), note);
+        }
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("success", true);
+        out.put("message", "Patient record updated.");
+        out.putAll(patientDto(patient, doctor));
+        return out;
+    }
+
+    // ------------------------------------------------------------------
+    // Prescriptions
+    // ------------------------------------------------------------------
+
+    /**
+     * Prescriptions written by the signed-in doctor.
+     *
+     * <p>Passing {@code patientId} narrows the list to one patient, which is
+     * what the prescription-maker page does after the doctor looks someone up.
+     * Without it the page can still show the doctor's recent prescriptions.
+     */
+    @GetMapping("/prescriptions")
+    @ResponseBody
+    @Transactional(readOnly = true)
+    public Map<String, Object> prescriptions(
+            @RequestParam(required = false) Long patientId) {
+        Map<String, Object> denied = denied();
+        if (denied != null) return denied;
+
+        Doctor doctor = currentDoctor();
+        List<Prescription> list = prescriptionService.forDoctor(doctor.getId(), patientId);
+
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("success", true);
+        out.put("count", list.size());
+        out.put("data", list.stream().map(PrescriptionDto::from).toList());
+        return out;
+    }
+
+    /**
+     * Write a prescription and notify the patient.
+     *
+     * <p>The patient ID is validated here rather than trusted from the form:
+     * the lookup page lets a doctor type any numeric ID, and a typo should
+     * produce a readable error rather than a foreign-key failure.
+     */
+    @PostMapping("/prescriptions")
+    @ResponseBody
+    @Transactional
+    public Map<String, Object> createPrescription(
+            @RequestParam(required = false) Long patientId,
+            @RequestParam(required = false) String diagnosis,
+            @RequestParam(required = false) String medicines,
+            @RequestParam(required = false) String instructions,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate followUpDate) {
+
+        Map<String, Object> denied = denied();
+        if (denied != null) return denied;
+
+        if (patientId == null) {
+            return error("Choose a patient first.");
+        }
+        if (medicines == null || medicines.isBlank()) {
+            return error("Enter at least one medicine or treatment.");
+        }
+        if (followUpDate == null) {
+            return error("Choose the follow-up date.");
+        }
+        if (followUpDate.isBefore(LocalDate.now())) {
+            return error("The follow-up date cannot be in the past.");
+        }
+
+        Optional<Patient> found = patientService.findById(patientId);
+        if (found.isEmpty()) {
+            return error("No patient found with ID " + patientId + ".");
+        }
+
+        Doctor doctor = currentDoctor();
+        try {
+            Prescription saved = prescriptionService.create(
+                    doctor, found.get(), diagnosis, medicines, instructions, followUpDate);
+
+            Map<String, Object> out = new LinkedHashMap<>();
+            out.put("success", true);
+            out.put("message", "Prescription saved. The patient has been notified.");
+            out.put("data", PrescriptionDto.from(saved));
+            return out;
+        } catch (RuntimeException e) {
+            return error("Could not save the prescription: " + e.getMessage());
+        }
+    }
+
+    // ------------------------------------------------------------------
     // DTOs
     // ------------------------------------------------------------------
+
+    private Map<String, Object> patientDto(Patient p, Doctor doctor) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        User u = p.getUser();
+
+        m.put("id", p.getId());
+        m.put("name", u == null ? null : u.getName());
+        m.put("email", u == null ? null : u.getEmail());
+        m.put("photoUrl", u == null ? null : u.getPhotoUrl());
+
+        m.put("bloodGroup", p.getBloodGroup());
+        m.put("age", p.getAge());
+        m.put("gender", p.getGender() == null ? null : String.valueOf(p.getGender()));
+        m.put("dateOfBirth", formatDate(p.getDateOfBirth()));
+        m.put("maritalStatus", p.getMaritalStatus());
+        m.put("nationalId", p.getNationalId());
+        m.put("emergencyContact", p.getEmergencyContact());
+        m.put("division", p.getDivision());
+        m.put("zilla", p.getZilla());
+        m.put("address", p.getAddress());
+        m.put("weight", p.getWeight());
+        m.put("height", p.getHeight());
+
+        m.put("bloodPressure", p.getBloodPressure());
+        m.put("systolicBP", p.getSystolicBP());
+        m.put("diastolicBP", p.getDiastolicBP());
+        m.put("heartRate", p.getHeartRate());
+        m.put("oxygenSaturation", p.getOxygenSaturation());
+        m.put("respiratoryRate", p.getRespiratoryRate());
+        m.put("bodyTemperature", p.getBodyTemperature());
+
+        m.put("hb", p.getHb());
+        m.put("rbc", p.getRbc());
+        m.put("wbc", p.getWbc());
+        m.put("platelet", p.getPlatelet());
+        m.put("sugarLevel", p.getSugarLevel());
+        m.put("bloodSugarLevel", p.getBloodSugarLevel());
+        m.put("cholesterolTotal", p.getCholesterolTotal());
+        m.put("cholesterolLDL", p.getCholesterolLDL());
+        m.put("cholesterolHDL", p.getCholesterolHDL());
+        m.put("triglyceride", p.getTriglyceride());
+        m.put("creatinine", p.getCreatinine());
+        m.put("creatinineLevel", p.getCreatinineLevel());
+        m.put("alt", p.getAlt());
+        m.put("ast", p.getAst());
+        m.put("bilirubin", p.getBilirubin());
+        m.put("rhFactor", p.getRhFactor());
+
+        m.put("bmi", p.getBmi());
+        m.put("bmr", p.getBmr());
+        m.put("cholesterol", p.getCholesterol());
+        m.put("bloodSugar", p.getBloodSugar());
+
+        m.put("sleepHours", p.getSleepHours());
+        m.put("waterIntake", p.getWaterIntake());
+        m.put("smoker", p.isSmoker());
+        m.put("alcoholConsumer", p.isAlcoholConsumer());
+        m.put("physicalActivity", p.getPhysicalActivity());
+        m.put("stressLevel", p.getStressLevel());
+        m.put("anxietyScore", p.getAnxietyScore());
+
+        m.put("allergies", copyList(p.getAllergies()));
+        m.put("diseases", copyList(p.getDiseases()));
+        m.put("medications", copyList(p.getMedications()));
+        m.put("symptoms", copyList(p.getSymptoms()));
+        m.put("familyDiseaseHistory", copyList(p.getFamilyDiseaseHistory()));
+        m.put("vaccinationHistory", copyList(p.getVaccinationHistory()));
+        m.put("pastSurgeries", copyList(p.getPastSurgeries()));
+        m.put("mentalDiseases", copyList(p.getMentalDiseases()));
+
+        m.put("updatedAt", formatTimestamp(p.getUpdatedAt()));
+
+        List<Appointment> patientAppointments = appointmentService
+                .getAppointmentsByDoctor(doctor.getId()).stream()
+                .filter(a -> a.getPatient() != null
+                        && p.getId().equals(a.getPatient().getId()))
+                .sorted((x, y) -> {
+                    if (x.getAppointmentDate() == null) return 1;
+                    if (y.getAppointmentDate() == null) return -1;
+                    return y.getAppointmentDate().compareTo(x.getAppointmentDate());
+                })
+                .toList();
+        m.put("myPatient", !patientAppointments.isEmpty());
+        m.put("appointmentCount", patientAppointments.size());
+        m.put("appointments", patientAppointments.stream().map(this::appointmentDto).toList());
+        m.put("lastVisit", patientAppointments.stream()
+                .map(Appointment::getAppointmentDate)
+                .filter(java.util.Objects::nonNull)
+                .max(Date::compareTo)
+                .map(DoctorApiController::formatDate)
+                .orElse(null));
+
+        return m;
+    }
 
     private Map<String, Object> profileDto(Doctor d) {
         Map<String, Object> m = new LinkedHashMap<>();
@@ -492,6 +899,28 @@ public class DoctorApiController {
         m.put("status", a.getStatus() != null ? a.getStatus().name() : null);
         m.put("telemedicineLink", a.getTelemedicineLink());
         return m;
+    }
+
+    private static List<String> copyList(List<String> values) {
+        return values == null ? new ArrayList<>() : new ArrayList<>(values);
+    }
+
+    private static List<String> splitCsv(String raw) {
+        List<String> out = new ArrayList<>();
+        if (raw == null) return out;
+        for (String part : raw.split(",")) {
+            String value = part.trim();
+            if (!value.isEmpty()) out.add(value);
+        }
+        return out;
+    }
+
+    private static String formatDate(Date date) {
+        return date == null ? null : new SimpleDateFormat(DATE_FMT).format(date);
+    }
+
+    private static String formatTimestamp(Date date) {
+        return date == null ? null : new SimpleDateFormat("yyyy-MM-dd HH:mm").format(date);
     }
 
     private static Map<String, Object> error(String message) {

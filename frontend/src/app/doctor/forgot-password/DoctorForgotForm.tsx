@@ -99,7 +99,7 @@ export function DoctorForgotForm({ initialToken = "" }: { initialToken?: string 
           id="email"
           name="email"
           type="email"
-          autoComplete="username"
+          autoComplete="email"
           required
           placeholder="you@example.com"
         />

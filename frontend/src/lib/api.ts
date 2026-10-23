@@ -51,7 +51,7 @@ export async function springFetch(
   return fetch(`${SPRING_API_URL}${path}`, {
     ...rest,
     headers: {
-      ...(rest.body instanceof FormData
+      ...(rest.body instanceof FormData || rest.body instanceof URLSearchParams
         ? {}
         : { "Content-Type": "application/json" }),
       ...(cookie ? { Cookie: cookie } : {}),

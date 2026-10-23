@@ -27,7 +27,7 @@ export default async function DoctorProfilePage() {
       {!profile ? (
         <Card>
           <CardBody>
-            <ErrorMessage>We couldn't load your profile. Please refresh and try again.</ErrorMessage>
+            <ErrorMessage>We could not load your profile. Please refresh and try again.</ErrorMessage>
           </CardBody>
         </Card>
       ) : (

@@ -76,10 +76,10 @@ public class CurrentUserController {
                 body.put("avatarUrl", doc != null ? doc.getProfileImage() : null);
             }
             case "ADMIN" -> {
-                adminDao.findByUsername(principal).ifPresentOrElse(admin -> {
+                adminDao.findByEmail(principal).ifPresentOrElse(admin -> {
                     body.put("id", admin.getId());
-                    body.put("name", admin.getUsername());
-                    body.put("email", principal);
+                    body.put("name", admin.getEmail());
+                    body.put("email", admin.getEmail());
                     body.put("avatarUrl", null);
                 }, () -> {
                     body.put("id", null);
@@ -91,9 +91,15 @@ public class CurrentUserController {
             default -> {
                 Optional<Patient> patient = patientService.findByEmail(principal);
                 body.put("id", patient.map(Patient::getId).orElse(null));
-                body.put("name", principal);
+                body.put("name", patient
+                        .map(Patient::getUser)
+                        .map(u -> u.getName())
+                        .orElse(principal));
                 body.put("email", principal);
-                body.put("avatarUrl", null);
+                body.put("avatarUrl", patient
+                        .map(Patient::getUser)
+                        .map(u -> u.getPhotoUrl())
+                        .orElse(null));
             }
         }
 

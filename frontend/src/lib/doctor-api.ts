@@ -86,6 +86,92 @@ export type DoctorPatient = {
   lastVisit: string | null;
 };
 
+export type DoctorPrescription = {
+  id: number;
+  patientId: number | null;
+  patientName: string | null;
+  patientEmail: string | null;
+  doctorId: number | null;
+  doctorName: string | null;
+  doctorSpecialization: string | null;
+  hospitalName: string | null;
+  diagnosis: string | null;
+  medicines: string;
+  instructions: string | null;
+  followUpDate: string | null;
+  createdAt: string | null;
+  daysUntilFollowUp: number | null;
+  followUpStatus: "NONE" | "OVERDUE" | "DUE_TODAY" | "UPCOMING" | "SCHEDULED";
+};
+
+/** Full chart returned by GET /doctor/api/patients/{id}. */
+export type DoctorPatientRecord = {
+  success: boolean;
+  id: number;
+  name: string | null;
+  email: string | null;
+  photoUrl: string | null;
+  bloodGroup: string | null;
+  age: number | null;
+  gender: string | null;
+  dateOfBirth: string | null;
+  maritalStatus: string | null;
+  nationalId: string | null;
+  emergencyContact: string | null;
+  division: string | null;
+  zilla: string | null;
+  address: string | null;
+  weight: number | null;
+  height: number | null;
+  bloodPressure: string | null;
+  systolicBP: number | null;
+  diastolicBP: number | null;
+  heartRate: number | null;
+  oxygenSaturation: number | null;
+  respiratoryRate: number | null;
+  bodyTemperature: number | null;
+  hb: number | null;
+  rbc: number | null;
+  wbc: number | null;
+  platelet: number | null;
+  sugarLevel: number | null;
+  bloodSugarLevel: number | null;
+  cholesterolTotal: number | null;
+  cholesterolLDL: number | null;
+  cholesterolHDL: number | null;
+  triglyceride: number | null;
+  creatinine: number | null;
+  creatinineLevel: number | null;
+  alt: number | null;
+  ast: number | null;
+  bilirubin: number | null;
+  rhFactor: string | null;
+  bmi: number | null;
+  bmr: number | null;
+  cholesterol: number | null;
+  bloodSugar: number | null;
+  sleepHours: number | null;
+  waterIntake: number | null;
+  smoker: boolean | null;
+  alcoholConsumer: boolean | null;
+  physicalActivity: number | null;
+  stressLevel: number | null;
+  anxietyScore: number | null;
+  allergies: string[];
+  diseases: string[];
+  medications: string[];
+  symptoms: string[];
+  familyDiseaseHistory: string[];
+  vaccinationHistory: string[];
+  pastSurgeries: string[];
+  mentalDiseases: string[];
+  updatedAt: string | null;
+  myPatient: boolean;
+  appointmentCount: number;
+  appointments: DoctorAppointment[];
+  lastVisit: string | null;
+};
+
 // Each degrades to an empty result so one failing panel doesn't 500 the page.
 // The read used for a whole page (fetchDoctorProfile) returns null instead, so
 // the caller can distinguish "no profile" from "loaded an empty one".
@@ -128,6 +214,32 @@ export async function fetchDoctorAppointments(): Promise<DoctorAppointment[]> {
 export async function fetchDoctorPatients(): Promise<DoctorPatient[]> {
   try {
     return unwrap<DoctorPatient>(await springJson("/doctor/api/patients"));
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchDoctorPatient(
+  patientId: number,
+): Promise<DoctorPatientRecord | null> {
+  try {
+    const body = await springJson<DoctorPatientRecord>(
+      `/doctor/api/patients/${patientId}`,
+    );
+    return body?.success ? body : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchDoctorPrescriptions(
+  patientId?: number,
+): Promise<DoctorPrescription[]> {
+  try {
+    const query = patientId ? `?patientId=${patientId}` : "";
+    return unwrap<DoctorPrescription>(
+      await springJson(`/doctor/api/prescriptions${query}`),
+    );
   } catch {
     return [];
   }

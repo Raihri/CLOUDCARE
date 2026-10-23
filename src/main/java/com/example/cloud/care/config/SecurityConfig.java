@@ -45,7 +45,7 @@ public class SecurityConfig {
     // ---------------------------
     @Bean
     public UserDetailsService doctorUserDetailsService() {
-        return username -> doctorDao.findByEmail(username)
+        return email -> doctorDao.findByEmail(email)
                 .map(DoctorUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("Doctor not found"));
     }
@@ -55,9 +55,9 @@ public class SecurityConfig {
     // ---------------------------
     @Bean
     public UserDetailsService adminUserDetailsService() {
-        return username -> adminDao.findByUsername(username)
+        return email -> adminDao.findByEmail(email)
                 .map(admin -> org.springframework.security.core.userdetails.User.builder()
-                        .username(admin.getUsername())
+                        .username(admin.getEmail())
                         .password(admin.getPassword())
                         .roles("ADMIN")
                         .build())
@@ -89,12 +89,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/patient/register", "/patient/login", "/patient/otpverify",
-                                "/patient/reset-password", "/patient/forgot-password",
-                                "/patient/", "/patient/verify",
-                                "/patient/forgot-password-submit", "/patient/reset-otp",
-                                "/patient/reset-otp-verify",
-                                "/patient/css/**", "/patient/js/**","/ws/**", "/app/**","/patient/current")
+                                "/patient/register", "/patient/login",
+                                "/patient/reset-password",
+                                "/patient/", "/patient/css/**", "/patient/js/**",
+                                "/ws/**", "/app/**", "/patient/current")
                         .permitAll()
                         // Password reset has to work while signed out, so it is
                         // reachable anonymously. It sits under /patient/api/**,
@@ -189,7 +187,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/admin/login")
                         .loginProcessingUrl("/admin/login")
-                        .usernameParameter("username")
+                        .usernameParameter("email")
                         .passwordParameter("password")
                         .defaultSuccessUrl("/admin/home", true))
                 .logout(logout -> logout

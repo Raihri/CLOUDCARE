@@ -30,7 +30,11 @@ export default async function AdminPendingDoctorsPage() {
         }
       />
 
-      <DoctorsTable doctors={doctors} />
+      <DoctorsTable
+        doctors={doctors}
+        emptyTitle="No pending applications"
+        emptyDescription="New doctor applications will appear here for review."
+      />
     </AppShell>
   );
 }

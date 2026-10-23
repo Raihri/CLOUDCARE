@@ -9,6 +9,15 @@ const SPRING_API_URL = process.env.SPRING_API_URL ?? "http://localhost:8080";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    serverActions: {
+      // The doctor application uploads a profile photo and a certificate in
+      // one Server Action. The framework default is 1 MB, while Spring accepts
+      // up to 20 MB per file; without this the form fails on any normal phone
+      // photo. Leave room for multipart boundaries and field metadata.
+      bodySizeLimit: "22mb",
+    },
+  },
   async rewrites() {
     return [
       {

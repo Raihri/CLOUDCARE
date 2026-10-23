@@ -15,8 +15,7 @@ public class PatientController2 {
     @GetMapping("/patient/current")
     public Map<String, Object> getCurrentPatient(@AuthenticationPrincipal UserDetails userDetails) {
         Map<String, Object> response = new HashMap<>();
-        response.put("username", userDetails.getUsername());
-        response.put("email", userDetails.getUsername()); // if email is used as username
+        response.put("email", userDetails.getUsername());
         return response;
     }
 }

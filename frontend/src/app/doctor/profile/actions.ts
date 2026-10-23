@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { springFetch } from "@/lib/api-client";
+import { springFetch } from "@/lib/api";
 
 export type ProfileState = { message: string; ok: boolean } | undefined;
 

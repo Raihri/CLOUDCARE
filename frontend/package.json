@@ -9,16 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@splinetool/runtime": "^1.12.57",
+    "@stomp/stompjs": "^7.5.0",
     "next": "16.4.2",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sockjs-client": "^1.5.4",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",

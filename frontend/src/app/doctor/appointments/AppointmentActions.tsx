@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 
-import { Button } from "@/components/ui/Button";
 import { ErrorMessage, SuccessMessage } from "@/components/ui/Feedback";
 import { setAppointmentStatus, type ActionState } from "../actions";
 

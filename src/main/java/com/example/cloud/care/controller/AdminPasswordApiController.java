@@ -51,7 +51,7 @@ public class AdminPasswordApiController {
             return result(false, "New password must be different from the current one.");
         }
 
-        Admin admin = adminDao.findByUsername(principal.getName()).orElse(null);
+        Admin admin = adminDao.findByEmail(principal.getName()).orElse(null);
         if (admin == null) {
             return result(false, "Admin not found.");
         }

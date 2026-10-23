@@ -45,7 +45,7 @@ public class AdminController {
                                  @RequestParam String newPassword,
                                  Principal principal,
                                  org.springframework.ui.Model model) {
-        Admin admin = adminDao.findByUsername(principal.getName())
+        Admin admin = adminDao.findByEmail(principal.getName())
         .orElseThrow(() -> new RuntimeException("Admin not found"));
         if (!passwordEncoder.matches(oldPassword, admin.getPassword())) {
             model.addAttribute("error", "Old password is incorrect");

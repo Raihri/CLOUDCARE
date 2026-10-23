@@ -1,6 +1,8 @@
 "use server";
 
-export type DoctorSignupState = { error?: string } | undefined;
+export type DoctorSignupState =
+  | { error?: string; success?: boolean }
+  | undefined;
 
 /**
  * Submit a doctor application.
@@ -60,7 +62,7 @@ export async function applyAsDoctor(
   if (res.status === 302) {
     const location = res.headers.get("location") ?? "";
     if (location.includes("/doctor/login")) {
-      return {};
+      return { success: true };
     }
   }
 

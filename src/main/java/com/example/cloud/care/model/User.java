@@ -27,16 +27,8 @@ public class User {
     private Long id;
 
     @NotBlank(message = "Name is required")
-    
-    @Column( nullable = false)
+    @Column(nullable = false)
     private String name;
-
-    
-
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    @Column(unique = true, nullable = false)
-    private String username;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email address")

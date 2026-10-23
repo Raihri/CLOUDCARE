@@ -8,7 +8,7 @@ export function Card({
   return (
     <div
       className={[
-        "bg-surface border border-border rounded-lg shadow-sm",
+        "bg-surface border border-border rounded-lg shadow-sm min-w-0",
         className,
       ].join(" ")}
       {...rest}
@@ -29,13 +29,15 @@ export function CardHeader({
 }) {
   return (
     <div className="flex items-start justify-between gap-4 px-5 py-4 border-b border-border">
-      <div>
+      <div className="min-w-0">
         <h2 className="text-base font-semibold text-text-primary">{title}</h2>
         {description ? (
           <p className="mt-0.5 text-sm text-text-muted">{description}</p>
         ) : null}
       </div>
-      {action}
+      {action ? (
+        <div className="shrink-0 whitespace-nowrap">{action}</div>
+      ) : null}
     </div>
   );
 }

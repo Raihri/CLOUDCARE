@@ -11,11 +11,17 @@ export async function springFetch(
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
+  // FormData must be left alone: the browser derives its own multipart
+  // Content-Type with a boundary. Setting application/json here would make
+  // JSON.stringify the body — silently turning any File into {} — and Spring
+  // would then see no parts at all.
+  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
+
   return fetch(`/api/spring${path}`, {
     ...init,
     credentials: "same-origin",
     headers: {
-      ...(init.body ? { "Content-Type": "application/json" } : {}),
+      ...(init.body && !isFormData ? { "Content-Type": "application/json" } : {}),
       ...init.headers,
     },
   });

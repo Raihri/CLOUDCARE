@@ -5,15 +5,12 @@ import com.example.cloud.care.model.Doctor;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import com.example.cloud.care.repository.DoctorAvailabilityRepository;
 
@@ -23,15 +20,15 @@ public class doctor_service {
 
     private final doctor_dao doctor_dao;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final Cloudinary cloudinary;
+    private final StorageService storageService;
     private final EmailServiceD emailServiceD;
     private final DoctorAvailabilityRepository doctorAvailabilityRepository;
     
 
-    public doctor_service(doctor_dao doctor_dao, BCryptPasswordEncoder passwordEncoder, Cloudinary cloudinary, EmailServiceD emailServiceD, DoctorAvailabilityRepository doctorAvailabilityRepository) {
+    public doctor_service(doctor_dao doctor_dao, BCryptPasswordEncoder passwordEncoder, StorageService storageService, EmailServiceD emailServiceD, DoctorAvailabilityRepository doctorAvailabilityRepository) {
         this.doctor_dao = doctor_dao;
         this.passwordEncoder = passwordEncoder;
-        this.cloudinary = cloudinary;
+        this.storageService = storageService;
         this.emailServiceD = emailServiceD;
         this.doctorAvailabilityRepository = doctorAvailabilityRepository;
     }
@@ -104,14 +101,10 @@ public class doctor_service {
         }
 
         // Upload profile image
-        Map profileUploadResult = cloudinary.uploader().upload(profileImage.getBytes(),
-                ObjectUtils.asMap("folder", "doctor_profiles"));
-        doctorRequest.setProfileImage((String) profileUploadResult.get("secure_url"));
+        doctorRequest.setProfileImage(storageService.upload(profileImage, "doctor_profiles"));
 
         // Upload certificate file
-        Map certUploadResult = cloudinary.uploader().upload(certificateFile.getBytes(),
-                ObjectUtils.asMap("folder", "doctor_certificates", "resource_type", "raw"));
-        doctorRequest.setCertifications((String) certUploadResult.get("secure_url"));
+        doctorRequest.setCertifications(storageService.upload(certificateFile, "doctor_certificates"));
 
         // Hash password
         doctorRequest.setPassword(passwordEncoder.encode(doctorRequest.getPassword()));

@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/ui/Feedback";
 import { requireRole } from "@/lib/auth";
 import { fetchDoctorDashboard } from "@/lib/doctor-api";
+import { PatientSearch } from "../patients/PatientSearch";
 
 export const metadata: Metadata = { title: "Doctor Dashboard" };
 
@@ -24,6 +25,12 @@ export default async function DoctorDashboardPage() {
         title={`Welcome, ${stats?.name ?? user.name ?? "Doctor"}`}
         description="Your appointments and availability at a glance."
       />
+
+      <Card>
+        <CardBody>
+          <PatientSearch />
+        </CardBody>
+      </Card>
 
       {!stats ? (
         <Card>
@@ -47,7 +54,7 @@ export default async function DoctorDashboardPage() {
             </div>
           ) : null}
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
               label="Total appointments"
               value={stats.totalAppointments}
@@ -75,7 +82,7 @@ export default async function DoctorDashboardPage() {
           <div className="mt-5">
             <Card>
               <CardBody>
-                <div className="mb-4 flex items-center justify-between">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <h2 className="text-base font-semibold text-text-primary">
                     Today and upcoming
                   </h2>
@@ -94,38 +101,41 @@ export default async function DoctorDashboardPage() {
                     description="New bookings will appear here."
                   />
                 ) : (
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-border text-xs uppercase tracking-wide text-text-muted">
-                        <th className="pb-3 pr-4 font-medium">Patient</th>
-                        <th className="pb-3 pr-4 font-medium">Date</th>
-                        <th className="pb-3 pr-4 font-medium">Time</th>
-                        <th className="pb-3 pr-4 font-medium">Type</th>
-                        <th className="pb-3 font-medium">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {stats.upcoming.map((a) => (
-                        <tr key={a.id}>
-                          <td className="py-3 pr-4 font-medium text-text-primary">
+                  <div className="divide-y divide-border">
+                    {stats.upcoming.map((a) => (
+                      <div
+                        key={a.id}
+                        className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                      >
+                        <div className="min-w-0">
+                          <Link
+                            href={`/doctor/patients/${a.patientId}`}
+                            className="font-medium text-text-primary hover:text-primary-600 hover:underline"
+                          >
                             {a.patientName ?? "—"}
-                          </td>
-                          <td className="py-3 pr-4 text-text-secondary">
-                            {a.appointmentDate ?? "—"}
-                          </td>
-                          <td className="py-3 pr-4 text-text-secondary">
-                            {a.timeSlot ?? "—"}
-                          </td>
-                          <td className="py-3 pr-4 text-text-secondary">
+                          </Link>
+                          <p className="mt-0.5 text-xs text-text-muted">
+                            {a.appointmentDate ?? "—"} · {a.timeSlot ?? "—"} ·{" "}
                             {a.type?.toLowerCase() ?? "—"}
-                          </td>
-                          <td className="py-3">
-                            <StatusBadge status={a.status} />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {a.status === "CONFIRMED" && a.telemedicineLink ? (
+                            <a
+                              href={a.telemedicineLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50"
+                            >
+                              <i className="bx bx-video text-sm" aria-hidden />
+                              Join meeting
+                            </a>
+                          ) : null}
+                          <StatusBadge status={a.status} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </CardBody>
             </Card>

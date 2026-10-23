@@ -196,3 +196,111 @@ body {
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
+
+/* ---- Scrollbars ---------------------------------------------------------
+   The sidebar nav is scrollable (the legacy `.nav-links` rule at
+   style.css:109 hid its scrollbar explicitly). Without this, a short window
+   makes the track appear as a grey bar down the right edge of the dark panel,
+   which reads as a stray element rather than a scroll affordance.
+
+   Hidden visually, still scrollable: `scrollbar-width: none` covers Firefox
+   and the standards track, the pseudo-elements cover WebKit/Blink. */
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* ---- Profile card entrance ----------------------------------------------
+   Ported from patient.html's inline `@keyframes fadeInUp`, which animated the
+   `.patient-profile-container` on mount. */
+@keyframes profileFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .patient-profile-container {
+    animation: none;
+  }
+}
+
+/* ---- Auth experience ----------------------------------------------------
+   The sign-in/sign-up overlay borrows the supplied template's sliding-card
+   idea, but the motion is deliberately quiet: a soft swap for the role
+   illustration, floating props, and a heartbeat line instead of ocean waves. */
+@keyframes authFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes authSwapIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes authPulse {
+  0% {
+    stroke-dashoffset: 760;
+    opacity: 0.12;
+  }
+  35% {
+    opacity: 0.85;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.12;
+  }
+}
+
+.auth-float,
+.auth-float-delayed {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: authFloat 7s ease-in-out infinite;
+}
+
+.auth-float-delayed {
+  animation-duration: 9s;
+  animation-delay: -2.5s;
+}
+
+.auth-swap-in {
+  animation: authSwapIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-pulse-line {
+  stroke-dasharray: 760;
+  animation: authPulse 7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-float,
+  .auth-float-delayed,
+  .auth-swap-in,
+  .auth-pulse-line {
+    animation: none;
+  }
+}

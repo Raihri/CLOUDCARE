@@ -24,12 +24,17 @@ export function DoctorRowActions({
   );
 
   if (status === "APPROVED") {
-    return <span className="text-xs text-text-muted">No action needed</span>;
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
+        <i aria-hidden className="bx bxs-check-circle text-sm leading-none" />
+        Active
+      </span>
+    );
   }
 
   if (status === "REJECTED") {
     return (
-      <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-col items-start gap-2">
         <form action={formAction} className="flex gap-2">
           <input type="hidden" name="doctorId" value={doctorId} />
           <button
@@ -54,14 +59,17 @@ export function DoctorRowActions({
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <form action={formAction} className="flex items-center gap-2">
+    <div className="flex flex-col items-start gap-2">
+      <form
+        action={formAction}
+        className="flex flex-wrap items-center gap-2"
+      >
         <input type="hidden" name="doctorId" value={doctorId} />
         <input
           type="text"
           name="reason"
           placeholder="Reason (for rejection)"
-          className="h-8 w-44 rounded-md border border-border-strong bg-surface px-2 text-xs text-text-primary placeholder:text-text-muted focus:border-azure focus:outline-none"
+          className="h-8 w-full rounded-md border border-border-strong bg-surface px-2 text-xs text-text-primary placeholder:text-text-muted focus:border-azure focus:outline-none sm:w-44"
         />
         <button
           type="submit"

@@ -3,7 +3,15 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "blood";
 type Size = "sm" | "md" | "lg";
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
+type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> & {
+  /**
+   * Either a button behaviour ("submit" | "reset" | "button") or a Server
+   * Action. React 19 lets a button submit a specific action directly, which
+   * is the only way to have a submit button OUTSIDE its own <form> — the
+   * escape hatch for forms that can't be nested (e.g. a photo upload card
+   * living above a personal-details form on the same page).
+   */
+  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"] | ((formData: FormData) => void | Promise<void>);
   variant?: Variant;
   size?: Size;
   fullWidth?: boolean;
@@ -38,11 +46,16 @@ export function Button({
   type = "button",
   ...rest
 }: Props) {
+  // A Server Action function can't go through the `type` attribute, so it's
+  // applied via formAction instead. These are mutually exclusive.
+  const isAction = typeof type === "function";
   return (
     <button
-      type={type}
+      {...(isAction
+        ? { formAction: type as (formData: FormData) => void }
+        : { type: type as "submit" | "reset" | "button" })}
       className={[
-        "inline-flex items-center justify-center gap-2 rounded-md font-medium",
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium",
         "transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
         VARIANTS[variant],
         SIZES[size],

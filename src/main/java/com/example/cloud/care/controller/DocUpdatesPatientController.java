@@ -1,10 +1,9 @@
 package com.example.cloud.care.controller;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.service.DoctorUserDetails;
+import com.example.cloud.care.service.StorageService;
 import com.example.cloud.care.service.notificationService;
 import com.example.cloud.care.service.patient_service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class DocUpdatesPatientController {
     private notificationService notificationService;
 
     @Autowired
-    private Cloudinary cloudinary;
+    private StorageService storageService;
 
         
 
@@ -429,7 +428,7 @@ public class DocUpdatesPatientController {
         return response;
     }
 
-    // Upload files (using Cloudinary or similar)
+    // Upload files to Supabase Storage
     @PostMapping("/upload-files")
     @ResponseBody
     public Map<String, Object> uploadFiles(
@@ -453,13 +452,7 @@ public class DocUpdatesPatientController {
                 if (file.isEmpty())
                     continue;
 
-                Map uploadResult = cloudinary.uploader().upload(
-                        file.getBytes(),
-                        ObjectUtils.asMap(
-                                "folder", "patient_reports",
-                                "resource_type", "raw"));
-
-                String fileUrl = (String) uploadResult.get("secure_url");
+                String fileUrl = storageService.upload(file, "patient_reports");
 
                 if ("labReport".equals(fileType)) {
                     patient.getLabReportFiles().add(fileUrl);

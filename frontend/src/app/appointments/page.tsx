@@ -53,7 +53,7 @@ export default async function AppointmentsPage() {
                 {active.map((a) => (
                   <div
                     key={a.id}
-                    className="flex items-center justify-between gap-4 rounded-md border border-border p-4"
+                    className="flex flex-col gap-4 rounded-md border border-border p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <p className="font-medium text-text-primary">
@@ -62,16 +62,18 @@ export default async function AppointmentsPage() {
                       <p className="text-sm text-highlight">
                         {a.specialization}
                       </p>
-                      <p className="mt-1 flex items-center gap-2 text-sm text-text-muted">
+                      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-text-muted">
                         <i className="bx bxs-calendar" aria-hidden />
-                        {a.appointmentDate}
+                        <span className="whitespace-nowrap">
+                          {a.appointmentDate}
+                        </span>
                         <span aria-hidden>·</span>
                         <i className="bx bx-time" aria-hidden />
-                        {a.timeSlot}
+                        <span className="whitespace-nowrap">{a.timeSlot}</span>
                       </p>
                     </div>
 
-                    <div className="flex shrink-0 flex-col items-end gap-2">
+                    <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
                       <StatusBadge status={a.status} />
                       {a.type === "TELEMEDICINE" ? (
                         <span className="text-xs text-text-muted">
@@ -82,6 +84,21 @@ export default async function AppointmentsPage() {
                           In person
                         </span>
                       )}
+                      {a.status === "CONFIRMED" && a.telemedicineLink ? (
+                        <a
+                          href={a.telemedicineLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-md bg-primary-900 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-primary-800"
+                        >
+                          <i className="bx bx-video text-sm" aria-hidden />
+                          Join meeting
+                        </a>
+                      ) : a.type === "TELEMEDICINE" ? (
+                        <span className="max-w-32 text-right text-[11px] leading-snug text-text-muted">
+                          Link appears after confirmation
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -100,7 +117,7 @@ export default async function AppointmentsPage() {
                 {past.map((a) => (
                   <div
                     key={a.id}
-                    className="flex items-center justify-between gap-4 rounded-md border border-border p-4 opacity-60"
+                    className="flex flex-col gap-2 rounded-md border border-border p-4 opacity-60 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <p className="font-medium text-text-primary">

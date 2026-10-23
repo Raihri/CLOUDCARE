@@ -18,23 +18,15 @@ public class notificationService {
     }
 
     // notification to specific
-    public void sendToSpecific(String email,notification notification)
-    {
-
-        try
-        {
-            messagingTemplate.convertAndSendToUser(email, "/queue/notifications",notification);
-            System.out.println("Raima-------------------DONE");
+    public void sendToSpecific(String email, notification notification) {
+        if (email == null || email.isBlank()) {
+            return;
         }
-
-        catch(Exception e)
-        {
-            System.out.println("Raima we failed-------------------TTTTTTT");
+        try {
+            messagingTemplate.convertAndSendToUser(email.trim(), "/queue/notifications", notification);
+        } catch (Exception ignored) {
+            // A failed live push must not break the database write that
+            // triggered it; the notification is still visible via the API.
         }
-
-
-
-
     }
-    
 }

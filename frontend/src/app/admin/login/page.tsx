@@ -4,13 +4,18 @@ import { PortalLogin } from "@/components/auth/PortalLogin";
 
 export const metadata: Metadata = { title: "Admin sign in" };
 
-export default function AdminLoginPage() {
-  return (
-    <PortalLogin
-      role="ADMIN"
-      title="Administrator sign in"
-      subtitle="Approve doctors, review donors and manage feedback."
-      icon="◈"
-    />
-  );
+export const instant = false;
+
+type AdminLoginSearchParams = {
+  next?: string;
+};
+
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<AdminLoginSearchParams>;
+}) {
+  const { next } = await searchParams;
+
+  return <PortalLogin role="ADMIN" next={next} />;
 }

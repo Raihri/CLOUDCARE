@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
@@ -16,7 +16,7 @@ export function AddSlotForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <FormField label="Date" htmlFor="date" required>
           <Input id="date" name="date" type="date" required />
         </FormField>
@@ -117,38 +117,28 @@ export function SlotList({
   return (
     <Card>
       <CardBody>
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-border text-xs uppercase tracking-wide text-text-muted">
-              <th className="pb-3 pr-4 font-medium">Date</th>
-              <th className="pb-3 pr-4 font-medium">Time</th>
-              <th className="pb-3 pr-4 font-medium">Mode</th>
-              <th className="pb-3 pr-4 font-medium">State</th>
-              <th className="pb-3 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {slots.map((s) => (
-              <tr key={s.id}>
-                <td className="py-3 pr-4 text-text-primary">
+        <div className="divide-y divide-border">
+          {slots.map((s) => (
+            <div
+              key={s.id}
+              className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0">
+                <p className="font-medium text-text-primary">
                   {s.date ?? "—"}
-                </td>
-                <td className="py-3 pr-4 text-text-secondary">
-                  {s.startTime}–{s.endTime}
-                </td>
-                <td className="py-3 pr-4 text-text-secondary">
-                  {s.telemedicineAvailable ? "Telemedicine" : "In person"}
-                </td>
-                <td className="py-3 pr-4 text-text-secondary">
+                </p>
+                <p className="mt-0.5 text-xs text-text-muted">
+                  {s.startTime}–{s.endTime} ·{" "}
+                  {s.telemedicineAvailable ? "Telemedicine" : "In person"} ·{" "}
                   {s.booked ? "Booked" : "Open"}
-                </td>
-                <td className="py-3">
-                  <RemoveSlotButton slotId={s.id} booked={s.booked} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </p>
+              </div>
+              <div className="shrink-0">
+                <RemoveSlotButton slotId={s.id} booked={s.booked} />
+              </div>
+            </div>
+          ))}
+        </div>
       </CardBody>
     </Card>
   );

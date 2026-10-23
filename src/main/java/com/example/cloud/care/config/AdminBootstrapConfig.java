@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Configuration
 public class AdminBootstrapConfig {
 
-    @Value("${ADMIN_USERNAME}")
-    private String adminUsername;
+    @Value("${ADMIN_EMAIL}")
+    private String adminEmail;
 
     @Value("${ADMIN_PASSWORD}")
     private String adminPassword;
@@ -30,12 +30,12 @@ public class AdminBootstrapConfig {
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void createInitialAdmin() {
-        if (adminDao.findByUsername(adminUsername).isEmpty()) {
+        if (adminDao.findByEmail(adminEmail).isEmpty()) {
             Admin admin = new Admin();
-            admin.setUsername(adminUsername);
+            admin.setEmail(adminEmail);
             admin.setPassword(passwordEncoder.encode(adminPassword));
             adminDao.save(admin);
-            System.out.println("✅ Initial admin created: " + adminUsername);
+            System.out.println("✅ Initial admin created: " + adminEmail);
         }
     }
 }

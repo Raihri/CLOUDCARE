@@ -2,11 +2,7 @@ package com.example.cloud.care.controller;
 
 import com.example.cloud.care.model.User;
 import com.example.cloud.care.repository.UserRepository;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import com.example.cloud.care.model.ForgotPasswordRequest;
-import com.example.cloud.care.model.OtpForm;
-import com.example.cloud.care.service.EmailService;
+import com.example.cloud.care.service.StorageService;
 import com.example.cloud.care.service.UserService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.patient_service;
@@ -51,16 +47,13 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final UserService userService;
-    private final Cloudinary cloudinary;
+    private final StorageService storageService;
     private final patient_service patientService;
-    private final EmailService emailService;
 
-    public AuthController(UserService userService, patient_service patientService, EmailService emailService,
-            Cloudinary cloudinary) {
+    public AuthController(UserService userService, patient_service patientService, StorageService storageService) {
         this.userService = userService;
         this.patientService = patientService;
-        this.emailService = emailService;
-        this.cloudinary = cloudinary;
+        this.storageService = storageService;
     }
 
     @GetMapping("/")
@@ -72,13 +65,6 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@ModelAttribute User user, Model model) {
         try {
-            // Validate email domain
-            if (!emailService.isDomainValid(user.getEmail().substring(user.getEmail().indexOf('@') + 1))) {
-                model.addAttribute("errorMessage",
-                        "Invalid email domain. Please use a valid domain with MX/A records.");
-                return "index";
-            }
-
             userService.registerUser(user);
 
             // Create Patient linked to User
@@ -87,81 +73,14 @@ public class AuthController {
             user.setPatient(patient); // link both sides
             patientService.save(patient); // save patient
 
-            // Redirect to verification page with email param
-            return "redirect:/patient/verify?email=" + user.getEmail();
+            // No OTP step: the account is active immediately. Send the user to
+            // the sign-in page, where the Next.js demo buttons and the normal
+            // form both work.
+            return "redirect:/patient/login?registered=1";
         } catch (Exception e) {
-            // If the email already exists but user is not enabled, do NOT resend code if
-            // registration already sent one
-            if (e.getMessage() != null && e.getMessage().contains("Email already in use.")) {
-                try {
-                    java.util.Optional<User> existing = userService.findByEmailOptional(user.getEmail().trim());
-                    if (existing.isPresent() && !existing.get().isEnabled()) {
-                        // Redirect to forgot password page for unverified user
-                        return "redirect:/patient/forgot-password?email=" + user.getEmail();
-                    }
-                } catch (Exception ignored) {
-                    // fall through to show original error
-                }
-            }
             model.addAttribute("errorMessage", e.getMessage());
             return "index";
         }
-    }
-
-    @PostMapping("/otpverify")
-    public String verifyCode(@RequestParam String email, @ModelAttribute OtpForm otpForm, Model model,
-            jakarta.servlet.http.HttpServletRequest request) {
-        String code = buildOtpCode(otpForm);
-        if (code == null) {
-            model.addAttribute("errorMessage", "Please enter the full 6-digit code.");
-            model.addAttribute("email", email);
-            model.addAttribute("otpForm", otpForm);
-            return "otp";
-        }
-
-        boolean verified = userService.verify(email, code);
-
-        if (verified) {
-            Optional<User> optionalUser = userService.findByEmail(email);
-            if (optionalUser.isEmpty()) {
-                model.addAttribute("errorMessage", "User not found!");
-                return "index";
-            }
-            User verifiedUser = optionalUser.get();
-            verifiedUser.setEnabled(true);
-            userService.saveUser(verifiedUser);
-
-            // Authenticate properly
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
-                    userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-
-            // Persist security context in session so authentication survives redirect
-            try {
-                jakarta.servlet.http.HttpSession session = request.getSession(true);
-                session.setAttribute(
-                        org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                        SecurityContextHolder.getContext());
-            } catch (Exception ex) {
-                logger.warn("Failed to store security context in session: {}", ex.getMessage());
-            }
-
-            return "redirect:/patient/selfie-upload"; // no userId
-        } else {
-            model.addAttribute("errorMessage", "Invalid or expired verification code!");
-            model.addAttribute("email", email);
-            model.addAttribute("otpForm", otpForm);
-            return "otp";
-        }
-    }
-
-    // Corrected route to match the redirect from /register
-    @GetMapping("/verify")
-    public String showVerificationPage(@RequestParam String email, Model model) {
-        model.addAttribute("email", email);
-        model.addAttribute("otpForm", new OtpForm());
-        return "otp"; // OTP verification page
     }
 
     // Path must be "/logout" only — the class-level @RequestMapping("/patient")
@@ -193,42 +112,6 @@ public class AuthController {
         }
     }
 
-    // Show the forgot-password form
-    @GetMapping("/forgot-password")
-    public String showForgotPasswordForm() {
-        // ensure a model attribute if template expects any
-        // model.addAttribute("forgotPasswordRequest", 100);
-        return "forgot_password";
-    }
-
-    @PostMapping("/forgot-password-submit")
-    public String handleForgotPassword(@ModelAttribute("forgotPasswordRequest") ForgotPasswordRequest request,
-            Model model) throws Exception {
-        String email = request.getEmail();
-
-        if (email == null || email.trim().isEmpty()) {
-            model.addAttribute("error", "Please provide a valid email address.");
-            return "forgot_password";
-        }
-
-        try {
-            // Generate and send verification code
-            userService.sendPasswordResetCode(email.trim());
-            logger.info("Password reset code sent to {}", email);
-
-            // Show OTP page to enter the code
-            model.addAttribute("email", email.trim());
-            model.addAttribute("otpForm", new OtpForm());
-            model.addAttribute("success", "Verification code sent to " + email.trim() + ". Check your inbox.");
-            return "otp_reset";
-        } catch (Exception e) {
-            logger.error("Failed to initiate password reset for {}: {}", email, e.getMessage());
-            model.addAttribute("error", e.getMessage() == null ? "Unable to process request." : e.getMessage());
-            return "forgot_password";
-        }
-
-    }
-
     @PostMapping("/login")
     public String login(@ModelAttribute User userForm,
             HttpSession session,
@@ -243,10 +126,7 @@ public class AuthController {
 
         User user = optionalUser.get();
 
-        if (!user.isEnabled()) {
-            return "redirect:/patient/verify?email=" + user.getEmail();
-        }
-
+        // No OTP gate: every registered account can sign in immediately.
         // Now find if this user is a Patient
         Optional<Patient> patient = patientService.findById(user.getId());
         if (patient.isPresent()) {
@@ -259,42 +139,6 @@ public class AuthController {
         session.setAttribute("loggedUserId", user.getId());
 
         return "dashboard";
-    }
-
-    @GetMapping("/reset-otp")
-    public String showResetOtpForm(@RequestParam String email, Model model) {
-        model.addAttribute("email", email);
-        model.addAttribute("otpForm", new OtpForm());
-        return "otp_reset";
-    }
-
-    @PostMapping("/reset-otp-verify")
-    public String verifyResetCode(@RequestParam String email,
-            @ModelAttribute OtpForm otpForm,
-            Model model) {
-        String code = buildOtpCode(otpForm);
-        if (code == null) {
-            model.addAttribute("errorMessage", "Please enter the full 6-digit code.");
-            model.addAttribute("email", email);
-            model.addAttribute("otpForm", new OtpForm());
-            return "otp_reset";
-        }
-
-        logger.info("Verifying reset code for email: {} provided={}", email, code);
-
-        boolean verified = userService.verify(email, code);
-        if (verified) {
-            logger.info("User {} successfully verified for password reset.", email);
-            System.out.println("User " + email + " successfully verified for password reset.");
-            model.addAttribute("email", email); // Add email to model so reset_password.html can use it
-            return "reset_password"; // Proceed to reset password page
-        } else {
-            logger.warn("Verification failed for user {} with code {}", email, code);
-            model.addAttribute("errorMessage", "Invalid or expired verification code!");
-            model.addAttribute("email", email);
-            model.addAttribute("otpForm", new OtpForm()); // Reset form for retry
-        }
-        return "otp_reset";
     }
 
     @PostMapping("/reset-password")
@@ -337,25 +181,6 @@ public class AuthController {
         }
     }
 
-    // Helper: build a 6-digit string from OtpForm, return null if any digit
-    // missing/invalid
-    private String buildOtpCode(OtpForm otpForm) {
-        if (otpForm == null)
-            return null;
-        String[] parts = { otpForm.getDigit1(), otpForm.getDigit2(), otpForm.getDigit3(), otpForm.getDigit4(),
-                otpForm.getDigit5(), otpForm.getDigit6() };
-        StringBuilder sb = new StringBuilder();
-        for (String p : parts) {
-            if (p == null || p.trim().isEmpty())
-                return null;
-            String t = p.trim();
-            if (t.length() != 1 || !t.matches("\\d"))
-                return null;
-            sb.append(t);
-        }
-        return sb.toString();
-    }
-
     @PostMapping("/selfie-upload")
     public String handleSelfieUpload(@RequestParam Long userId,
             @RequestParam(required = false) String base64Image,
@@ -377,12 +202,7 @@ public class AuthController {
 
         if (base64Image != null && !base64Image.isEmpty()) {
             try {
-                String cleanBase64 = base64Image.replaceAll("^data:image/\\w+;base64,", "");
-                byte[] imageBytes = Base64.getDecoder().decode(cleanBase64);
-                @SuppressWarnings("unchecked")
-                Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(imageBytes,
-                        ObjectUtils.asMap("folder", "users", "resource_type", "image"));
-                String imageUrl = uploadResult.get("secure_url").toString();
+                String imageUrl = storageService.uploadBase64(base64Image, "users");
                 user.setPhotoUrl(imageUrl);
                 user.setEnabled(true);
                 userService.saveUser(user);

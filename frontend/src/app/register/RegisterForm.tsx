@@ -7,7 +7,12 @@ import { ErrorMessage } from "@/components/ui/Feedback";
 import { FormField, Input } from "@/components/ui/Form";
 import { register, type RegisterState } from "./actions";
 
-export function RegisterForm() {
+export function RegisterForm({
+  /** Prefixes the field IDs so the sign-in form can share the page. */
+  idPrefix = "register",
+}: {
+  idPrefix?: string;
+}) {
   const [state, formAction, pending] = useActionState<RegisterState, FormData>(
     register,
     undefined,
@@ -15,24 +20,18 @@ export function RegisterForm() {
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <FormField label="Full name" htmlFor="name" required>
-        <Input id="name" name="name" autoComplete="name" required />
-      </FormField>
-
-      <FormField label="Username" htmlFor="username" required>
+      <FormField label="Full name" htmlFor={`${idPrefix}-name`} required>
         <Input
-          id="username"
-          name="username"
-          autoComplete="username"
+          id={`${idPrefix}-name`}
+          name="name"
+          autoComplete="name"
           required
-          minLength={3}
-          maxLength={50}
         />
       </FormField>
 
-      <FormField label="Email" htmlFor="email" required>
+      <FormField label="Email" htmlFor={`${idPrefix}-email`} required>
         <Input
-          id="email"
+          id={`${idPrefix}-email`}
           name="email"
           type="email"
           autoComplete="email"
@@ -41,9 +40,9 @@ export function RegisterForm() {
         />
       </FormField>
 
-      <FormField label="Password" htmlFor="password" required>
+      <FormField label="Password" htmlFor={`${idPrefix}-password`} required>
         <Input
-          id="password"
+          id={`${idPrefix}-password`}
           name="password"
           type="password"
           autoComplete="new-password"
@@ -52,9 +51,13 @@ export function RegisterForm() {
         />
       </FormField>
 
-      <FormField label="Confirm password" htmlFor="confirmPassword" required>
+      <FormField
+        label="Confirm password"
+        htmlFor={`${idPrefix}-confirmPassword`}
+        required
+      >
         <Input
-          id="confirmPassword"
+          id={`${idPrefix}-confirmPassword`}
           name="confirmPassword"
           type="password"
           autoComplete="new-password"

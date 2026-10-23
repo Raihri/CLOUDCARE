@@ -41,40 +41,56 @@ export function FeedbackFilters({
   }
 
   return (
-    <form onSubmit={apply} className="flex items-end gap-3">
-      <FormField label="Name" htmlFor="name">
-        <Input
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-48"
+    <form
+      onSubmit={apply}
+      className="rounded-xl border border-border bg-surface p-4 shadow-sm"
+    >
+      <div className="mb-3 flex items-center gap-2 text-sm font-medium text-text-primary">
+        <i
+          aria-hidden
+          className="bx bx-filter-alt text-base leading-none text-primary-600"
         />
-      </FormField>
-      <FormField label="Email" htmlFor="email">
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-56"
-        />
-      </FormField>
-      <FormField label="Category" htmlFor="category">
-        <Input
-          id="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-40"
-        />
-      </FormField>
-      <Button type="submit">Filter</Button>
-      <button
-        type="button"
-        onClick={clear}
-        className="h-10 px-3 text-sm font-medium text-highlight hover:underline"
-      >
-        Clear
-      </button>
+        Filters
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto] lg:items-end">
+        <FormField label="Name" htmlFor="name">
+          <Input
+            id="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Any name"
+          />
+        </FormField>
+
+        <FormField label="Email" htmlFor="email">
+          <Input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="Any email"
+          />
+        </FormField>
+
+        <FormField label="Category" htmlFor="category">
+          <Input
+            id="category"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+            placeholder="Any category"
+          />
+        </FormField>
+
+        <div className="flex items-center gap-2">
+          <Button type="submit" className="flex-1 lg:flex-none">
+            Filter
+          </Button>
+          <Button type="button" variant="ghost" onClick={clear}>
+            Clear
+          </Button>
+        </div>
+      </div>
     </form>
   );
 }

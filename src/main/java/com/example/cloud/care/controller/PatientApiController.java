@@ -4,22 +4,27 @@ import com.example.cloud.care.model.Appointment;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.DoctorAvailability;
 import com.example.cloud.care.model.Patient;
+import com.example.cloud.care.model.Prescription;
 import com.example.cloud.care.model.Request;
 import com.example.cloud.care.model.notification;
+import com.example.cloud.care.dto.PrescriptionDto;
 import com.example.cloud.care.service.AppointmentService;
 import com.example.cloud.care.service.DoctorAvailabilityService;
+import com.example.cloud.care.service.PrescriptionService;
 import com.example.cloud.care.service.RequestService;
 import com.example.cloud.care.service.doctor_service;
 import com.example.cloud.care.service.loggedInUserFind;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,17 +60,20 @@ public class PatientApiController {
     private final doctor_service doctorService;
     private final AppointmentService appointmentService;
     private final DoctorAvailabilityService availabilityService;
+    private final PrescriptionService prescriptionService;
     private final loggedInUserFind logger;
 
     public PatientApiController(RequestService requestService,
                                 doctor_service doctorService,
                                 AppointmentService appointmentService,
                                 DoctorAvailabilityService availabilityService,
+                                PrescriptionService prescriptionService,
                                 loggedInUserFind logger) {
         this.requestService = requestService;
         this.doctorService = doctorService;
         this.appointmentService = appointmentService;
         this.availabilityService = availabilityService;
+        this.prescriptionService = prescriptionService;
         this.logger = logger;
     }
 
@@ -272,6 +280,36 @@ public class PatientApiController {
     }
 
     // ------------------------------------------------------------------
+    // Prescriptions
+    // ------------------------------------------------------------------
+
+    /**
+     * The signed-in patient's prescriptions, newest first.
+     *
+     * <p>Follow-up status is computed on the backend as a stable enum-ish
+     * string so the page does not have to re-implement date maths in the
+     * browser (and disagree with the reminder job by a timezone).
+     */
+    @GetMapping("/patient/api/prescriptions")
+    @Transactional(readOnly = true)
+    public ResponseEntity<Map<String, Object>> prescriptions() {
+        Patient patient = logger.logger();
+
+        if (patient == null) {
+            return unauthorized();
+        }
+
+        List<Prescription> mine = prescriptionService.forPatient(patient.getId());
+        List<PrescriptionDto> dto = mine.stream().map(PrescriptionDto::from).toList();
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "count", dto.size(),
+                "data", dto
+        ));
+    }
+
+    // ------------------------------------------------------------------
     // Dashboard
     // ------------------------------------------------------------------
 
@@ -312,12 +350,22 @@ public class PatientApiController {
                         .filter(n -> !n.isRead())
                         .count();
 
+        List<Prescription> prescriptions = patient == null
+                ? List.of()
+                : prescriptionService.forPatient(patient.getId());
+        long upcomingFollowUps = prescriptions.stream()
+                .map(Prescription::getFollowUpDate)
+                .filter(date -> date != null && !date.isBefore(LocalDate.now()))
+                .count();
+
         Map<String, Object> dto = new LinkedHashMap<>();
         dto.put("myRequests", myRequests);
         dto.put("pendingRequests", pendingRequests);
         dto.put("appointments", appointments);
         dto.put("approvedDoctors", doctors);
         dto.put("unreadNotifications", unreadNotifications);
+        dto.put("prescriptions", prescriptions.size());
+        dto.put("upcomingFollowUps", upcomingFollowUps);
 
         return ResponseEntity.ok(dto);
     }
@@ -393,6 +441,7 @@ public class PatientApiController {
         dto.put("timeSlot", a.getTimeSlot());
         dto.put("type", a.getType());
         dto.put("status", a.getStatus());
+        dto.put("telemedicineLink", a.getTelemedicineLink());
         return dto;
     }
 

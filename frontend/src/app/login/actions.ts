@@ -29,10 +29,13 @@ export async function login(
   const base = process.env.SPRING_API_URL ?? "http://localhost:8080";
   const path = LOGIN_PATH_BY_ROLE[role] ?? LOGIN_PATH_BY_ROLE.PATIENT;
 
+  // Every portal accepts the same credentials: email plus password.
+  const credentials = new URLSearchParams({ email, password });
+
   const res = await fetch(`${base}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ email, password }).toString(),
+    body: credentials.toString(),
     redirect: "manual",
     cache: "no-store",
   });

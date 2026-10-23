@@ -50,7 +50,6 @@ public class Appointment {
     }
 
     public void setPatient(Patient patient) {
-        // TODO Auto-generated method stub
         this.patient = patient;
     }
 

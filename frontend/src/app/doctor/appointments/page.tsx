@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { StatusBadge } from "@/components/ui/Badge";
@@ -33,45 +34,48 @@ export default async function DoctorAppointmentsPage() {
               description="When a patient books one of your slots it will show up here."
             />
           ) : (
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-border text-xs uppercase tracking-wide text-text-muted">
-                  <th className="pb-3 pr-4 font-medium">Patient</th>
-                  <th className="pb-3 pr-4 font-medium">Date</th>
-                  <th className="pb-3 pr-4 font-medium">Time</th>
-                  <th className="pb-3 pr-4 font-medium">Type</th>
-                  <th className="pb-3 pr-4 font-medium">Status</th>
-                  <th className="pb-3 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {appointments.map((a) => (
-                  <tr key={a.id}>
-                    <td className="py-3 pr-4 font-medium text-text-primary">
-                      {a.patientName ?? "—"}
-                    </td>
-                    <td className="py-3 pr-4 text-text-secondary">
-                      {a.appointmentDate ?? "—"}
-                    </td>
-                    <td className="py-3 pr-4 text-text-secondary">
-                      {a.timeSlot ?? "—"}
-                    </td>
-                    <td className="py-3 pr-4 text-text-secondary">
-                      {a.type?.toLowerCase() ?? "—"}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <StatusBadge status={a.status} />
-                    </td>
-                    <td className="py-3">
-                      <AppointmentActions
-                        appointmentId={a.id}
-                        status={a.status}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="divide-y divide-border">
+              {appointments.map((a) => (
+                <div
+                  key={a.id}
+                  className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/doctor/patients/${a.patientId}`}
+                        className="font-medium text-text-primary hover:text-primary-600 hover:underline"
+                      >
+                        {a.patientName ?? "—"}
+                      </Link>
+                      <p className="mt-1 text-xs text-text-muted">
+                        {a.appointmentDate ?? "—"} · {a.timeSlot ?? "—"} ·{" "}
+                        {a.type?.toLowerCase() ?? "—"}
+                      </p>
+                    </div>
+                    <StatusBadge status={a.status} />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <AppointmentActions
+                      appointmentId={a.id}
+                      status={a.status}
+                    />
+                    {a.status === "CONFIRMED" && a.telemedicineLink ? (
+                      <a
+                        href={a.telemedicineLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-xs font-medium text-primary-700 hover:bg-primary-50"
+                      >
+                        <i className="bx bx-video text-sm" aria-hidden />
+                        Join meeting
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </CardBody>
       </Card>

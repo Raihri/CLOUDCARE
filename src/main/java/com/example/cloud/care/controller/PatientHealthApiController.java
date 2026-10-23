@@ -1,6 +1,7 @@
 package com.example.cloud.care.controller;
 
 import com.example.cloud.care.model.Patient;
+import com.example.cloud.care.service.StorageService;
 import com.example.cloud.care.service.patient_service;
 import com.example.cloud.care.service.loggedInUserFind;
 
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -41,6 +44,9 @@ public class PatientHealthApiController {
 
     @Autowired
     private loggedInUserFind logger;
+
+    @Autowired
+    private StorageService storageService;
 
     /** Every health field the patient data-entry form can show or edit. */
     @GetMapping("")
@@ -274,6 +280,43 @@ public class PatientHealthApiController {
             return ok("Environment & family information updated successfully!");
         } catch (Exception e) {
             return error("Error updating environment & family information: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/photo")
+    @ResponseBody
+    public Map<String, Object> updatePhoto(@RequestParam("file") MultipartFile file) {
+
+        Patient p = logger.logger();
+        if (p == null) return error("Patient not found.");
+        if (p.getUser() == null) return error("User account not found.");
+
+        if (file == null || file.isEmpty()) {
+            return error("Please choose a photo to upload.");
+        }
+        // The frontend constrains this too, but a client-side guard is not a
+        // boundary — this endpoint is reachable directly.
+        if (file.getSize() > 5L * 1024 * 1024) {
+            return error("Photo must be smaller than 5 MB.");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            return error("Only image files are accepted.");
+        }
+
+        try {
+            String url = storageService.upload(file, "patients");
+            p.getUser().setPhotoUrl(url);
+            p.setUpdatedAt(new Date());
+            patientService.save(p);
+
+            Map<String, Object> m = ok("Profile photo updated!");
+            m.put("photoUrl", url);
+            return m;
+        } catch (IOException e) {
+            return error("Could not upload the photo: " + e.getMessage());
+        } catch (Exception e) {
+            return error("Error uploading photo: " + e.getMessage());
         }
     }
 

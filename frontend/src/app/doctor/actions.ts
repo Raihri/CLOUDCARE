@@ -1,6 +1,6 @@
 "use server";
 
-import { springFetch } from "@/lib/api-client";
+import { springFetch } from "@/lib/api";
 import { revalidatePath } from "next/cache";
 
 export type ActionState = { message: string; ok: boolean } | undefined;

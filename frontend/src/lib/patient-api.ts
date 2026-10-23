@@ -71,6 +71,7 @@ export type Appointment = {
   timeSlot: string | null;
   type: string | null;
   status: string | null;
+  telemedicineLink: string | null;
 };
 
 export type PatientNotification = {
@@ -80,12 +81,32 @@ export type PatientNotification = {
   read: boolean;
 };
 
+export type PatientPrescription = {
+  id: number;
+  patientId: number | null;
+  patientName: string | null;
+  patientEmail: string | null;
+  doctorId: number | null;
+  doctorName: string | null;
+  doctorSpecialization: string | null;
+  hospitalName: string | null;
+  diagnosis: string | null;
+  medicines: string;
+  instructions: string | null;
+  followUpDate: string | null;
+  createdAt: string | null;
+  daysUntilFollowUp: number | null;
+  followUpStatus: "NONE" | "OVERDUE" | "DUE_TODAY" | "UPCOMING" | "SCHEDULED";
+};
+
 export type DashboardStats = {
   myRequests: number;
   pendingRequests: number;
   appointments: number;
   approvedDoctors: number;
   unreadNotifications: number;
+  prescriptions: number;
+  upcomingFollowUps: number;
 };
 
 export type Donor = {
@@ -166,6 +187,16 @@ export async function fetchNotifications(): Promise<PatientNotification[]> {
   try {
     return unwrap<PatientNotification>(
       await springJson("/patient/api/notifications"),
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchPrescriptions(): Promise<PatientPrescription[]> {
+  try {
+    return unwrap<PatientPrescription>(
+      await springJson("/patient/api/prescriptions"),
     );
   } catch {
     return [];

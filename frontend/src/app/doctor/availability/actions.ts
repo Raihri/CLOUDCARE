@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { springFetch } from "@/lib/api-client";
+import { springFetch } from "@/lib/api";
 
 export type SlotActionState = { message: string; ok: boolean } | undefined;
 

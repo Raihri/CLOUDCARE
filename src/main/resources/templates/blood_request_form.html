@@ -265,7 +265,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="name"><i class='bx bxs-user'></i> Name</label>
-                        <input type="text" id="name" name="name" th:value="${editMode} ? ${request.name} : ${userName}" placeholder="Full name" required />
+                        <input type="text" id="name" name="name" th:value="${editMode} ? ${request.name} : ${fullName}" placeholder="Full name" required />
                     </div>
                     <div class="form-group">
                         <label for="bloodGroup"><i class='bx bxs-droplet'></i> Blood Group</label>

@@ -4,14 +4,25 @@ import { PortalLogin } from "@/components/auth/PortalLogin";
 
 export const metadata: Metadata = { title: "Doctor sign in" };
 
-export default function DoctorLoginPage() {
+export const instant = false;
+
+type DoctorLoginSearchParams = {
+  next?: string;
+};
+
+export default async function DoctorLoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<DoctorLoginSearchParams>;
+}) {
+  const { next } = await searchParams;
+
   return (
     <PortalLogin
       role="DOCTOR"
-      title="Doctor sign in"
-      subtitle="Manage appointments, availability and patient records."
-      icon="⚕"
+      next={next}
       forgotHref="/doctor/forgot-password"
+      signupHref="/doctor/signup"
     />
   );
 }
