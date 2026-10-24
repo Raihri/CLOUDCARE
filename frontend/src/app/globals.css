@@ -304,3 +304,104 @@ body {
     animation: none;
   }
 }
+
+/* ---- Ambient wash ---------------------------------------------------------
+   A soft, slow-drifting gradient glow used behind the marketing surfaces
+   (landing hero, the signed-out auth shell). Two radial glows — brand blue
+   and the coral accent — on the existing sunken background, so the app still
+   reads as the same product, just with some depth under the glass panels. */
+@keyframes washDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, -3%, 0) scale(1.05);
+  }
+}
+
+.ambient-wash {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-wash::before,
+.ambient-wash::after {
+  content: "";
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  animation: washDrift 22s ease-in-out infinite;
+}
+
+.ambient-wash::before {
+  top: -12rem;
+  right: -8rem;
+  width: 34rem;
+  height: 34rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-primary-500) 30%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.ambient-wash::after {
+  bottom: -14rem;
+  left: -10rem;
+  width: 30rem;
+  height: 30rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-coral) 22%, transparent) 0%,
+    transparent 70%
+  );
+  animation-delay: -11s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-wash::before,
+  .ambient-wash::after {
+    animation: none;
+  }
+}
+
+/* ---- Glass surface ---------------------------------------------------------
+   A frosted card for panels that sit on top of the ambient wash. Mostly
+   opaque so text keeps full contrast — the blur reads in the edges and the
+   shadow, not by seeing through to the glow underneath. */
+.glass-panel {
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--color-surface) 60%, var(--color-border));
+}
+
+/* ---- Staggered entrance ----------------------------------------------------
+   Quick fade-rise for hero/above-the-fold content, staggered by a CSS custom
+   property so a list of elements reads as one cascading motion rather than
+   N identical animations firing at once. */
+@keyframes fadeRiseIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-rise-in {
+  animation: fadeRiseIn 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--fade-delay, 0) * 1ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-rise-in {
+    animation: none;
+  }
+}

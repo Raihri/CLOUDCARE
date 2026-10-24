@@ -160,8 +160,9 @@ export function AuthExperience({
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-surface-sunken">
+      <div className="ambient-wash" aria-hidden />
       <div className="relative mx-auto flex min-h-screen w-full max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8 lg:py-4">
-        <div className="relative my-auto w-full overflow-hidden rounded-[1.75rem] border border-border bg-surface shadow-lg lg:h-[calc(100dvh-2rem)] lg:max-h-[50rem] lg:min-h-[38rem] lg:rounded-[2rem]">
+        <div className="relative my-auto w-full overflow-hidden rounded-[1.75rem] border border-border bg-surface shadow-xl shadow-primary-900/10 lg:h-[calc(100dvh-2rem)] lg:max-h-[50rem] lg:min-h-[38rem] lg:rounded-[2rem]">
           <MobileHero role={activeRole} meta={meta} />
 
           {/* The sliding overlay. In sign-in it parks on the right; switching
