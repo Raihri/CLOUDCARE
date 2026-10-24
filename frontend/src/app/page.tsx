@@ -94,6 +94,34 @@ function PortalSkeleton() {
   );
 }
 
+/**
+ * A single edge-docked portal button for the hero. Icon-first, label
+ * underneath — compact enough to sit on the scene's edge without
+ * competing with the headline, with a frosted chip behind the icon so it
+ * reads clearly over both a light sky and a darker part of the scene.
+ */
+function HeroPortalButton({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: string;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group glass-panel flex w-20 flex-col items-center gap-1.5 rounded-2xl px-2 py-3 shadow-md transition-all hover:-translate-x-0.5 hover:shadow-lg active:scale-[0.97]"
+    >
+      <span className="flex size-10 items-center justify-center rounded-full bg-primary-900 text-white shadow-sm transition-colors group-hover:bg-primary-800">
+        <i aria-hidden className={`bx ${icon} text-lg leading-none`} />
+      </span>
+      <span className="text-[11px] font-medium text-text-primary">{label}</span>
+    </Link>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col bg-neutral-100">
@@ -131,16 +159,26 @@ export default function HomePage() {
 
           No blur orbs, no badge pill, no gradient. Type and whitespace only.
         */}
-        <section className="relative overflow-hidden bg-surface">
+        <section className="relative overflow-hidden bg-surface lg:min-h-[38rem]">
           <div className="ambient-wash" aria-hidden />
-          {/* The scene occupies the empty right-hand side of the hero rather
-              than sitting behind the copy. Overlaying it would put a WebGL
-              canvas in the same pixels as the h1 and the CTAs — the moment the
-              scene loads, the page stops being the typographic layout we just
-              built. Sitting beside the text, the hero reads identically whether
-              the scene is live or still 403ing. */}
-          <div className="relative mx-auto grid w-full max-w-5xl grid-cols-1 items-center gap-8 px-5 pt-16 pb-10 sm:px-8 sm:pt-24 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
-            <div>
+
+          {/* The scene now fills the whole hero as a backdrop instead of
+              living in a small boxed slot — desktop only, matching
+              SplineScene's own >=1024px / WebGL / reduced-motion gates, so
+              nothing extra is fetched on mobile. */}
+          <div className="absolute inset-0 hidden lg:block">
+            <SplineScene />
+          </div>
+
+          {/* Scrim so the headline stays readable over the scene: solid on
+              the text side, fading out before the robot so it isn't washed
+              out entirely. Mobile has no scene, so no scrim either. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 hidden bg-gradient-to-r from-surface from-35% via-surface/75 via-55% to-transparent lg:block"
+          />
+
+          <div className="relative mx-auto flex w-full max-w-5xl flex-col px-5 pt-16 pb-10 sm:px-8 sm:pt-24 sm:pb-12 lg:min-h-[38rem] lg:justify-center lg:pr-28 lg:pb-16">
             <h1
               className="fade-rise-in max-w-3xl bg-gradient-to-br from-primary-900 via-primary-800 to-primary-600 bg-clip-text text-4xl font-semibold leading-[1.08] tracking-tight text-transparent sm:text-5xl"
             >
@@ -182,13 +220,17 @@ export default function HomePage() {
               <i aria-hidden className="bx bxs-lock-alt text-sm leading-none text-primary-600" />
               Session-secured sign-in, HMAC-signed realtime tickets
             </div>
-            </div>
+          </div>
 
-            {/* Scene slot. Renders nothing at all until (and unless) the scene
-                actually loads — see SplineScene for why that's the contract. */}
-            <div className="relative hidden h-72 lg:block">
-              <SplineScene />
-            </div>
+          {/* Quick portal access, pinned to the very edge of the hero so it
+              reads as a dock beside the scene rather than competing with the
+              headline for the same column. The full write-up for each
+              portal (blurb + secondary action) is still below — this is
+              just the fast path. */}
+          <div className="absolute inset-y-0 right-3 z-10 hidden flex-col items-center justify-center gap-3 sm:right-5 lg:flex">
+            <HeroPortalButton href="/login?next=%2Fdashboard" icon="bxs-user" label="Patient" />
+            <HeroPortalButton href="/doctor/login" icon="bxs-first-aid" label="Doctor" />
+            <HeroPortalButton href="/admin/login" icon="bxs-shield-alt-2" label="Admin" />
           </div>
         </section>
 

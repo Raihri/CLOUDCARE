@@ -5,33 +5,32 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Spline scene slot for the landing-page hero.
  *
- * ── Why this component is defensive ──────────────────────────────────────
- * The scene this points at (`a38eafa0-…`) is a Spline *community remix*, not a
- * published scene. Every runtime URL for it currently answers 403 Access
- * Denied, verified in a real browser:
+ * The scene loaded here (`IlsQUG57tmd1X4R3`) was remixed from a Spline
+ * community file and published from the user's own Spline account — the
+ * original community scene id (`a38eafa0-…`) never returns a working runtime
+ * URL because an unpublished remix always 403s; this one does, verified with
+ * a plain GET (200, real .splinecode payload).
  *
- *   prod.spline.design/a38eafa0-…/scene.splinecode  -> 403
- *   my.spline.design/a38eafa0-…                     -> 403
- *
- * That is expected for an unpublished scene and it is not fixable from here —
- * only the scene's creator can press Publish. So the loader treats a failed
- * scene as a NORMAL outcome, not an exception: it unmounts quietly and leaves
- * whatever the page already rendered underneath.
+ * ── Why this component is defensive, even for a working scene ───────────
+ * Loading can still fail for reasons that have nothing to do with the scene
+ * itself: no WebGL (old hardware, remote desktops, hardened browsers),
+ * offline, or the user's own `prefers-reduced-motion` setting. The loader
+ * treats any of those as a NORMAL outcome, not an exception: it unmounts
+ * quietly and leaves whatever the page already rendered underneath.
  *
  * Consequences of that rule, all deliberate:
- *   • No spinners, no error text, no broken-image icon. A 403 must look
+ *   • No spinners, no error text, no broken-image icon. A failure must look
  *     identical to the scene simply not being there.
  *   • No console noise for a visitor who did nothing wrong.
  *   • `pointer-events-none` until the scene reports it is actually running, so
  *     an invisible canvas can never swallow clicks meant for the CTAs behind
  *     it — the most likely way this feature could quietly break the page.
  *
- * Once the scene is published this needs no code change: it starts rendering
- * on its own. To use a different scene, change SCENE_URL.
+ * To use a different scene, change SCENE_URL — nothing else needs touching.
  */
 
 const SCENE_URL =
-  "https://prod.spline.design/a38eafa0-2fa5-4630-983f-6940475adf5e/scene.splinecode";
+  "https://prod.spline.design/IlsQUG57tmd1X4R3/scene.splinecode";
 
 /**
  * Remembers a failed scene for the rest of the browser session.
@@ -89,16 +88,25 @@ export function SplineScene({ className = "" }: { className?: string }) {
     // Reduced-motion is handled where it can be verified — the CSS transition
     // on the wrapper — not by poking an API I can't confirm.
     let app: import("@splinetool/runtime").Application | undefined;
+    // Declared here (not inside the try block) so the cleanup closure below
+    // can remove it from the DOM regardless of where loading got to.
+    let canvas: HTMLCanvasElement | undefined;
 
     // WebGL is unavailable in plenty of real situations (old hardware, remote
     // desktops, hardened browsers, reduced-motion setups). Spline throws on
     // construction there, so this catches the constructor as well as the load.
     try {
-      const canvas = document.createElement("canvas");
+      // Feature-detect WebGL on a THROWAWAY canvas, never the real one. A
+      // canvas can only ever bind one context type — calling getContext here
+      // on the canvas Application will use would permanently lock it to
+      // WebGL, and this runtime prefers WebGPU when available. Testing on a
+      // separate canvas keeps the real one untouched so Spline can pick
+      // whichever backend it wants.
+      const probe = document.createElement("canvas");
       const gl =
-        canvas.getContext("webgl2") ??
-        canvas.getContext("webgl") ??
-        canvas.getContext("experimental-webgl");
+        probe.getContext("webgl2") ??
+        probe.getContext("webgl") ??
+        probe.getContext("experimental-webgl");
 
       if (!gl) return;
 
@@ -112,11 +120,19 @@ export function SplineScene({ className = "" }: { className?: string }) {
       )?.matches;
       if (reduced) return;
 
+      canvas = document.createElement("canvas");
+      canvas.className = "size-full";
+      host.appendChild(canvas);
+      // Narrowed to a plain local once assigned: `canvas` (the closure-shared,
+      // possibly-undefined one) exists so cleanup can always find it, but the
+      // load chain below only ever runs after this exact assignment.
+      const loadingCanvas = canvas;
+
       void import("@splinetool/runtime")
         .then(({ Application }) => {
           if (disposed || !hostRef.current) return;
 
-          app = new Application(canvas);
+          app = new Application(loadingCanvas);
           // A scene that 403s rejects here. Swallowed on purpose: an
           // unpublished scene is the expected state, not a crash.
           return app
@@ -152,6 +168,7 @@ export function SplineScene({ className = "" }: { className?: string }) {
       } catch {
         // Disposal races with an in-flight load. Nothing to recover.
       }
+      canvas?.remove();
     };
   }, []);
 
