@@ -148,7 +148,6 @@ availability slots, so the booking and video flows work immediately.
 | **Supabase Storage** | Profile photos, certificates, reports |
 | **Lombok** | Boilerplate reduction |
 | **Jakarta Validation** | Request validation |
-| **Thymeleaf** | Legacy server-rendered views (see [known gaps](#known-gaps)) |
 
 </td></tr>
 </table>
@@ -383,11 +382,11 @@ run for a fresh database.
 ### 1. Configure
 
 ```bash
-cp .env.example .env
+cp backend/.env.example backend/.env
 ```
 
 Only five values are required; everything else has a default in
-`src/main/resources/application.properties`.
+`backend/src/main/resources/application.properties`.
 
 ```dotenv
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/cloudcare
@@ -397,7 +396,7 @@ ADMIN_EMAIL=demo.admin@cloudcare.test
 ADMIN_PASSWORD=<choose one>
 ```
 
-Optional extras, documented in `.env.example`:
+Optional extras, documented in `backend/.env.example`:
 
 - **File uploads**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`
 - **Email**: `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`
@@ -410,6 +409,7 @@ The frontend needs no env file. It talks to `http://localhost:8080` unless
 ### 2. Start the backend
 
 ```bash
+cd backend
 ./run-backend.sh          # loads .env, selects JDK 17, starts :8080
 ```
 
@@ -430,6 +430,7 @@ npm run dev               # http://localhost:3000
 ```bash
 # Backend: unit tests for the security pieces + MockMvc integration tests
 # (needs the database from .env)
+cd backend
 ./run-backend.sh test
 
 # Frontend typecheck + lint + production build
@@ -445,22 +446,26 @@ npm run build
 
 ```text
 CLOUDCARE/
-├── src/main/java/com/example/cloud/care/
-│   ├── config/              Security chains, WebSocket, async, admin bootstrap, demo seeder
-│   ├── controller/
-│   │   ├── patient/         Patient JSON API + legacy patient views, donors, blood requests
-│   │   ├── doctor/          Doctor JSON API, appointments, availability, patient records
-│   │   ├── admin/           Admin JSON API, doctor approvals, donors, feedback
-│   │   └── common/          /api/me, /api/ws-ticket, locations, landing
-│   ├── dto/                 Response DTOs
-│   ├── model/                JPA entities
-│   ├── repository/          Spring Data repositories
-│   ├── security/             Password reset tokens, WebSocket tickets, CSRF origin check
-│   └── service/              Business logic, email, storage, scheduling
-├── src/main/resources/
-│   ├── application.properties   Defaults; secrets come from env
-│   └── templates/, static/      Legacy Thymeleaf views (see known gaps)
-├── src/test/java/            Security unit tests + MockMvc integration tests
+├── backend/
+│   ├── src/main/java/com/example/cloud/care/
+│   │   ├── config/              Security chains, WebSocket, async, admin bootstrap, demo seeder
+│   │   ├── controller/
+│   │   │   ├── patient/         Patient JSON API: profile, donors, blood requests, feedback
+│   │   │   ├── doctor/          Doctor JSON API: appointments, availability, patient records
+│   │   │   ├── admin/           Admin JSON API: doctor approvals, donors, feedback
+│   │   │   └── common/          /, /api/me, /api/ws-ticket, locations
+│   │   ├── dto/                 Response DTOs
+│   │   ├── model/                JPA entities
+│   │   ├── repository/          Spring Data repositories
+│   │   ├── security/             Password reset tokens, WebSocket tickets, CSRF origin check
+│   │   └── service/              Business logic, email, storage, scheduling
+│   ├── src/main/resources/
+│   │   ├── application.properties   Defaults; secrets come from env
+│   │   └── static/data/             bd_locations.json, loaded programmatically
+│   ├── src/test/java/            Security unit tests + MockMvc integration tests
+│   ├── run-backend.sh           Loads .env, picks JDK 17, runs Maven
+│   ├── Dockerfile               Backend image
+│   └── .env.example
 ├── frontend/src/
 │   ├── app/
 │   │   ├── (auth)/          /login, /register, /forgot-password, /reset-password
@@ -470,17 +475,18 @@ CLOUDCARE/
 │   │   └── api/             Route handlers (logout relay)
 │   ├── components/          Layout, auth, UI primitives, feature components
 │   └── lib/                 API clients, auth helpers, shared types
-├── docs/screenshots/        README screenshots
-├── run-backend.sh           Loads .env, picks JDK 17, runs Maven
-├── Dockerfile               Backend image
-└── .env.example
+└── docs/screenshots/        README screenshots
 ```
 
 `(auth)` and `(patient)` are Next.js route groups: they organise the folders
 without changing any URL.
 
 The frontend ships **36 pages**: 1 landing page, ~14 patient, 11 doctor and
-7 admin.
+7 admin. Every one of them is served by Spring's JSON APIs under
+`/patient/api/*`, `/doctor/api/*` and `/admin/api/*` — there is no
+server-rendered view layer behind it; the handful of Spring MVC endpoints
+that still exist (`/patient/register`, `/doctor/signup/request`, password
+reset) return JSON too.
 
 ---
 
@@ -493,29 +499,6 @@ Documented so nobody else re-litigates them:
 - **Telemedicine is Jitsi, not Google Meet.** Links are `meet.jit.si`.
 - **Cloudinary was removed.** Uploads go to Supabase Storage via
   `SupabaseStorageService`, which fails with a clear message if unconfigured.
-- **The Thymeleaf layer is still mounted.** This is the one part of the
-  migration that is *not* finished, so it is worth being precise about what
-  state it is in. `frontend/` is the live frontend — all 36 pages, all
-  navigation, and every user-facing flow run through it, backed by the JSON APIs
-  under `/patient/api/*`, `/doctor/api/*` and `/admin/api/*`.
-
-  Alongside it, `src/main/resources/templates/` still holds 44 server-rendered
-  pages and ~19 `@Controller` classes still return view names. Nothing links to
-  them any more; they are a parallel, older surface.
-
-  Removing them is **not** a matter of deleting the directory. Several of those
-  view methods contain real logic — `PatientDataController` persists vitals,
-  lifestyle, menstrual and environment data, and `DoctorAvailabilityController`
-  does doctor-slot overlap detection. Each of those paths **already has a JSON
-  equivalent** in `PatientHealthApiController` and `DoctorApiController`, and the
-  JSON availability endpoint reproduces the same overlap rule, so the behaviour
-  is duplicated rather than lost. The remaining work is a mechanical pass to
-  delete the duplicates, repoint `SecurityConfig`'s `loginPage` /
-  `defaultSuccessUrl` at the Next.js origin, and drop the two `pom.xml`
-  dependencies — deliberately sequenced rather than rushed, because a green
-  build would not catch a mistake here: the automated tests cover security and
-  context startup, not every legacy route, so a broken removal would surface as
-  a runtime 404 rather than a failed test.
 - **Still to do before a real deployment:** rate-limit login and reset
   requests per IP (reset is already limited per account), and add an audit log
   for admin actions.

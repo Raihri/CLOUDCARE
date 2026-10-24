@@ -1,7 +1,7 @@
 # CloudCare Frontend
 
-Next.js (App Router) frontend for CloudCare. Replaces the legacy Thymeleaf
-templates with one consistent design system.
+Next.js (App Router) frontend for CloudCare — the only user-facing surface;
+the Spring Boot backend is a pure JSON API behind it.
 
 ## Running locally
 
@@ -9,7 +9,7 @@ The frontend talks to the Spring Boot backend over a **same-origin reverse
 proxy** — the browser only ever talks to `:3000`, so CORS is never involved and
 the `JSESSIONID` session cookie stays first-party.
 
-1. Start Spring Boot on `:8080` (from the repo root: `./run-backend.sh`).
+1. Start Spring Boot on `:8080` (`cd ../backend && ./run-backend.sh`).
 2. Optional: copy `.env.example` to `.env.local` only if the backend is not on
    `http://localhost:8080`.
 3. Start Next:

@@ -11,6 +11,7 @@ export type DoctorSignupState =
  * Spring expects multipart/form-data with two required files
  * (profileImageFile, certificateFile), so this builds FormData and must NOT set
  * a Content-Type header — the runtime adds the multipart boundary itself.
+ * The endpoint answers JSON `{ success, message }`.
  */
 export async function applyAsDoctor(
   _prev: DoctorSignupState,
@@ -38,8 +39,6 @@ export async function applyAsDoctor(
     return { error: "A supporting certificate is required." };
   }
 
-  const base = SPRING_API_URL;
-
   // Pass the incoming files straight through; re-wrapping File objects in a
   // new FormData is unnecessary and risks losing the filename.
   const payload = new FormData();
@@ -53,35 +52,18 @@ export async function applyAsDoctor(
   payload.set("profileImageFile", profile);
   payload.set("certificateFile", certificate);
 
-  const res = await fetch(`${base}/doctor/signup/request`, {
-    method: "POST",
-    body: payload,
-    redirect: "manual",
-    cache: "no-store",
-  });
-
-  if (res.status === 302) {
-    const location = res.headers.get("location") ?? "";
-    if (location.includes("/doctor/login")) {
-      return { success: true };
+  try {
+    const res = await fetch(`${SPRING_API_URL}/doctor/signup/request`, {
+      method: "POST",
+      body: payload,
+      cache: "no-store",
+    });
+    const out = (await res.json()) as { success?: boolean; message?: string };
+    if (!out.success) {
+      return { error: out.message ?? "Could not submit your application." };
     }
+    return { success: true };
+  } catch {
+    return { error: "Could not reach the server. Please try again." };
   }
-
-  const html = await res.text();
-  const backendError = extractError(html);
-  return { error: backendError ?? "Could not submit your application." };
-}
-
-function extractError(html: string): string | null {
-  const match =
-    /class="error[^"]*"[^>]*>([\s\S]{0,300}?)<\/div>/i.exec(html) ??
-    /th:text="\$\{error\}"[^>]*>([\s\S]{0,300}?)<\//i.exec(html);
-
-  if (!match) return null;
-
-  return match[1]
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 200);
 }
