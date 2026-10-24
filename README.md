@@ -1,45 +1,109 @@
+<div align="center">
+
+<img src="frontend/public/logo.png" alt="CloudCare logo" width="84" />
+
 # CloudCare
 
-A full-stack healthcare platform with separate **patient**, **doctor**, and
-**admin** portals. It covers the working day of a small clinic: registering and
-signing in, booking and confirming appointments, joining telemedicine calls,
-looking up and editing patient charts, prescribing with follow-ups, requesting
-and donating blood, and receiving live notifications.
+**Healthcare that keeps its promises.**
 
-**Next.js 16** frontend · **Spring Boot 3.4** API · **PostgreSQL** database ·
-**Supabase Storage** for files · **WebSocket/STOMP** for realtime ·
-**Jitsi Meet** for video consultations.
+Appointments, telemedicine, patient charts, prescriptions and a live blood
+donation network — one platform, three portals, one afternoon to demo.
 
----
+[![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=0b1b2b)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Table of contents
+[Live demo accounts](#demo-accounts) · [Features](#feature-reference) ·
+[Architecture](#architecture) · [Quick start](#quick-start) ·
+[Security](#authentication--security)
 
-- [Demo accounts](#demo-accounts)
-- [Tech stack](#tech-stack)
-- [Architecture](#architecture)
-- [Feature reference](#feature-reference)
-  - [Patient portal](#patient-portal)
-  - [Doctor portal](#doctor-portal)
-  - [Admin portal](#admin-portal)
-  - [Blood donation network](#blood-donation-network)
-  - [Authentication & security](#authentication--security)
-  - [Realtime & notifications](#realtime--notifications)
-  - [Telemedicine](#telemedicine)
-  - [Email](#email)
-- [Full-stack request walkthrough](#full-stack-request-walkthrough)
-- [Data model](#data-model)
-- [Quick start](#quick-start)
-- [Verification](#verification)
-- [Project structure](#project-structure)
-- [Dead code & known gaps](#dead-code--known-gaps)
-- [Notes for reviewers](#notes-for-reviewers)
+</div>
 
 ---
 
-## Demo accounts
+## What is this
 
-Seeded on every backend start (idempotent), with a one-click button per role on
-the login page. No email or OTP setup required.
+CloudCare is a full-stack clinic platform covering the entire working day of
+a small practice: patients register, browse doctors and book appointments;
+doctors confirm visits, write prescriptions and update charts; admins approve
+doctors and watch the blood supply. Everything is wired end to end — not a
+mockup. Booking an appointment writes to Postgres, pushes a live WebSocket
+notification to the doctor, and the doctor's confirmation generates a real
+Jitsi video room.
+
+**Next.js 16** (React 19, App Router, Server Actions) talks to a
+**Spring Boot 3.4** JSON API over a same-origin proxy, backed by
+**PostgreSQL** and **Supabase Storage**, with **STOMP/WebSocket** for
+realtime notifications and **Jitsi Meet** for video consultations.
+
+### ✨ Highlights
+
+- **Three independently secured portals** — patient, doctor and admin each
+  get their own Spring Security filter chain; a doctor's session gets a 403
+  on a patient endpoint, enforced by the framework, not by convention.
+- **Real-time, not polling.** A doctor saving a chart or writing a
+  prescription pushes a signed, authenticated WebSocket notification straight
+  to that patient's browser.
+- **Hardened auth** — single-use, hashed, 30-minute password-reset tokens
+  delivered only by email; signed short-lived WebSocket tickets instead of a
+  client-asserted identity; an origin-check CSRF filter on every mutation.
+  See [Authentication & security](#authentication--security).
+- **Zero-config demo.** One backend start seeds three working accounts with
+  real appointments, availability and prescriptions — no manual setup.
+- **Documented, not idealised.** The [known gaps](#known-gaps) section lists
+  exactly what's unfinished and why, instead of pretending the migration is done.
+
+---
+
+## 📸 Screenshots
+
+<table>
+<tr>
+<td width="50%">
+
+**Landing — pick your portal**
+<img src="docs/screenshots/landing.png" alt="CloudCare landing page" />
+
+</td>
+<td width="50%">
+
+**Patient dashboard**
+<img src="docs/screenshots/patient-dashboard.png" alt="Patient dashboard" />
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**Doctor dashboard**
+<img src="docs/screenshots/doctor-dashboard.png" alt="Doctor dashboard" />
+
+</td>
+<td width="50%">
+
+**Admin dashboard**
+<img src="docs/screenshots/admin-dashboard.png" alt="Admin dashboard" />
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary>Doctor directory (patient view)</summary>
+<img src="docs/screenshots/doctor-directory.png" alt="Doctor directory" />
+</details>
+
+---
+
+## 🔑 Demo accounts
+
+Seeded on every backend start (idempotent — restarting never duplicates
+data), with a one-click button per role on the login page. No email or OTP
+setup required.
 
 | Role | Email | Password |
 | --- | --- | --- |
@@ -52,9 +116,12 @@ availability slots, so the booking and video flows work immediately.
 
 ---
 
-## Tech stack
+## 🧰 Tech stack
 
-### Frontend
+<table>
+<tr><td valign="top" width="50%">
+
+**Frontend**
 
 | Technology | Role |
 | --- | --- |
@@ -66,7 +133,9 @@ availability slots, so the booking and video flows work immediately.
 | **SockJS + STOMP** | Live notification channel |
 | **`@splinetool/runtime`** | Optional 3D scene on the landing hero (lazy-loaded) |
 
-### Backend
+</td><td valign="top" width="50%">
+
+**Backend**
 
 | Technology | Role |
 | --- | --- |
@@ -79,11 +148,14 @@ availability slots, so the booking and video flows work immediately.
 | **Supabase Storage** | Profile photos, certificates, reports |
 | **Lombok** | Boilerplate reduction |
 | **Jakarta Validation** | Request validation |
-| **Thymeleaf** | Legacy server-rendered views, still mounted under `/patient`, `/doctor`, `/admin` |
+| **Thymeleaf** | Legacy server-rendered views (see [known gaps](#known-gaps)) |
+
+</td></tr>
+</table>
 
 ---
 
-## Architecture
+## 🏗 Architecture
 
 ```
 ┌──────────────┐   Server Components / Server Actions   ┌──────────────┐
@@ -106,14 +178,14 @@ proxies `/api/spring/*` to Spring and forwards the `JSESSIONID` cookie, which
 means the session is first-party, CORS never applies, and `SameSite=Lax`
 suffices — no `SameSite=None; Secure` gymnastics.
 
-**Authorization model.** Three `SecurityFilterChain`s partition the API by path
-prefix: `/patient/**`, `/doctor/**`, `/admin/**`. A session authenticated as a
-patient cannot reach a doctor endpoint, enforced by Spring Security rather than
-by route convention.
+**Authorization model.** Three `SecurityFilterChain`s partition the API by
+path prefix: `/patient/**`, `/doctor/**`, `/admin/**`. A session authenticated
+as a patient cannot reach a doctor endpoint, enforced by Spring Security
+rather than by route convention.
 
 ---
 
-## Feature reference
+## 📋 Feature reference
 
 ### Patient portal
 
@@ -129,8 +201,8 @@ by route convention.
   telemedicine visits
 - **Prescriptions** — every medicine, instruction and follow-up date, with
   *upcoming / due today / overdue* status
-- **Notifications** — categorised timeline grouped by day, with unread markers
-  and relative timestamps
+- **Notifications** — categorised timeline grouped by day, with unread markers,
+  relative timestamps and a live toast the moment one arrives
 - **Feedback** — submit ratings and comments
 - **Blood requests** — post a request with blood group and location
 
@@ -168,7 +240,25 @@ by route convention.
 - Match notification to matched donors
 - Admin analytics: donor totals, trends, urgent requests
 
-### Authentication & security
+### Telemedicine
+
+Confirmed telemedicine appointments carry a **Jitsi Meet** link of the form
+`https://meet.jit.si/{roomName}`, generated at confirmation time and stored on
+the appointment. The **Join** button opens it in a new tab — the room is real
+and requires no account.
+
+> This is Jitsi, **not** Google Meet. See [known gaps](#known-gaps).
+
+### Email
+
+A single `EmailService` posts to the **Brevo** API (`/v3/smtp/email`) for
+appointment, doctor-account, blood-donor and password-reset emails. Without
+`BREVO_API_KEY` the app still runs: every send is skipped and logged (reset
+links print to the console) so the whole app works offline in local dev.
+
+---
+
+## 🔐 Authentication & security
 
 - Three separate login entry points (`/login`, `/doctor/login`, `/admin/login`),
   each backed by its own `SecurityFilterChain`; a session for one role gets a
@@ -200,7 +290,9 @@ CORS and the WebSocket handshake use the same allow-list
 **WebSocket authentication** is covered under
 [Realtime & notifications](#realtime--notifications).
 
-### Realtime & notifications
+---
+
+## ⚡ Realtime & notifications
 
 This is a genuinely working end-to-end path, not a stub:
 
@@ -231,24 +323,9 @@ for the "coming up" and "due" notifications — so restarts do not duplicate the
 Broadcast failures are caught, so a dead socket can never roll back a database
 write.
 
-### Telemedicine
-
-Confirmed telemedicine appointments carry a **Jitsi Meet** link of the form
-`https://meet.jit.si/{roomName}`, generated at confirmation time and stored on
-the appointment. The **Join** button opens it in a new tab — the room is real
-and requires no account.
-
-> This is Jitsi, **not** Google Meet. See [known gaps](#dead-code--known-gaps).
-
-### Email
-
-A single `EmailService` posts to the **Brevo** API (`/v3/smtp/email`) for
-appointment, doctor-account and blood-donor emails. Without `BREVO_API_KEY` the
-app still runs; each send is skipped and logged.
-
 ---
 
-## Full-stack request walkthrough
+## 🔄 Full-stack request walkthrough
 
 **"Book an appointment"** — one user action, every layer involved:
 
@@ -268,7 +345,7 @@ the meeting link and notifies the patient in real time.
 
 ---
 
-## Data model
+## 🗃 Data model
 
 Principal entities and their relationships:
 
@@ -294,7 +371,7 @@ run for a fresh database.
 
 ---
 
-## Quick start
+## 🚀 Quick start
 
 ### Prerequisites
 
@@ -324,6 +401,7 @@ Optional extras, documented in `.env.example`:
 
 - **File uploads**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`
 - **Email**: `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`
+- **Deployment**: `CLOUDCARE_ALLOWED_ORIGINS`, `CLOUDCARE_FRONTEND_URL`, `SESSION_COOKIE_SECURE`
 - **Supabase Postgres** instead of local: `.env.example` shows the direct and pooler URL forms
 
 The frontend needs no env file. It talks to `http://localhost:8080` unless
@@ -347,7 +425,7 @@ npm run dev               # http://localhost:3000
 
 ---
 
-## Verification
+## ✅ Verification
 
 ```bash
 # Backend: unit tests for the security pieces + MockMvc integration tests
@@ -363,7 +441,7 @@ npm run build
 
 ---
 
-## Project structure
+## 📁 Project structure
 
 ```text
 CLOUDCARE/
@@ -373,24 +451,26 @@ CLOUDCARE/
 │   │   ├── patient/         Patient JSON API + legacy patient views, donors, blood requests
 │   │   ├── doctor/          Doctor JSON API, appointments, availability, patient records
 │   │   ├── admin/           Admin JSON API, doctor approvals, donors, feedback
-│   │   └── common/          /api/me, locations, landing
+│   │   └── common/          /api/me, /api/ws-ticket, locations, landing
 │   ├── dto/                 Response DTOs
-│   ├── model/               JPA entities
+│   ├── model/                JPA entities
 │   ├── repository/          Spring Data repositories
-│   ├── security/            Password reset tokens, WebSocket tickets, CSRF origin check
-│   └── service/             Business logic, email, storage, scheduling
+│   ├── security/             Password reset tokens, WebSocket tickets, CSRF origin check
+│   └── service/              Business logic, email, storage, scheduling
 ├── src/main/resources/
 │   ├── application.properties   Defaults; secrets come from env
-│   ├── templates/, static/      Legacy Thymeleaf views (see known gaps)
+│   └── templates/, static/      Legacy Thymeleaf views (see known gaps)
+├── src/test/java/            Security unit tests + MockMvc integration tests
 ├── frontend/src/
 │   ├── app/
-│   │   ├── (auth)/          /login, /register, /forgot-password
+│   │   ├── (auth)/          /login, /register, /forgot-password, /reset-password
 │   │   ├── (patient)/       Patient portal (/dashboard, /appointments, ...)
 │   │   ├── doctor/          Doctor portal
 │   │   ├── admin/           Admin portal
 │   │   └── api/             Route handlers (logout relay)
 │   ├── components/          Layout, auth, UI primitives, feature components
 │   └── lib/                 API clients, auth helpers, shared types
+├── docs/screenshots/        README screenshots
 ├── run-backend.sh           Loads .env, picks JDK 17, runs Maven
 ├── Dockerfile               Backend image
 └── .env.example
@@ -404,7 +484,7 @@ The frontend ships **36 pages**: 1 landing page, ~14 patient, 11 doctor and
 
 ---
 
-## Dead code & known gaps
+## 🚧 Known gaps
 
 Documented so nobody else re-litigates them:
 
@@ -442,14 +522,14 @@ Documented so nobody else re-litigates them:
 
 ---
 
-## Notes for reviewers
+## 📝 Notes for reviewers
 
 - **Demo data is seeded on every backend start** and is idempotent — restarting
   will not duplicate appointments, slots or reminders.
 - **Meeting links are real Jitsi rooms**, generated at confirmation time.
-- **The WebSocket path is live end to end.** If notifications appear to not
-  arrive, check that the frontend `CONNECT` frame is carrying the `email` native
-  header — the backend `ChannelInterceptor` depends on it to build a `Principal`.
+- **The WebSocket path is live end to end**, authenticated by a short-lived
+  signed ticket rather than a client-claimed email — see
+  [Realtime & notifications](#realtime--notifications) for the exact handshake.
 - **Most JSON endpoints build their response as an explicit `Map`** rather than
   returning a JPA entity, which avoids lazy-init failures and accidental field
   exposure. This is not uniform: some controllers still return entities, and
@@ -463,3 +543,11 @@ Documented so nobody else re-litigates them:
   `/patient/api`, `/doctor/api` or `/admin/api` to inherit the right rules.
   Returning a JPA entity works but the `Map`-per-endpoint convention in
   `DoctorApiController` and `PatientApiController` is the better pattern to copy.
+
+---
+
+<div align="center">
+
+Built by [Farhan Labib](https://github.com/farhanlabibahan) · MIT licensed
+
+</div>
