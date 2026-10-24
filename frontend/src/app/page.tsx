@@ -128,23 +128,26 @@ export default function HomePage() {
         <section className="relative overflow-hidden bg-surface lg:min-h-[38rem]">
           <div className="ambient-wash" aria-hidden />
 
-          {/* The scene now fills the whole hero as a backdrop instead of
-              living in a small boxed slot — desktop only, matching
-              SplineScene's own >=1024px / WebGL / reduced-motion gates, so
-              nothing extra is fetched on mobile. */}
-          <div className="absolute inset-0 hidden lg:block">
+          {/* The scene fills the whole hero as a backdrop. A pure CSS
+              transform (not a resize — resizing the canvas changes Spline's
+              own camera FOV and reveals MORE content instead of cropping)
+              zooms into the already-rendered frame and, anchored at the
+              left edge, pushes everything further right as it scales up —
+              away from the text column instead of growing toward it. */}
+          <div className="absolute inset-0 hidden origin-left scale-150 lg:block">
             <SplineScene />
           </div>
 
-          {/* Scrim so the headline stays readable over the scene: solid on
-              the text side, fading out before the robot so it isn't washed
-              out entirely. Mobile has no scene, so no scrim either. */}
+          {/* Scrim so the headline stays readable over the scene: solid
+              right under the text, gone well before the scene's own content
+              so the scene isn't washed out. */}
           <div
             aria-hidden
-            className="absolute inset-0 hidden bg-gradient-to-r from-surface from-35% via-surface/75 via-55% to-transparent lg:block"
+            className="absolute inset-0 hidden bg-gradient-to-r from-surface from-0% via-surface/35 via-18% to-transparent to-32% lg:block"
           />
 
-          <div className="relative mx-auto flex w-full max-w-5xl flex-col px-5 pt-16 pb-10 sm:px-8 sm:pt-24 sm:pb-12 lg:min-h-[38rem] lg:justify-center lg:pr-28 lg:pb-16">
+          <div className="relative mx-auto flex w-full max-w-5xl flex-col px-5 pt-16 pb-10 sm:px-8 sm:pt-24 sm:pb-12 lg:min-h-[38rem] lg:justify-center lg:pb-16">
+            <div className="lg:max-w-sm">
             <h1
               className="fade-rise-in max-w-3xl bg-gradient-to-br from-primary-900 via-primary-800 to-primary-600 bg-clip-text text-4xl font-semibold leading-[1.08] tracking-tight text-transparent sm:text-5xl"
             >
@@ -159,6 +162,7 @@ export default function HomePage() {
               Appointments, blood donors and health records — for patients,
               doctors and the people who run it all.
             </p>
+            </div>
 
             {/* Mobile/tablet equivalent of the edge-docked rail below: the
                 scene and the absolute dock are both lg:-only (no WebGL
@@ -167,11 +171,16 @@ export default function HomePage() {
                 of column — there's no vertical edge to dock against here. */}
             <div
               style={{ "--fade-delay": 160 } as CSSProperties}
-              className="fade-rise-in mt-8 flex items-center gap-3 lg:hidden"
+              className="fade-rise-in mt-8 lg:hidden"
             >
-              <HeroPortalButton href="/login?next=%2Fdashboard" icon="bxs-user" label="Patient" />
-              <HeroPortalButton href="/doctor/login" icon="bxs-first-aid" label="Doctor" />
-              <HeroPortalButton href="/admin/login" icon="bxs-shield-alt-2" label="Admin" />
+              <p className="mb-2 text-[11px] font-semibold tracking-[0.14em] text-text-muted uppercase">
+                Sign in as
+              </p>
+              <div className="flex items-center gap-3">
+                <HeroPortalButton href="/login?next=%2Fdashboard" icon="bxs-user" label="Patient" />
+                <HeroPortalButton href="/doctor/login" icon="bxs-first-aid" label="Doctor" />
+                <HeroPortalButton href="/admin/login" icon="bxs-shield-alt-2" label="Admin" />
+              </div>
             </div>
           </div>
 
@@ -179,6 +188,9 @@ export default function HomePage() {
               reads as a dock beside the scene rather than competing with the
               headline for the same column. */}
           <div className="absolute inset-y-0 right-3 z-10 hidden flex-col items-center justify-center gap-3 sm:right-5 lg:flex">
+            <p className="mb-1 text-[10px] font-semibold tracking-[0.14em] text-text-muted uppercase">
+              Sign in
+            </p>
             <HeroPortalButton href="/login?next=%2Fdashboard" icon="bxs-user" label="Patient" />
             <HeroPortalButton href="/doctor/login" icon="bxs-first-aid" label="Doctor" />
             <HeroPortalButton href="/admin/login" icon="bxs-shield-alt-2" label="Admin" />
