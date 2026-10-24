@@ -74,7 +74,7 @@ availability slots, so the booking and video flows work immediately.
 | **Spring Security 6** | Three role-scoped filter chains |
 | **Spring Data JPA / Hibernate** | Persistence, `ddl-auto=update` |
 | **Spring WebSocket (STOMP)** | Broker-backed user messaging |
-| **Spring Mail / Brevo** | Transactional notifications |
+| **Brevo REST API** | Transactional email (optional) |
 | **PostgreSQL** | Primary datastore (via JDBC) |
 | **Supabase Storage** | Profile photos, certificates, reports |
 | **Lombok** | Boilerplate reduction |
@@ -170,31 +170,57 @@ by route convention.
 
 ### Authentication & security
 
-- Three separate login entry points (`/login`, `/doctor/login`, `/admin/login`)
+- Three separate login entry points (`/login`, `/doctor/login`, `/admin/login`),
+  each backed by its own `SecurityFilterChain`; a session for one role gets a
+  403 on another role's API
 - One-click demo sign-in for all roles
-- Patient registration activates immediately
-- One-step password reset (email + new password) — see
-  [known gaps](#dead-code--known-gaps) on the removed OTP flow
-- BCrypt password hashing
-- Session-backed auth via `SecurityContextHolder`
+- BCrypt password hashing; session-backed auth with `HttpOnly`, `SameSite=Lax`
+  cookies (`Secure` behind HTTPS)
 - Admin account bootstrapped from environment variables on first start
+
+**Password reset by emailed link** (`security/PasswordResetService`):
+
+- 256-bit random token, **only its SHA-256 hash is stored**, valid 30 minutes,
+  single use, and never returned in an HTTP response
+- `forgot` answers the same way whether or not the account exists, so emails
+  can't be enumerated, and issues at most one link per minute per account
+- New passwords need at least 8 characters; a reset does not sign you in
+- With no mail provider configured (local dev), the link is printed to the
+  backend console instead of being emailed
+
+**CSRF** (`security/OriginCheckFilter`): every POST/PUT/PATCH/DELETE whose
+`Origin` (or `Referer`) is not a configured CloudCare origin is rejected with
+403 before it reaches Spring Security. Server-to-server calls from Next.js send
+no browser origin and pass. Together with `SameSite=Lax` cookies and Next.js'
+own Origin check on Server Actions, this replaces Spring's token-based CSRF,
+which would not add protection when the frontend calls the API server-side.
+CORS and the WebSocket handshake use the same allow-list
+(`CLOUDCARE_ALLOWED_ORIGINS`).
+
+**WebSocket authentication** is covered under
+[Realtime & notifications](#realtime--notifications).
 
 ### Realtime & notifications
 
 This is a genuinely working end-to-end path, not a stub:
 
-1. `LiveNotifications.tsx` opens a SockJS connection to `/ws` and sends the
-   user's email as a native STOMP `CONNECT` header (`connectHeaders: { email }`)
-2. `WebSocketConfig`'s `ChannelInterceptor` intercepts the `CONNECT` frame and
-   promotes that email to a `Principal` via `accessor.setUser(...)`
-3. `notificationService.sendToSpecific(email, …)` calls
+1. Before every (re)connect, `LiveNotifications.tsx` calls a Server Action that
+   fetches `GET /api/ws-ticket` with the user's session. Spring returns a
+   **signed ticket** (HMAC-SHA256 over the user's email and a 2-minute expiry).
+2. The browser opens SockJS to `/ws` and sends the ticket in the STOMP
+   `CONNECT` frame. `WebSocketConfig` verifies the signature and expiry and
+   binds the connection to that email. A client never gets to claim its own
+   identity, so it can't listen to someone else's queue.
+3. `NotificationService.sendToSpecific(email, …)` calls
    `convertAndSendToUser(email, "/queue/notifications", …)`
 4. The browser subscribes to `/user/queue/notifications` and shows a toast
 
-`setUserDestinationPrefix("/user")` means each user has a private queue.
+The interceptor also refuses subscriptions to raw `/queue/**` destinations and
+any client `SEND`, since the server is the only publisher. That stops a client
+broadcasting fake notifications to a topic.
 
 Notifications fire from three real call sites, all verified in the source:
-`DocUpdatesPatientController` (doctor saves a patient chart),
+`DoctorPatientRecordController` (doctor saves a patient chart),
 `DoctorApiController` (doctor writes a prescription note), and
 `PrescriptionService` (the reminder job).
 
@@ -216,9 +242,9 @@ and requires no account.
 
 ### Email
 
-Three Spring Mail services post to the **Brevo** API (`/v3/smtp/email`) for
-patient notifications, doctor notifications and donor notifications. Without
-valid credentials the app still runs; email is simply skipped.
+A single `EmailService` posts to the **Brevo** API (`/v3/smtp/email`) for
+appointment, doctor-account and blood-donor emails. Without `BREVO_API_KEY` the
+app still runs; each send is skipped and logged.
 
 ---
 
@@ -283,24 +309,25 @@ run for a fresh database.
 cp .env.example .env
 ```
 
+Only five values are required; everything else has a default in
+`src/main/resources/application.properties`.
+
 ```dotenv
-# Local PostgreSQL
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/cloudcare
 SPRING_DATASOURCE_USERNAME=<user>
-SPRING_DATASOURCE_PASSWORD=<password>
-
-# Supabase Storage (optional — only file uploads need it)
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=<service-role key>
-SUPABASE_STORAGE_BUCKET=cloudcare
+SPRING_DATASOURCE_PASSWORD=<password>   # omit if local Postgres trusts the user
+ADMIN_EMAIL=demo.admin@cloudcare.test
+ADMIN_PASSWORD=<choose one>
 ```
 
-For Supabase Postgres instead, use
-`jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require`.
-If port 5432 is blocked, use the pooler URL (`:6543`). `.env.example` documents
-both forms.
+Optional extras, documented in `.env.example`:
 
-Brevo and any mail credentials are optional — the core flows work without them.
+- **File uploads**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_STORAGE_BUCKET`
+- **Email**: `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `BREVO_SENDER_NAME`
+- **Supabase Postgres** instead of local: `.env.example` shows the direct and pooler URL forms
+
+The frontend needs no env file. It talks to `http://localhost:8080` unless
+`SPRING_API_URL` is set (see `frontend/.env.example`).
 
 ### 2. Start the backend
 
@@ -323,8 +350,9 @@ npm run dev               # http://localhost:3000
 ## Verification
 
 ```bash
-# Backend compile
-./run-backend.sh compile
+# Backend: unit tests for the security pieces + MockMvc integration tests
+# (needs the database from .env)
+./run-backend.sh test
 
 # Frontend typecheck + lint + production build
 cd frontend
@@ -340,21 +368,36 @@ npm run build
 ```text
 CLOUDCARE/
 ├── src/main/java/com/example/cloud/care/
-│   ├── config/          Security chains, WebSocket, mail, bootstrap, seeder
-│   ├── controller/      REST controllers, one per bounded area
-│   ├── dto/             Response DTOs (currently PrescriptionDto only)
-│   ├── model/           JPA entities
-│   ├── repository/      Spring Data repositories
-│   └── service/         Business logic and scheduling
-├── src/main/resources/  Application config, seed data
-│   └── templates/       Legacy Thymeleaf views (not linked; see known gaps)
+│   ├── config/              Security chains, WebSocket, async, admin bootstrap, demo seeder
+│   ├── controller/
+│   │   ├── patient/         Patient JSON API + legacy patient views, donors, blood requests
+│   │   ├── doctor/          Doctor JSON API, appointments, availability, patient records
+│   │   ├── admin/           Admin JSON API, doctor approvals, donors, feedback
+│   │   └── common/          /api/me, locations, landing
+│   ├── dto/                 Response DTOs
+│   ├── model/               JPA entities
+│   ├── repository/          Spring Data repositories
+│   ├── security/            Password reset tokens, WebSocket tickets, CSRF origin check
+│   └── service/             Business logic, email, storage, scheduling
+├── src/main/resources/
+│   ├── application.properties   Defaults; secrets come from env
+│   ├── templates/, static/      Legacy Thymeleaf views (see known gaps)
 ├── frontend/src/
-│   ├── app/             Next.js routes, Server Actions, per-role portals
-│   ├── components/      Layout, auth, UI primitives, feature components
-│   └── lib/             API clients, auth helpers, shared types
-├── run-backend.sh
+│   ├── app/
+│   │   ├── (auth)/          /login, /register, /forgot-password
+│   │   ├── (patient)/       Patient portal (/dashboard, /appointments, ...)
+│   │   ├── doctor/          Doctor portal
+│   │   ├── admin/           Admin portal
+│   │   └── api/             Route handlers (logout relay)
+│   ├── components/          Layout, auth, UI primitives, feature components
+│   └── lib/                 API clients, auth helpers, shared types
+├── run-backend.sh           Loads .env, picks JDK 17, runs Maven
+├── Dockerfile               Backend image
 └── .env.example
 ```
+
+`(auth)` and `(patient)` are Next.js route groups: they organise the folders
+without changing any URL.
 
 The frontend ships **36 pages**: 1 landing page, ~14 patient, 11 doctor and
 7 admin.
@@ -365,16 +408,9 @@ The frontend ships **36 pages**: 1 landing page, ~14 patient, 11 doctor and
 
 Documented so nobody else re-litigates them:
 
-- **No AI / LLM integration.** There is no OpenAI dependency, no chat endpoint,
-  and no model call anywhere. `model/QuizResult.java` is an **orphan** — nothing
-  references it. There is no mental-health quiz, no AI chat, and no quiz-result
-  PDF. (An unused `resources/questions.txt` and six unreferenced templates were
-  deleted during the interview-readiness sweep rather than left as noise.)
-- **PDF generation does not work.** `flying-saucer-pdf` is declared in `pom.xml`
-  but never imported, so no PDF is produced anywhere.
+- **No AI / LLM integration.** There is no model dependency, chat endpoint or
+  quiz. The orphaned quiz model and the unused PDF library have been removed.
 - **Telemedicine is Jitsi, not Google Meet.** Links are `meet.jit.si`.
-- **OTP verification was removed.** Password reset is intentionally one-step for
-  the demo; a production build should verify email ownership first.
 - **Cloudinary was removed.** Uploads go to Supabase Storage via
   `SupabaseStorageService`, which fails with a clear message if unconfigured.
 - **The Thymeleaf layer is still mounted.** This is the one part of the
@@ -388,7 +424,7 @@ Documented so nobody else re-litigates them:
   them any more; they are a parallel, older surface.
 
   Removing them is **not** a matter of deleting the directory. Several of those
-  view methods contain real logic — `patientDataController` persists vitals,
+  view methods contain real logic — `PatientDataController` persists vitals,
   lifestyle, menstrual and environment data, and `DoctorAvailabilityController`
   does doctor-slot overlap detection. Each of those paths **already has a JSON
   equivalent** in `PatientHealthApiController` and `DoctorApiController`, and the
@@ -397,10 +433,12 @@ Documented so nobody else re-litigates them:
   delete the duplicates, repoint `SecurityConfig`'s `loginPage` /
   `defaultSuccessUrl` at the Next.js origin, and drop the two `pom.xml`
   dependencies — deliberately sequenced rather than rushed, because a green
-  build would not catch a mistake here: the only automated test is
-  `contextLoads()`, which stops at context refresh, so a broken removal surfaces
-  as a runtime 404 rather than a failed test.
-- **Password reset is one-step** and does not send a confirmation email.
+  build would not catch a mistake here: the automated tests cover security and
+  context startup, not every legacy route, so a broken removal would surface as
+  a runtime 404 rather than a failed test.
+- **Still to do before a real deployment:** rate-limit login and reset
+  requests per IP (reset is already limited per account), and add an audit log
+  for admin actions.
 
 ---
 

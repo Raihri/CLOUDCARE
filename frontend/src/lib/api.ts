@@ -2,7 +2,8 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-const SPRING_API_URL =
+/** Spring Boot base URL for server-side calls. Override with SPRING_API_URL. */
+export const SPRING_API_URL =
   process.env.SPRING_API_URL ?? "http://localhost:8080";
 
 /** The Spring session cookie. Auth state lives entirely in the SecurityContext,

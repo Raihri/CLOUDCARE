@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 
 import { AuthCard } from "@/components/auth/AuthCard";
-import { DoctorForgotForm } from "./DoctorForgotForm";
+import { RequestResetForm } from "@/components/auth/PasswordResetForms";
 
 export const metadata: Metadata = { title: "Reset your password" };
 
+/** Step 1 of the doctor reset: request an emailed, single-use link. */
 export default function DoctorForgotPasswordPage() {
   return (
     <AuthCard
@@ -12,7 +13,7 @@ export default function DoctorForgotPasswordPage() {
       title="Reset your password"
       subtitle="Enter the email on your doctor account."
     >
-      <DoctorForgotForm />
+      <RequestResetForm role="doctor" />
     </AuthCard>
   );
 }

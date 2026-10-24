@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Client, IMessage } from "@stomp/stompjs";
 
+import { getWebSocketTicket } from "@/lib/ws-ticket";
+
 type ConnectionState = "connecting" | "live" | "offline";
 
 type LiveNotification = {
@@ -27,10 +29,12 @@ const STATUS_DOT: Record<ConnectionState, string> = {
 /**
  * Live notification bridge for the patient portal.
  *
- * Spring exposes a SockJS/STOMP endpoint at `/ws`. The doctor APIs call
- * `convertAndSendToUser(email, "/queue/notifications", ...)`, so we connect with
- * the patient's email in the STOMP CONNECT frame (promoted to a Principal by
- * `WebSocketConfig`) and subscribe to the user queue.
+ * Spring exposes a SockJS/STOMP endpoint at `/ws`. Before every (re)connect we
+ * fetch a fresh, signed, two-minute ticket through a Server Action (which
+ * forwards the session cookie) and send it in the STOMP CONNECT frame.
+ * `WebSocketConfig` verifies it and binds the connection to that user, so the
+ * subscription to `/user/queue/notifications` only ever receives our own
+ * messages. The client never asserts its own identity.
  *
  * The toast is deliberately small and dismissible: the authoritative list is
  * still `/notifications`, which the server renders from the database.
@@ -58,7 +62,15 @@ export function LiveNotifications({ email }: { email: string }) {
 
         const client = new Client({
           webSocketFactory: () => new SockJS(base) as unknown as WebSocket,
-          connectHeaders: { email },
+          // Runs before the first connect and every reconnect: tickets are
+          // short-lived, so each attempt gets a fresh one.
+          beforeConnect: async (c) => {
+            // Without a ticket the server refuses CONNECT and the client
+            // retries after reconnectDelay, which is the behaviour we want
+            // for a transient failure.
+            const ticket = await getWebSocketTicket();
+            c.connectHeaders = ticket ? { ticket } : {};
+          },
           reconnectDelay: 5000,
           heartbeatIncoming: 10000,
           heartbeatOutgoing: 10000,

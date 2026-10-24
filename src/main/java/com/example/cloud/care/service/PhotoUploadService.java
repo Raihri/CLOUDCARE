@@ -12,17 +12,17 @@ public class PhotoUploadService {
     private StorageService storageService;
 
     @Autowired
-    private patient_service patientService;
+    private PatientService patientService;
 
     @Autowired
-    private loggedInUserFind logger;
+    private CurrentPatientService logger;
 
     @Async
     public void uploadAndSave(Long patientId, byte[] imageBytes) {
         try {
             String url = storageService.upload(imageBytes, "image/jpeg", "patients");
 
-            Patient p = logger.logger();
+            Patient p = logger.currentPatient();
             if (p != null) {
                 p.getUser().setPhotoUrl(url);
                 patientService.save(p);

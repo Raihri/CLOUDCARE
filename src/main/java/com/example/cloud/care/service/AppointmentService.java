@@ -6,11 +6,9 @@ import com.example.cloud.care.repository.*;
 import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
-import java.util.Map;
 import java.util.UUID;
 
-import com.example.cloud.care.dao.doctor_dao;
-import java.text.SimpleDateFormat;
+import com.example.cloud.care.repository.DoctorRepository;
 import java.util.Date;
 import java.util.List;
 
@@ -19,11 +17,11 @@ public class AppointmentService {
 
     private final AppointmentRepository appointmentRepo;
     private final DoctorAvailabilityRepository availabilityRepo;
-    private final doctor_dao doctorRepo;
+    private final DoctorRepository doctorRepo;
 
     public AppointmentService(AppointmentRepository appointmentRepo,
                               DoctorAvailabilityRepository availabilityRepo,
-                              doctor_dao doctorRepo) {
+                              DoctorRepository doctorRepo) {
         this.appointmentRepo = appointmentRepo;
         this.availabilityRepo = availabilityRepo;
         this.doctorRepo = doctorRepo;

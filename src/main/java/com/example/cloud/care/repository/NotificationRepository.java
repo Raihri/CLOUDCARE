@@ -1,0 +1,15 @@
+package com.example.cloud.care.repository;
+
+import com.example.cloud.care.model.Notification;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface NotificationRepository extends JpaRepository<Notification, Long> {
+    List<Notification> findByPatientId(Long patientId);
+
+    List<Notification> findByPatientIdAndIsReadFalse(Long patientId);
+}

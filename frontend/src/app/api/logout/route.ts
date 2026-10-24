@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { SPRING_API_URL } from "@/lib/api";
 
 /**
  * Sign out.
@@ -9,7 +10,7 @@ import { cookies } from "next/headers";
  * Spring silently rejected.
  */
 export async function POST(request: Request) {
-  const base = process.env.SPRING_API_URL ?? "http://localhost:8080";
+  const base = SPRING_API_URL;
   const jar = await cookies();
   const session = jar.get("JSESSIONID")?.value;
 

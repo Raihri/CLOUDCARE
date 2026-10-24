@@ -43,6 +43,13 @@ public class User {
     private boolean enabled = false;
 
     private String verificationCode;
+
+    /** SHA-256 of the emailed reset token (never the token itself). */
+    @Column(name = "reset_token_hash", length = 64)
+    private String resetTokenHash;
+
+    @Column(name = "reset_token_expiry")
+    private java.time.Instant resetTokenExpiry;
     @Column(name = "photo_url")
     private String photoUrl;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

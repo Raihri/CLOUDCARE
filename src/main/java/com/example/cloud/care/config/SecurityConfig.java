@@ -1,15 +1,13 @@
 package com.example.cloud.care.config;
 
-import com.example.cloud.care.dao.doctor_dao;
-import com.example.cloud.care.dao.AdminDao;
+import com.example.cloud.care.repository.DoctorRepository;
+import com.example.cloud.care.repository.AdminRepository;
 import com.example.cloud.care.service.CustomUserDetailsService;
 import com.example.cloud.care.service.DoctorUserDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,12 +19,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class SecurityConfig {
 
     private final CustomUserDetailsService patientUserDetailsService;
-    private final doctor_dao doctorDao;
-    private final AdminDao adminDao;
+    private final DoctorRepository doctorDao;
+    private final AdminRepository adminDao;
 
     public SecurityConfig(CustomUserDetailsService patientUserDetailsService,
-            doctor_dao doctorDao,
-            AdminDao adminDao) {
+            DoctorRepository doctorDao,
+            AdminRepository adminDao) {
         this.patientUserDetailsService = patientUserDetailsService;
         this.doctorDao = doctorDao;
         this.adminDao = adminDao;
@@ -90,16 +88,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/patient/register", "/patient/login",
-                                "/patient/reset-password",
-                                "/patient/", "/patient/css/**", "/patient/js/**",
-                                "/ws/**", "/app/**", "/patient/current")
+                                "/patient/", "/patient/css/**", "/patient/js/**")
                         .permitAll()
                         // Password reset has to work while signed out, so it is
                         // reachable anonymously. It sits under /patient/api/**,
                         // which is otherwise PATIENT-only, so it must be listed
                         // before that rule — order decides which one matches.
-                        // These handlers act on an email supplied in the request
-                        // body, not on the session, so they grant nothing.
+                        // Changing a password requires the single-use token
+                        // that is only ever delivered by email.
                         .requestMatchers("/patient/api/password/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/patient/*/book/*").authenticated()
                         // Same reasoning as the doctor chain: these handlers
@@ -138,8 +134,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/doctor/login", "/doctor/signup", "/doctor/signup/request",
-                                "/doctor/check-email", "/doctor/check-bmdc", "/doctor/forgot-password",
-                                "/doctor/reset-password**", "/doctor/css/**", "/doctor/js/**")
+                                "/doctor/check-email", "/doctor/check-bmdc", "/doctor/css/**", "/doctor/js/**")
                         .permitAll()
                         // Reachable while signed out, and listed ahead of the
                         // DOCTOR-only rule below for the same reason as the

@@ -9,8 +9,9 @@ The frontend talks to the Spring Boot backend over a **same-origin reverse
 proxy** — the browser only ever talks to `:3000`, so CORS is never involved and
 the `JSESSIONID` session cookie stays first-party.
 
-1. Start Spring Boot on `:8080` (from the repo root: `./mvnw spring-boot:run`).
-2. Copy `.env.example` to `.env.local`.
+1. Start Spring Boot on `:8080` (from the repo root: `./run-backend.sh`).
+2. Optional: copy `.env.example` to `.env.local` only if the backend is not on
+   `http://localhost:8080`.
 3. Start Next:
 
    ```bash
@@ -36,16 +37,20 @@ and critical alerts. It is not a general-purpose red.
 
 ```
 src/
-  app/                 routes (App Router)
-    login/             login page + Server Action
-    dashboard/         patient dashboard
+  app/
+    (auth)/            /login, /register, /forgot-password  (route group: no URL segment)
+    (patient)/         patient portal: /dashboard, /appointments, /doctors, ...
+    doctor/            doctor portal (/doctor/*)
+    admin/             admin portal (/admin/*)
     api/logout/        POST logout relay to Spring
   components/
     layout/            AppShell, role-aware sidebar + nav definitions
     ui/                Button, Card, Form, Badge, Table, Feedback, PageHeader
+    auth/ brand/ marketing/ notifications/ patient/ prescriptions/
   lib/
-    api.ts             server-side fetch wrapper (forwards JSESSIONID)
+    api.ts             server-side fetch wrapper (forwards JSESSIONID), SPRING_API_URL
     auth.ts            getCurrentUser / requireUser / requireRole
+    *-api.ts           typed clients per role
 ```
 
 ## Auth model

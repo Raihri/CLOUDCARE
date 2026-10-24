@@ -80,7 +80,7 @@ private List<Appointment> appointments;
     private String notes;
     private String rating;
 
-    //reset pass
+    /** SHA-256 hash of the emailed password-reset token (never the token itself). */
     private String resetToken;
     @Temporal(TemporalType.TIMESTAMP)
     private Date resetTokenExpiry;

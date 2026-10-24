@@ -3,7 +3,7 @@ package com.example.cloud.care.service;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.model.Prescription;
-import com.example.cloud.care.model.notification;
+import com.example.cloud.care.model.Notification;
 import com.example.cloud.care.repository.PrescriptionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,12 +27,12 @@ public class PrescriptionService {
     private static final Logger log = LoggerFactory.getLogger(PrescriptionService.class);
 
     private final PrescriptionRepository prescriptionRepository;
-    private final patient_service patientService;
-    private final notificationService notificationService;
+    private final PatientService patientService;
+    private final NotificationService notificationService;
 
     public PrescriptionService(PrescriptionRepository prescriptionRepository,
-                               patient_service patientService,
-                               notificationService notificationService) {
+                               PatientService patientService,
+                               NotificationService notificationService) {
         this.prescriptionRepository = prescriptionRepository;
         this.patientService = patientService;
         this.notificationService = notificationService;
@@ -144,7 +144,7 @@ public class PrescriptionService {
     private void notifyPatient(Patient patient, String message) {
         if (patient == null) return;
 
-        notification note = new notification(message, LocalDateTime.now(), patient);
+        Notification note = new Notification(message, LocalDateTime.now(), patient);
         patientService.addNotification(patient, note);
 
         if (patient.getUser() != null) {

@@ -1,135 +1,118 @@
 package com.example.cloud.care.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
-
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
-
-
-import org.springframework.scheduling.annotation.Async;
-
-import java.util.regex.Pattern;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.NamingException;
+import com.example.cloud.care.model.Appointment;
+import com.example.cloud.care.model.Doctor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The single outbound-mail service, backed by the Brevo transactional API.
+ *
+ * <p>Email is optional: when {@code BREVO_API_KEY} is not configured every send
+ * is skipped with a log line, so the rest of the app runs without credentials.
+ * Failures are logged and swallowed — a mail outage must never fail a request.
+ */
 @Service
 public class EmailService {
-    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-    
-    @Value("${brevo.api.key}")
-    private String apiKey;
 
-    @Value("${brevo.sender.email}")
-    private String senderEmail;
-
-    @Value("${brevo.sender.name}")
-    private String senderName;
-
-    private static final String BREVO_URL =
-            "https://api.brevo.com/v3/smtp/email";
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+    private static final String BREVO_URL = "https://api.brevo.com/v3/smtp/email";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // Email regex pattern for validation
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$";
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+    @Value("${brevo.api.key:}")
+    private String apiKey;
 
-    
+    @Value("${brevo.sender.email:no-reply@cloudcare.local}")
+    private String senderEmail;
 
-    /**
-     * Validates if the email address is in a valid format.
-     * 
-     * @param email the email address to validate
-     * @return true if email is valid, false otherwise
-     */
-    private boolean isValidEmail(String email) {
-        if (email == null || email.isEmpty()) {
-            return false;
-        }
-        String trimmed = email.trim();
-        // Basic regex check
-        if (!EMAIL_PATTERN.matcher(trimmed).matches()) {
-            return false;
-        }
+    @Value("${brevo.sender.name:CloudCare}")
+    private String senderName;
 
-        // Domain check (DNS MX or A record)
-        String domain = trimmed.substring(trimmed.indexOf('@') + 1);
-        if (!isDomainValid(domain)) {
-            logger.warn("Email domain appears invalid or has no MX/A DNS records: {}", domain);
-            return false;
-        }
-
-        return true;
+    /** False when no Brevo API key is set; sends are then skipped. */
+    public boolean isConfigured() {
+        return apiKey != null && !apiKey.isBlank();
     }
 
-    /**
-     * Checks whether the domain has MX or A DNS records.
-     * Falls back to checking A records if MX records are not present.
-     */
-    public boolean isDomainValid(String domain) {
-        if (domain == null || domain.isEmpty()) {
-            return false;
+    /** Plain-text email, sent in the background. */
+    @Async
+    public void sendEmail(String to, String subject, String body) {
+        send(to, subject, "textContent", body);
+    }
+
+    /** HTML email, sent in the background. */
+    @Async
+    public void sendHtmlEmailAsync(String to, String subject, String html) {
+        send(to, subject, "htmlContent", html);
+    }
+
+    public void sendAppointmentConfirmation(Appointment appt) {
+        Doctor doctor = appt.getDoctor();
+        String patientName = appt.getPatient().getUser().getName();
+
+        String body;
+        if (appt.getType() == Appointment.AppointmentType.TELEMEDICINE) {
+            body = String.format(
+                    "Hello %s,\n\nYour telemedicine appointment with Dr. %s has been confirmed.\n"
+                            + "Date: %s\nTime: %s\n\nJoin via this link: %s\n\nRegards,\nCloudCare Team",
+                    patientName, doctor.getName(), appt.getAppointmentDate(),
+                    appt.getTimeSlot(), appt.getTelemedicineLink());
+        } else {
+            body = String.format(
+                    "Hello %s,\n\nYour appointment with Dr. %s has been confirmed.\n"
+                            + "Date: %s\nTime: %s\nHospital: %s\n\nRegards,\nCloudCare Team",
+                    patientName, doctor.getName(), appt.getAppointmentDate(),
+                    appt.getTimeSlot(), doctor.getHospitalName());
         }
+        send(appt.getPatient().getUser().getEmail(), "Appointment Confirmed - CloudCare", "textContent", body);
+    }
 
-        int maxAttempts = 3;
-        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-            try {
-                Hashtable<String, String> env = new Hashtable<>();
-                env.put("java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory");
-                DirContext dirContext = new InitialDirContext(env);
-                Attributes attrs = dirContext.getAttributes(domain, new String[] { "MX", "A" });
-                if (attrs == null)
-                    return false;
-                if (attrs.get("MX") != null && attrs.get("MX").size() > 0)
-                    return true;
-                if (attrs.get("A") != null && attrs.get("A").size() > 0)
-                    return true;
-                return false;
-            } catch (NamingException e) {
-                String msg = e.getMessage() == null ? "" : e.getMessage();
-                logger.warn("DNS lookup failed for domain {} (attempt {}): {}", domain, attempt, msg);
+    public void sendAppointmentCancellation(Appointment appt) {
+        Doctor doctor = appt.getDoctor();
+        String body = String.format(
+                "Hello %s,\n\nYour appointment with Dr. %s on %s at %s has been cancelled.\n\nRegards,\nCloudCare Team",
+                appt.getPatient().getUser().getName(), doctor.getName(),
+                appt.getAppointmentDate(), appt.getTimeSlot());
+        send(appt.getPatient().getUser().getEmail(), "Appointment Cancelled - CloudCare", "textContent", body);
+    }
 
-                // If it's a SERVFAIL (response code 2), consider retrying
-                if (msg.contains("response code 2") && attempt < maxAttempts) {
-                    try {
-                        Thread.sleep(500L);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                    continue;
-                }
-
-                // Non-recoverable error or final attempt — break out and fallback
-                break;
-            }
+    private void send(String to, String subject, String contentField, String content) {
+        if (!isConfigured()) {
+            log.info("Email skipped (BREVO_API_KEY not set): '{}' to {}", subject, to);
+            return;
         }
-
-        // Final fallback: try a simple A-record resolution via InetAddress
         try {
-            java.net.InetAddress.getByName(domain);
-            return true;
-        } catch (Exception ex) {
-            logger.warn("InetAddress fallback failed for domain {}: {}", domain, ex.getMessage());
-            return false;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", apiKey);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("sender", Map.of("email", senderEmail, "name", senderName));
+            payload.put("to", List.of(Map.of("email", to)));
+            payload.put("subject", subject);
+            payload.put(contentField, content);
+
+            ResponseEntity<String> response =
+                    restTemplate.postForEntity(BREVO_URL, new HttpEntity<>(payload, headers), String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Email sent to {}", to);
+            } else {
+                log.warn("Brevo returned {}: {}", response.getStatusCode(), response.getBody());
+            }
+        } catch (Exception e) {
+            log.warn("Email to {} failed: {}", to, e.getMessage());
         }
     }
-
 }

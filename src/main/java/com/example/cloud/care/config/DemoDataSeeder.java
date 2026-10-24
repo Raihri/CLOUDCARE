@@ -1,19 +1,19 @@
 package com.example.cloud.care.config;
 
-import com.example.cloud.care.dao.doctor_dao;
+import com.example.cloud.care.repository.DoctorRepository;
 import com.example.cloud.care.model.Appointment;
 import com.example.cloud.care.model.Doctor;
 import com.example.cloud.care.model.DoctorAvailability;
 import com.example.cloud.care.model.Patient;
 import com.example.cloud.care.model.Prescription;
 import com.example.cloud.care.model.User;
-import com.example.cloud.care.model.notification;
+import com.example.cloud.care.model.Notification;
 import com.example.cloud.care.repository.AppointmentRepository;
 import com.example.cloud.care.repository.DoctorAvailabilityRepository;
 import com.example.cloud.care.repository.PatientRepository;
 import com.example.cloud.care.repository.PrescriptionRepository;
 import com.example.cloud.care.repository.UserRepository;
-import com.example.cloud.care.service.patient_service;
+import com.example.cloud.care.service.PatientService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.context.annotation.Configuration;
@@ -47,20 +47,20 @@ public class DemoDataSeeder {
 
     private final UserRepository userRepository;
     private final PatientRepository patientRepository;
-    private final doctor_dao doctorRepository;
+    private final DoctorRepository doctorRepository;
     private final AppointmentRepository appointmentRepository;
     private final DoctorAvailabilityRepository availabilityRepository;
     private final PrescriptionRepository prescriptionRepository;
-    private final patient_service patientService;
+    private final PatientService patientService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public DemoDataSeeder(UserRepository userRepository,
                           PatientRepository patientRepository,
-                          doctor_dao doctorRepository,
+                          DoctorRepository doctorRepository,
                           AppointmentRepository appointmentRepository,
                           DoctorAvailabilityRepository availabilityRepository,
                           PrescriptionRepository prescriptionRepository,
-                          patient_service patientService,
+                          PatientService patientService,
                           BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.patientRepository = patientRepository;
@@ -255,7 +255,7 @@ public class DemoDataSeeder {
                 followUp);
         prescriptionRepository.save(prescription);
 
-        notification note = new notification(
+        Notification note = new Notification(
                 "A new prescription from " + doctor.getName()
                         + " is available. Follow-up visit: " + followUp + ".",
                 LocalDateTime.now(), patient);

@@ -1,6 +1,6 @@
 package com.example.cloud.care.config;
 
-import com.example.cloud.care.dao.AdminDao;
+import com.example.cloud.care.repository.AdminRepository;
 import com.example.cloud.care.model.Admin;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -18,10 +18,10 @@ public class AdminBootstrapConfig {
     @Value("${ADMIN_PASSWORD}")
     private String adminPassword;
 
-    private final AdminDao adminDao;
+    private final AdminRepository adminDao;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public AdminBootstrapConfig(AdminDao adminDao, BCryptPasswordEncoder passwordEncoder) {
+    public AdminBootstrapConfig(AdminRepository adminDao, BCryptPasswordEncoder passwordEncoder) {
         this.adminDao = adminDao;
         this.passwordEncoder = passwordEncoder;
     }

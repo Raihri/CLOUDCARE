@@ -88,31 +88,4 @@ public class UserService {
     public User saveUser(User user) {
         return userRepository.save(user);
     }
-
-    /**
-     * Reset a user's password. Encodes the password, clears verification code,
-     * enables the user and saves the record.
-     * This encapsulates the logic previously in the controller.
-     */
-    @Transactional
-    public void resetPassword(String email, String rawPassword) throws Exception {
-        if (email == null || email.trim().isEmpty()) {
-            throw new Exception("Email is required");
-        }
-        Optional<User> optUser = userRepository.findByEmail(email.trim());
-        if (optUser.isEmpty()) {
-            throw new Exception("User not found.");
-        }
-
-        User user = optUser.get();
-        // Encode password using the injected encoder
-        user.setPassword(passwordEncoder.encode(rawPassword));
-        // Clear verification code and enable user
-        user.setVerificationCode(null);
-        user.setEnabled(true);
-
-        userRepository.save(user);
-        logger.info("Password reset performed for user: {}", email);
-    }
-
 }

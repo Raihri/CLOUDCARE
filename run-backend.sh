@@ -1,42 +1,48 @@
 #!/bin/sh
-# Launch the Spring Boot backend with the Homebrew JDK 17.
-#
-# The sandbox that runs this repo blocks inline `JAVA_HOME=... command`
-# invocations, and the mvnw wrapper cannot otherwise locate a JDK on this
-# machine, so the path is exported inside this script instead.
+# Run the Spring Boot backend with JDK 17 and the variables from .env.
 #
 # Usage:
-#   ./run-backend.sh              # run
+#   ./run-backend.sh              # start on :8080
 #   ./run-backend.sh compile      # compile only
 #   ./run-backend.sh test         # run tests
-
-JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
-export JAVA_HOME
-PATH="$JAVA_HOME/bin:$PATH"
-export PATH
+#   ./run-backend.sh -q compile   # any other Maven args are passed through
 
 cd "$(dirname "$0")" || exit 1
 
-# Spring Boot doesn't read .env natively — it expects real environment
-# variables. Export each KEY=VALUE line before handing off to Maven.
+# Prefer the Homebrew JDK 17 on macOS (mvnw can't find a JDK there on its own);
+# otherwise keep whatever JAVA_HOME is already set.
+BREW_JDK=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
+if [ -d "$BREW_JDK" ]; then
+  JAVA_HOME=$BREW_JDK
+fi
+if [ -n "$JAVA_HOME" ]; then
+  export JAVA_HOME
+  PATH="$JAVA_HOME/bin:$PATH"
+  export PATH
+fi
+
+# Spring Boot doesn't read .env itself, so export each KEY=VALUE line.
+# `|| [ -n "$line" ]` keeps the last line when the file has no trailing newline.
 if [ -f .env ]; then
-  # The trailing-newline guard matters: `read` drops the final line when the
-  # file doesn't end in a newline, which silently loses OPENAI_API_KEY.
   while IFS= read -r line || [ -n "$line" ]; do
     case "$line" in
       ''|'#'*) continue ;;
-      *=*) export "$line" ;;
+      *=*)
+        key=${line%%=*}
+        value=${line#*=}
+        # strip one pair of surrounding quotes: NAME="Some Value"
+        case "$value" in
+          \"*\") value=${value#\"}; value=${value%\"} ;;
+          \'*\') value=${value#\'}; value=${value%\'} ;;
+        esac
+        export "$key=$value"
+        ;;
     esac
   done < .env
 fi
 
-# Remaining args are passed through verbatim, so compound goals with flags work:
-#   ./run-backend.sh -q compile
-#   ./run-backend.sh spring-boot:run -Dspring-boot.run.fork=false
+echo "Using JAVA_HOME=${JAVA_HOME:-<system default>}"
 if [ "$#" -gt 0 ]; then
-  echo "Using JAVA_HOME=$JAVA_HOME"
   exec ./mvnw "$@"
 fi
-
-echo "Using JAVA_HOME=$JAVA_HOME"
 exec ./mvnw spring-boot:run

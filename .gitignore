@@ -1,30 +1,28 @@
-.DS_Store
-
-# local env
+# ---- Secrets ---------------------------------------------------------------
 .env
+.env.*
+!.env.example
 
-# ---- Maven build output --------------------------------------------------
-# `target/` on its own only matches at the repository ROOT, which is why
-# `MAIN-Project/cloud-care/target/` stayed tracked. `**/target/` matches at
-# any depth.
+# ---- Maven build output ----------------------------------------------------
 target/
 **/target/
 *.jar
 
-# ---- IDE ------------------------------------------------------------------
-# JetBrains/VS Code settings are personal and noisy in a diff.
+# ---- Node / Next.js --------------------------------------------------------
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# ---- IDE / local tools -----------------------------------------------------
 .idea/
 .vscode/
 *.iml
 *.ipr
 *.iws
+.puku-cli/
 
-# ---- Node / Next ----------------------------------------------------------
-node_modules/
-.next/
-out/
-next-env.d.ts
-
-# ---- Local run logs ------------------------------------------------------
-backend.log
+# ---- OS / logs -------------------------------------------------------------
+.DS_Store
 *.log

@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 
-import { login, type LoginState } from "@/app/login/actions";
+import { login, type LoginState } from "@/app/(auth)/login/actions";
 import { DEMO_ACCOUNTS, type DemoAccount } from "@/lib/demo-accounts";
 import type { Role } from "@/lib/auth";
 

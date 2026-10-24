@@ -1,4 +1,5 @@
 "use server";
+import { SPRING_API_URL } from "@/lib/api";
 
 export type DoctorSignupState =
   | { error?: string; success?: boolean }
@@ -37,7 +38,7 @@ export async function applyAsDoctor(
     return { error: "A supporting certificate is required." };
   }
 
-  const base = process.env.SPRING_API_URL ?? "http://localhost:8080";
+  const base = SPRING_API_URL;
 
   // Pass the incoming files straight through; re-wrapping File objects in a
   // new FormData is unnecessary and risks losing the filename.

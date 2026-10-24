@@ -149,10 +149,10 @@ public class Patient {
 
     @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private List<notification> notifications = new ArrayList<>();
+    private List<Notification> notifications = new ArrayList<>();
 
     // Helper method to add notification
-    public void addNotification(notification notification) {
+    public void addNotification(Notification notification) {
         notification.setPatient(this);
         notifications.add(notification);
 
@@ -160,12 +160,12 @@ public class Patient {
     }
 
     // Helper method to remove notification
-    public void removeNotification(notification notification) {
+    public void removeNotification(Notification notification) {
         notifications.remove(notification);
         notification.setPatient(null);
     }
 
-    public List<notification> getAllNotification()
+    public List<Notification> getAllNotification()
     {
         return notifications;
     }

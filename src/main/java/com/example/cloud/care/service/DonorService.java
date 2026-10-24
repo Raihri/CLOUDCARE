@@ -17,7 +17,7 @@ import java.util.Map;
 public class DonorService {
 
     @Autowired
-    private com.example.cloud.care.service.EmailServiceDonor emailServiceDonor; // Async donor email service
+    private com.example.cloud.care.service.EmailService emailService; // Async donor email service
 
     private final DonorRepository donorRepository;
 

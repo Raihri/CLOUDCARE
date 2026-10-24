@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-import { login } from "@/app/login/actions";
-import { LoginForm } from "@/app/login/LoginForm";
-import { RegisterForm } from "@/app/register/RegisterForm";
+import { login } from "@/app/(auth)/login/actions";
+import { LoginForm } from "@/app/(auth)/login/LoginForm";
+import { RegisterForm } from "@/app/(auth)/register/RegisterForm";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { SuccessMessage } from "@/components/ui/Feedback";
 import type { Role } from "@/lib/auth";
@@ -21,8 +21,8 @@ const ROLE_ORDER: Role[] = ["PATIENT", "DOCTOR", "ADMIN"];
  * a role pill, an eyebrow, a headline, a paragraph and three feature chips per
  * role — seven pieces of marketing copy stacked above a form that only has two
  * fields. The user asked for "as simple and minimal as possible", so the
- * marketing layer is gone entirely: a role label, one line of plain copy, and
- * the illustration. `poster` / `badge` / `dot` / `accentText` remain because
+ * marketing layer is gone entirely: a role label for the picker, one line of
+ * plain copy, and the illustration. `poster` / `accentText` remain because
  * they are theme tokens, not words.
  */
 type RoleMeta = {
@@ -31,8 +31,6 @@ type RoleMeta = {
   tagline: string;
   icon: string;
   poster: string;
-  badge: string;
-  dot: string;
   accentText: string;
   submitLabel: string;
   loginTitle: string;
@@ -45,8 +43,6 @@ const ROLE_META: Record<Role, RoleMeta> = {
     tagline: "Sign in to your account.",
     icon: "bxs-user",
     poster: "bg-linear-to-br from-primary-900 via-primary-800 to-primary-700",
-    badge: "border-mint/25 bg-mint/10 text-mint",
-    dot: "bg-mint",
     accentText: "text-mint",
     submitLabel: "Sign in",
     loginTitle: "Patient sign in",
@@ -57,8 +53,6 @@ const ROLE_META: Record<Role, RoleMeta> = {
     tagline: "Sign in to your account.",
     icon: "bxs-first-aid",
     poster: "bg-linear-to-br from-primary-900 via-primary-800 to-primary-600",
-    badge: "border-highlight/25 bg-highlight/10 text-highlight",
-    dot: "bg-highlight",
     accentText: "text-highlight",
     submitLabel: "Sign in",
     loginTitle: "Doctor sign in",
@@ -69,8 +63,6 @@ const ROLE_META: Record<Role, RoleMeta> = {
     tagline: "Sign in to your account.",
     icon: "bxs-shield-alt-2",
     poster: "bg-linear-to-br from-sidebar via-primary-900 to-primary-800",
-    badge: "border-primary-300/30 bg-primary-300/10 text-primary-200",
-    dot: "bg-primary-300",
     accentText: "text-primary-200",
     submitLabel: "Sign in",
     loginTitle: "Admin sign in",
@@ -413,14 +405,9 @@ function MobileHero({
         <Link href="/" aria-label="CloudCare home" className="shrink-0">
           <BrandLogo size={30} priority className="ring-1 ring-white/20" />
         </Link>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold tracking-tight">
-            {meta.shortLabel}
-          </p>
-        </div>
         {/* Small enough that the full 360x420 viewBox is inside the frame — the
             figures were clipping their floating props at the old width. */}
-        <div key={role} className="auth-swap-in w-16 shrink-0 sm:w-20">
+        <div key={role} className="auth-swap-in ml-auto w-16 shrink-0 sm:w-20">
           <RoleFigure role={role} />
         </div>
       </div>
@@ -465,18 +452,13 @@ function PosterPanel({
       </div>
 
       <div className="relative flex flex-1 flex-col items-center justify-center">
-        {/* Half the old width. The viewBox is 360x420 and the figures draw
-            props out to x=320, so at 17.5rem the panel's own padding started
-            clipping them; 9rem keeps the whole 360x420 box on screen. */}
+        {/* No copy at all — the user asked for "as simple and minimal as
+            possible". The role is carried by the figure, the picker and the
+            form heading; the poster is decoration only. The small width is
+            deliberate: the viewBox is 360x420 and the figures draw props out to
+            x=320, so anything wider starts clipping inside the panel padding. */}
         <div key={role} className="auth-swap-in w-full max-w-[9rem]">
           <RoleFigure role={role} />
-        </div>
-
-        <div key={`${role}-copy`} className="auth-swap-in mt-5 text-center">
-          <h2 className="text-xl font-semibold leading-tight tracking-tight text-white">
-            {meta.shortLabel} portal
-          </h2>
-          <p className="mt-1.5 text-sm text-white/55">{meta.tagline}</p>
         </div>
       </div>
 

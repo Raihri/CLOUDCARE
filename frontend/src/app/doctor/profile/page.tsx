@@ -36,6 +36,8 @@ export default async function DoctorProfilePage() {
             <CardBody>
               <div className="flex items-start gap-5">
                 {profile.profileImage ? (
+                  // Remote Supabase URL; next/image would need a configured host.
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={profile.profileImage}
                     alt=""

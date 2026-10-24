@@ -1,4 +1,4 @@
-import type { HealthRecord } from "@/app/health-records/types";
+import type { HealthRecord } from "@/lib/health-record";
 
 /**
  * The patient profile header — cover, photo, name and the handful of facts a

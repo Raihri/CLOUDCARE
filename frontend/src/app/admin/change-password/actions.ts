@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { SPRING_API_URL } from "@/lib/api";
 
 export type ChangePasswordState = { error?: string; message?: string } | undefined;
 
@@ -23,7 +24,7 @@ export async function changeAdminPassword(
   if (!newPassword) return { error: "Please choose a new password." };
   if (newPassword !== confirmPassword) return { error: "Passwords do not match!" };
 
-  const base = process.env.SPRING_API_URL ?? "http://localhost:8080";
+  const base = SPRING_API_URL;
 
   try {
     // The session cookie has to come along: the backend resolves the admin from
